@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Obj;
 
+/**
+ * Class Forum
+ * @mixin Builder
+ */
 class Forum extends Model
 {
     public function object() {

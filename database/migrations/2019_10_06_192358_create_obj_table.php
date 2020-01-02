@@ -13,7 +13,7 @@ class CreateObjTable extends Migration
      */
     public function up()
     {
-        Schema::create('obj', function (Blueprint $table) {
+        Schema::create('objs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->enum('type', ['calendar', 'forum']);
             $table->timestamps();

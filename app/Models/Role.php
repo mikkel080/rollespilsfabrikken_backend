@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Role
+ * @mixin Builder
+ */
 class Role extends Model
 {
     public function permission() {

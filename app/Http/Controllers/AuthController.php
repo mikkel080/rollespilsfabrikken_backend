@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-// Classes
+// Helpers
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Arr;
 
 // Notifications
 use App\Notifications\API\Auth\ActivationEmail;
@@ -21,7 +22,7 @@ use App\Models\User;
 
 // Packages
 use Carbon\Carbon;
-use Avatar;
+use Laravolt\Avatar\Avatar;
 
 
 class AuthController extends Controller
@@ -36,16 +37,13 @@ class AuthController extends Controller
      */
 
     public function signup(SignupRequest $request) {
-        $user = new User([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'activation_token' => Str::random(60),
-        ]);
+        $user = $request->validated();
+        $user['password'] = Hash::make($user['password']);
+        $user['activation_token'] = Str::random(60);
 
-        $user->save();
+        $user = User::create($user);
 
-        $avatar = Avatar::create($user->username)->getImageObject()->encode('png');
+        $avatar = (new \Laravolt\Avatar\Avatar)->create($user->username)->getImageObject()->encode('png');
         Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);
 
         $user->notify(new ActivationEmail($user));
@@ -60,7 +58,7 @@ class AuthController extends Controller
      * Activate account from email token
      *
      * @param string token
-     * @return json User
+     * @return \Illuminate\Http\JsonResponse
      */
     public function activate($token) {
         $user = User::where('activation_token', $token)->first();
@@ -82,19 +80,17 @@ class AuthController extends Controller
     /**
      * Login user
      *
-     * @param string email
-     * @param string password
-     * @param string remember_me
+     * @param LoginRequest $request
      * @return string access_token
      * @return string token_type
      * @return string expires_at
      */
     public function login(LoginRequest $request) {
-        $creds = request(['email', 'password']);
-        $creds['active'] = 1;
-        $creds['deleted_at'] = null;
+        $credentials = Arr::only($request->validated(), ['email', 'password']);
+        $credentials['active'] = 1;
+        $credentials['deleted_at'] = null;
 
-        if (!Auth::attempt($creds)) {
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Unauthorized'
             ], 401);
@@ -105,7 +101,7 @@ class AuthController extends Controller
         $createdToken = $user->createToken('Personal Access Token');
         $token = $createdToken->token;
 
-        if ($request->remember_me) {
+        if ($request->validated()['remember_me']) {
             $token->expires_at = Carbon::now()->addWeeks(1);
         }
 
@@ -123,6 +119,7 @@ class AuthController extends Controller
     /**
      * Log the user out
      *
+     * @param Request $request
      * @return string message
      */
     public function logout(Request $request) {

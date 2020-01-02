@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class RolePerm
+ * @mixin Builder
+ */
 class RolePerm extends Model
 {
     public function role() {

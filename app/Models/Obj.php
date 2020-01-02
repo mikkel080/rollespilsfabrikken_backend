@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 
@@ -10,10 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 //use App\Models\Role;
 //use App\Models\User;
 
+/**
+ * Class Obj
+ * @mixin Builder
+ */
 class Obj extends Model
 {
     public function permissions() {
-        return $this->hasMany('App\Models\Permission');       
+        return $this->hasMany('App\Models\Permission');
     }
 
     public function object() {
@@ -21,7 +26,7 @@ class Obj extends Model
             case 'value':
                 return $this->hasOne('App\Models\Forum');
                 break;
-            
+
             case 'calendar':
                 return $this->hasOne('App\Models\Calendar');
                 break;
