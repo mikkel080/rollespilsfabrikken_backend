@@ -52,4 +52,38 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute() {
         return asset('storage/avatars/' . $this->id . '/' . $this->avatar);
     }
+
+    public function roles() {
+        return $this->hasManyThrough('App\Models\Role', 'App\Models\UserRole', 'user_id', 'id', 'id', 'role_id');
+    }
+
+    public function permissions() {
+        $roles = $this->hasManyThrough('App\Models\Role', 'App\Models\UserRole', 'user_id', 'id', 'id', 'role_id');
+
+        $perms = array();
+        foreach ($roles as $role) {
+            $perm = $role->permission;
+            $perms = array_merge($perms, $perm);
+        }
+        $perms = collect($perms);
+
+        return $perms->unique()->values()->all();
+    }
+
+    /* public function info() {
+        return $this->hasOne('App\Model\UserInfo');
+    } */
+
+    /* public function posts() {
+        return $this->hasMany('App\Models\Post');
+    } */
+
+    /* public function comments() {
+        return $this->hasMany('App\Models\Comment');
+    } */
+
+    /* public function events() {
+        return $this->hasMany('App\Models\Event');
+    } */
+
 }

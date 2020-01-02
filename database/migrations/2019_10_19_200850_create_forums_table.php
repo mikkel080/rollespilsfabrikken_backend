@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateObjTable extends Migration
+class CreateForumsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateObjTable extends Migration
      */
     public function up()
     {
-        Schema::create('obj', function (Blueprint $table) {
+        Schema::create('forums', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->enum('type', ['calendar', 'forum']);
+            $table->bigInteger('object_id');
+            $table->string('title');
+            $table->text('description');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ class CreateObjTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('obj');
+        Schema::dropIfExists('forums');
     }
 }
