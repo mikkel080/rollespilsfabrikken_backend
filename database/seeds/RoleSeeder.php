@@ -4,6 +4,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 class RoleSeeder extends Seeder
 {
+
     /**
      * Run the database seeds.
      *
@@ -11,23 +12,22 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\Models\Role::class, 20)->create();
+        factory(App\Models\Role::class, 20)
+            ->create()
+            ->each(function ($role) {
+                $nums = array(1);
 
-        for ($i = 1; $i <= 20; $i++) {
-            $role = (new App\Models\Role)->find($i);
+                for ($j = 1; $j <= 20; $j++) {
+                    $num = 1;
+                    while (in_array($num, $nums)) {
+                        $num = rand(1,110);
+                    }
 
-            $nums = array(1);
-            for ($j = 1; $j <= 20; $j++) {
-                $num = 1;
-                while (in_array($num, $nums)) {
-                    $num = rand(1,110);
+                    (new App\Models\RolePerm)->create([
+                        'role_id' => $role['id'],
+                        'permission_id' => $num
+                    ]);
                 }
-
-                (new App\Models\RolePerm)->create([
-                    'role_id' => $role['id'],
-                    'permission_id' => $num
-                ]);
-            }
-        }
+            });
     }
 }

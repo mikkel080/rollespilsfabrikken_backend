@@ -81,16 +81,16 @@ class User extends Authenticatable
         return $this->hasOne('App\Model\UserInfo');
     } */
 
-    /* public function posts() {
+    public function posts() {
         return $this->hasMany('App\Models\Post');
-    } */
+    }
 
-    /* public function comments() {
+    public function comments() {
         return $this->hasMany('App\Models\Comment');
-    } */
+    }
 
-    /* public function events() {
+    public function events() {
         return $this->hasMany('App\Models\Event');
-    } */
+    }
 
 }

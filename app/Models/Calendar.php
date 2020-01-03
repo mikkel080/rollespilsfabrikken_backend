@@ -21,8 +21,8 @@ class Calendar extends Model
     public function permissions() {
         return $this->obj()->first()->permissions;
     }
-/*
+
     public function events() {
         return $this->hasMany('App\Models\Event');
-    }*/
+    }
 }

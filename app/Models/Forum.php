@@ -22,5 +22,11 @@ class Forum extends Model
         return $this->obj()->first()->permissions;
     }
 
-    // TODO: POSTS AND COMMENTS
+    public function posts() {
+        return $this->hasMany('App\Models\Posts');
+    }
+
+    public function comments() {
+        return $this->hasManyThrough('App\Models\Comments', 'App\Models\Posts');
+    }
 }
