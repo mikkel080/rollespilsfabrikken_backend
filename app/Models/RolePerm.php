@@ -16,6 +16,6 @@ class RolePerm extends Model
     }
 
     public function permission() {
-        return $this->hasOne('App\Models\Permission');
+        return $this->belongsTo('App\Models\Permission');
     }
 }
