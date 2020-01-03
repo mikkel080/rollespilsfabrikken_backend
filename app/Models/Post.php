@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Post
+ * @mixin Builder
+ */
 class Post extends Model
 {
     public function forum() {
@@ -15,6 +20,6 @@ class Post extends Model
     }
 
     public function comments() {
-        return $this->hasMany('App\Models\Comments')->select()->where('parent_id', '=', null);
+        return $this->hasMany('App\Models\Comment')->select()->where('parent_id', '=', null);
     }
 }

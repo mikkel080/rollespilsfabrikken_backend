@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Comment
+ * @mixin Builder
+ */
 class Comment extends Model
 {
     public function user() {
@@ -19,6 +24,10 @@ class Comment extends Model
             return $this->post;
         }
 
-        return $this->belongsTo('App\Models\Comment', 'id', 'parent_id');
+        return $this->belongsTo('App\Models\Comment', 'parent_id', 'id');
+    }
+
+    public function comments() {
+        return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
     }
 }
