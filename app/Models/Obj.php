@@ -21,7 +21,7 @@ class Obj extends Model
         return $this->hasMany('App\Models\Permission');
     }
 
-    public function object() {
+    public function obj() {
         switch ($this->type) {
             case 'value':
                 return $this->hasOne('App\Models\Forum');

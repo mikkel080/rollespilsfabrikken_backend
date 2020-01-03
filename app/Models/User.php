@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Laravel\Passport\HasApiTokens;
 
 /**
@@ -63,12 +64,13 @@ class User extends Authenticatable
     }
 
     public function permissions() {
-        $roles = $this->hasManyThrough('App\Models\Role', 'App\Models\UserRole', 'user_id', 'id', 'id', 'role_id');
+        $roles = $this->roles()->get();
 
-        $perms = array();
+        $perms = collect();
         foreach ($roles as $role) {
-            $perm = $role->permission;
-            $perms = array_merge($perms, $perm);
+            $perm = $role->permissions()->get();
+            $perms = $perms->merge($perm);
+            $perms = $perms->unique('id');
         }
         $perms = collect($perms);
 

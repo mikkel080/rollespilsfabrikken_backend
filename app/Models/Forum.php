@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Obj;
+
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Obj;
 
 /**
  * Class Forum
@@ -13,14 +14,12 @@ use App\Models\Obj;
  */
 class Forum extends Model
 {
-    public function object() {
+    public function obj() {
         return $this->belongsTo('App\Models\Obj');
     }
 
     public function permissions() {
-        $obj = $this->object;
-
-        return $obj->permissions;
+        return $this->obj()->first()->permissions;
     }
 
     // TODO: POSTS AND COMMENTS

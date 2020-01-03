@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePermssionTable extends Migration
+class CreatePermissionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreatePermssionTable extends Migration
      */
     public function up()
     {
-        Schema::create('permssion', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('object_id');
+            $table->bigInteger('obj_id');
             $table->bigInteger('level');
             $table->string('title');
             $table->text('description');
@@ -30,6 +30,6 @@ class CreatePermssionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('permssion');
+        Schema::dropIfExists('permissions');
     }
 }

@@ -12,5 +12,6 @@ $factory->define(User::class, function (Faker $faker) {
         'email_verified_at' => now(),
         'password' => '$2y$10$uxeipXQNVcTY2fwhYpHIMOvJsAj0CLaFPSIjUNzUGwq7jEp.jfmAi',
         'active' => 0,
+        'activation_token' => '2'
     ];
 });

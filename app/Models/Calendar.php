@@ -13,13 +13,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Calendar extends Model
 {
-    public function object() {
+
+    public function obj() {
         return $this->belongsTo('App\Models\Obj');
     }
 
     public function permissions() {
-        $obj = $this->object;
-
-        return $obj->permissions;
+        return $this->obj()->first()->permissions;
     }
 }
