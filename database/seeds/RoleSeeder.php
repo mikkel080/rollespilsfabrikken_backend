@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
+
 class RoleSeeder extends Seeder
 {
 

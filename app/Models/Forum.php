@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Obj;
-
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 

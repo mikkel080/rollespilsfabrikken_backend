@@ -4,7 +4,6 @@
 
 use App\Models\Post;
 use Faker\Generator as Faker;
-
 use Illuminate\Support\Facades\DB;
 
 $factory->define(Post::class, function (Faker $faker) {

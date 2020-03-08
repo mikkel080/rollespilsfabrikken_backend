@@ -21,14 +21,26 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group([
     'prefix' => 'auth'
 ], function () {
-    Route::post('login', 'AuthController@login');
-    Route::post('signup', 'AuthController@signup');
-    Route::get('activate/{token}', 'AuthController@activate');
+    Route::post('login', 'Auth\AuthController@login');
+    Route::post('signup', 'Auth\AuthController@signup');
+    Route::get('activate/{token}', 'Auth\AuthController@activate');
 
     Route::group([
         'middleware' => 'auth:api'
     ], function () {
-        Route::get('logout', 'AuthController@logout');
-        Route::get('user', 'AuthController@user');
+        Route::get('logout', 'Auth\AuthController@logout');
+        Route::get('user', 'Auth\AuthController@user');
     });
+});
+
+Route::group([
+    'middleware' => 'auth:api'
+], function () {
+    Route::resource('post', 'Resources\PostController');
+});
+
+Route::group([
+    'prefix' => 'test'
+], function() {
+   Route::get('comments', 'TestController@comments');
 });

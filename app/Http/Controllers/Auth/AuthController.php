@@ -1,28 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
 // Helpers
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Arr;
-
-// Notifications
-use App\Notifications\API\Auth\ActivationEmail;
-
-// Requests
+use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
+use App\Models\User;
+use App\Notifications\API\Auth\ActivationEmail;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+// Notifications
+
+// Requests
 
 // Models
-use App\Models\User;
 
 // Packages
-use Carbon\Carbon;
-use Laravolt\Avatar\Avatar;
 
 
 class AuthController extends Controller
@@ -58,7 +59,7 @@ class AuthController extends Controller
      * Activate account from email token
      *
      * @param string token
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function activate($token) {
         $user = User::where('activation_token', $token)->first();
@@ -85,6 +86,8 @@ class AuthController extends Controller
      * @return string token_type
      * @return string expires_at
      */
+    // TODO: ADD ERROR MESSAGES FOR NON ACTIVATED ACCOUNT
+    // TODO: RESEND MAIL OPTION
     public function login(LoginRequest $request) {
         $credentials = Arr::only($request->validated(), ['email', 'password']);
         $credentials['active'] = 1;
@@ -95,6 +98,8 @@ class AuthController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
+
+
 
         $user = $request->user();
 
@@ -133,7 +138,7 @@ class AuthController extends Controller
     /**
      * Fetch the authed user
      *
-     * @return json User
+     * @return JsonResponse
      */
     public function user(Request $request) {
         return response()->json($request->user());
