@@ -34,9 +34,22 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'auth:api'
+    'middleware' => 'auth:api',
+    'prefix' => 'posts'
 ], function () {
-    Route::resource('post', 'Resources\PostController');
+    Route::resource('/', 'Resources\PostController');
+});
+
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'forum'
+], function () {
+    Route::get('/', 'Resources\ForumController@index');
+    Route::post('/', 'Resources\ForumController@store');
+
+    Route::get(   '/{forum}', 'Resources\ForumController@show');
+    Route::patch( '/{forum}', 'Resources\ForumController@update');
+    Route::delete('/{forum}', 'Resources\ForumController@destroy');
 });
 
 Route::group([

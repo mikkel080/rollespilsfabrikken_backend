@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Forum extends Model
 {
+    protected $fillab1le = [
+        'title',
+        'description',
+        'obj_id'
+    ];
+
     public function obj() {
         return $this->belongsTo('App\Models\Obj');
     }

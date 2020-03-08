@@ -27,8 +27,12 @@ class PostController extends Controller
             $items = $request->query('items');
         }
 
+        $posts = Post::all()
+            ->latest()
+            ->paginate($items);
         return response()->json([
-           'data' => (new Post)->paginate($items),
+            'message' => 'success',
+            'posts' => $posts,
         ], 200);
     }
 

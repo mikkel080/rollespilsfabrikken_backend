@@ -91,4 +91,11 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Event');
     }
 
+    public function isSuperUser() {
+        if ($this['super_user'] == 1) {
+            return true;
+        }
+
+        return false;
+    }
 }
