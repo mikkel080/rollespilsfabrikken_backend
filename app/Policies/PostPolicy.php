@@ -28,13 +28,7 @@ class PostPolicy
      */
     public function viewAny(User $user, Forum $forum)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $forum['obj_id']);
-
-        if ($level >= 2) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $forum['obj_id'], 2);
     }
 
     /**
@@ -46,29 +40,19 @@ class PostPolicy
      */
     public function view(User $user, Post $post)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id']);
-        if ($level >= 2) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 2);
     }
 
     /**
      * Determine whether the user can create posts.
      *
      * @param User $user
+     * @param Forum $forum
      * @return mixed
      */
     public function create(User $user, Forum $forum)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $forum['obj_id']);
-
-        if ($level >= 4) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $forum['obj_id'], 4);
     }
 
     /**
@@ -80,13 +64,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id']);
-
-        if ($level >= 5 || $post['user_id'] == $user['id']) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
     }
 
     /**
@@ -98,13 +76,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id']);
-
-        if ($level >= 5 || $post['user_id'] == $user['id']) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
     }
 
     /**
@@ -116,13 +88,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id']);
-
-        if ($level >= 5) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
     }
 
     /**
@@ -134,12 +100,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post)
     {
-        $level = (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id']);
-
-        if ($level >= 5) {
-            return true;
-        }
-
-        return false;
+        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
     }
 }

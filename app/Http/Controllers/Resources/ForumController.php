@@ -9,6 +9,7 @@ use App\Models\Obj;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 // Requests
@@ -29,10 +30,14 @@ class ForumController extends Controller
     {
         $user = auth()->user();
 
-        $perms = collect($user->permissions())->pluck("obj_id");
-        $forums = DB::table('forums')->get();
+        if ($user->isSuperUser()) {
+            $forums = Forum::all();
+        } else {
+            $perms = collect($user->permissions())->pluck("obj_id");
+            $forums = DB::table('forums')->get();
 
-        $forums = $forums->whereIn('obj_id', $perms);
+            $forums = $forums->whereIn('obj_id', $perms);
+        }
 
         return response()->json([
             'message' => 'success',
@@ -48,9 +53,7 @@ class ForumController extends Controller
      */
     public function store(Store $request)
     {
-        $user = auth()->user();
-
-        $obj = (new \App\Models\Obj)->create([
+        $obj = (new Obj)->create([
             'type' => 'forum'
         ]);
 
@@ -59,7 +62,7 @@ class ForumController extends Controller
         $forum = (new Forum)->create($data);
 
         return response()->json([
-            'message' => 'succes',
+            'message' => 'success',
             'forum' => $forum
         ], 200);
     }
@@ -67,34 +70,53 @@ class ForumController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Forum  $forum
-     * @return \Illuminate\Http\Response
+     * @param Show $request
+     * @param Forum $forum
+     * @return JsonResponse
      */
-    public function show(Forum $forum)
+    public function show(Show $request, Forum $forum)
     {
-        //
+        $forum['posts'] = $forum
+            ->posts()
+            ->latest()
+            ->paginate(10);
+        return response()->json([
+            'message' => 'success',
+            'forum' => $forum,
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param  \App\Models\Forum  $forum
-     * @return \Illuminate\Http\Response
+     * @param Update $request
+     * @param Forum $forum
+     * @return JsonResponse
      */
     public function update(Update $request, Forum $forum)
     {
-        //
+        $data = $request->validated();
+        $forum->update($data);
+
+        return response()->json([
+            'message' => 'success',
+            'forum' => $forum
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Forum  $forum
-     * @return \Illuminate\Http\Response
+     * @param Destroy $request
+     * @param Forum $forum
+     * @return JsonResponse
      */
-    public function destroy(Forum $forum)
+    public function destroy(Destroy $request, Forum $forum)
     {
-        //
+        $forum = $forum->delete();
+
+        return response()->json([
+            'message' => 'success'
+        ], 200);
     }
 }

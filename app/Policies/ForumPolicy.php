@@ -37,7 +37,7 @@ class ForumPolicy
      */
     public function view(User $user, Forum $forum)
     {
-        return true;
+        return (new PolicyHelper())->getLevel($user,  $forum['obj_id'], 2);
     }
 
     /**

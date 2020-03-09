@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Forum extends Model
 {
-    protected $fillab1le = [
+    protected $fillable = [
         'title',
         'description',
         'obj_id'
@@ -27,10 +27,10 @@ class Forum extends Model
     }
 
     public function posts() {
-        return $this->hasMany('App\Models\Posts');
+        return $this->hasMany('App\Models\Post');
     }
 
     public function comments() {
-        return $this->hasManyThrough('App\Models\Comments', 'App\Models\Posts');
+        return $this->hasManyThrough('App\Models\Comment', 'App\Models\Post');
     }
 }

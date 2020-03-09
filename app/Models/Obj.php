@@ -17,13 +17,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Obj extends Model
 {
+    protected $fillable = [
+        'type'
+    ];
+
     public function permissions() {
         return $this->hasMany('App\Models\Permission');
     }
 
     public function obj() {
         switch ($this->type) {
-            case 'value':
+            case 'forum':
                 return $this->hasOne('App\Models\Forum');
                 break;
 

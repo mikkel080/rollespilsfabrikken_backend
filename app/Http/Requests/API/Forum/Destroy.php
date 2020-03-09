@@ -13,7 +13,7 @@ class Destroy extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('destroy', $forum);
+        return auth()->user()->can('delete', $this->forum);
     }
 
     /**
