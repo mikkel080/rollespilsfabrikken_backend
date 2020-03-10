@@ -40,7 +40,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 2);
+        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 2);
     }
 
     /**
@@ -64,7 +64,9 @@ class PostPolicy
      */
     public function update(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
+        if ($post['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
@@ -76,7 +78,9 @@ class PostPolicy
      */
     public function delete(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
+        if ($post['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
@@ -88,7 +92,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
+        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**

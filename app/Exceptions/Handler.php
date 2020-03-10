@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -54,6 +55,10 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof ModelNotFoundException && $request->wantsJson()) {
             return response()->json(['message' => 'Object not Found'], 404);
+        }
+
+        if ($exception instanceof AccessDeniedHttpException && $request->wantsJson()) {
+            return response()->json(['message' => 'You do not have the rights to perform this action'], 404);
         }
 
         return parent::render($request, $exception);

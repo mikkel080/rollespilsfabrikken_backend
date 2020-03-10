@@ -34,14 +34,39 @@ class ForumController extends Controller
             $forums = Forum::all();
         } else {
             $perms = collect($user->permissions())->pluck("obj_id");
-            $forums = DB::table('forums')->get();
-
-            $forums = $forums->whereIn('obj_id', $perms);
+            $forums = DB::table('forums')
+                ->whereIn('obj_id', $perms)
+                ->get();
         }
 
         return response()->json([
             'message' => 'success',
             'forums' => $forums
+        ], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param Show $request
+     * @param Forum $forum
+     * @return JsonResponse
+     */
+    public function show(Show $request, Forum $forum)
+    {
+        $forum['access_level'] = collect(auth()->user()->permissions())
+            ->where('obj_id', '=', $forum['obj_id'])
+            ->pluck('level')
+            ->max();
+
+        $forum['posts'] = $forum
+            ->posts()
+            ->latest()
+            ->paginate(10);
+
+        return response()->json([
+            'message' => 'success',
+            'forum' => $forum,
         ], 200);
     }
 
@@ -64,26 +89,7 @@ class ForumController extends Controller
         return response()->json([
             'message' => 'success',
             'forum' => $forum
-        ], 200);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param Show $request
-     * @param Forum $forum
-     * @return JsonResponse
-     */
-    public function show(Show $request, Forum $forum)
-    {
-        $forum['posts'] = $forum
-            ->posts()
-            ->latest()
-            ->paginate(10);
-        return response()->json([
-            'message' => 'success',
-            'forum' => $forum,
-        ], 200);
+        ], 201);
     }
 
     /**

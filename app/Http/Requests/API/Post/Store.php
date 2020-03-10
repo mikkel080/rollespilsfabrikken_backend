@@ -4,6 +4,8 @@ namespace App\Http\Requests\API\Post;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use App\Models\Post;
+
 class Store extends FormRequest
 {
     /**
@@ -13,7 +15,7 @@ class Store extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('create',[Post::class, $this->forum]);
     }
 
     /**
@@ -24,7 +26,8 @@ class Store extends FormRequest
     public function rules()
     {
         return [
-            //
+            'title' => 'string|required',
+            'body' => 'string|required'
         ];
     }
 }

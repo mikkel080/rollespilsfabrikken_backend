@@ -24,8 +24,6 @@ class TestController extends Controller
 
         $return = $this->walk($comments->where('parent_id', '=', null), $comments);
 
-
-
         return response()->json([
             'data' => $return
         ], 200);
