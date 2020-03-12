@@ -3,25 +3,25 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Policies\PolicyHelper;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 // Models
-use App\Models\User;
-use App\Models\Forum;
+use App\Models\Calendar;
 use App\Models\Obj;
 
-// Requests
-//use App\Http\Requests\API\Forum\Index;
-use App\Http\Requests\API\Forum\Store;
-use App\Http\Requests\API\Forum\Update;
-use App\Http\Requests\API\Forum\Destroy;
-use App\Http\Requests\API\Forum\Show;
+use App\Policies\PolicyHelper;
 
-class ForumController extends Controller
+// Requests
+//use App\Http\Requests\API\Calendar\Index;
+use App\Http\Requests\API\Calendar\Store;
+use App\Http\Requests\API\Calendar\Update;
+use App\Http\Requests\API\Calendar\Destroy;
+use App\Http\Requests\API\Calendar\Show;
+
+class CalendarController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -33,10 +33,10 @@ class ForumController extends Controller
         $user = auth()->user();
 
         if ($user->isSuperUser()) {
-            $forums = Forum::all();
+            $forums = Calendar::all();
         } else {
             $perms = collect($user->permissions())->pluck("obj_id");
-            $forums = DB::table('forums')
+            $forums = DB::table('calendar')
                 ->whereIn('obj_id', $perms)
                 ->get();
         }
@@ -47,25 +47,26 @@ class ForumController extends Controller
         ], 200);
     }
 
+
     /**
      * Display the specified resource.
      *
      * @param Show $request
-     * @param Forum $forum
+     * @param Calendar $calendar
      * @return JsonResponse
      */
-    public function show(Show $request, Forum $forum)
+    public function show(Show $request, Calendar $calendar)
     {
-        $forum['access_level'] = (new PolicyHelper())->getLevel(auth()->user(), $forum['obj_id']);
+        $calendar['access_level'] = (new PolicyHelper)->getLevel(auth()->user(), $calendar['obj_id']);
 
-        $forum['posts'] = $forum
-            ->posts()
+        $calendar['posts'] = $calendar
+            ->events()
             ->latest()
             ->paginate(10);
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum,
+            'calendar' => $calendar,
         ], 200);
     }
 
@@ -78,34 +79,35 @@ class ForumController extends Controller
     public function store(Store $request)
     {
         $obj = (new Obj)->create([
-            'type' => 'forum'
+            'type' => 'calendar'
         ]);
 
         $data = $request->validated();
         $data['obj_id'] = $obj['id'];
-        $forum = (new Forum)->create($data);
+        $calendar = (new Calendar)->create($data);
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'calendar' => $calendar
         ], 201);
     }
+
 
     /**
      * Update the specified resource in storage.
      *
      * @param Update $request
-     * @param Forum $forum
+     * @param Calendar $calendar
      * @return JsonResponse
      */
-    public function update(Update $request, Forum $forum)
+    public function update(Update $request, Calendar $calendar)
     {
         $data = $request->validated();
-        $forum->update($data);
+        $calendar->update($data);
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'calendar' => $calendar
         ], 200);
     }
 
@@ -113,12 +115,12 @@ class ForumController extends Controller
      * Remove the specified resource from storage.
      *
      * @param Destroy $request
-     * @param Forum $forum
+     * @param Calendar $calendar
      * @return JsonResponse
      */
-    public function destroy(Destroy $request, Forum $forum)
+    public function destroy(Destroy $request, Calendar $calendar)
     {
-        $forum = $forum->delete();
+        $calendar = $calendar->delete();
 
         return response()->json([
             'message' => 'success'

@@ -63,7 +63,7 @@ class CreateRequests extends Command
         ]);
 
         echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Index;' . "\n";
-        echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Store:' . "\n";
+        echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Store;' . "\n";
         echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Update;' . "\n";
         echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Destroy;' . "\n";
         echo "use App\\Http\\Requests\\" . $this->argument('directory') . '\Show;' . "\n";
