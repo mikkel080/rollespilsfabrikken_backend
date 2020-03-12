@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\API\Calendar;
 
+use App\Models\Calendar;
 use Illuminate\Foundation\Http\FormRequest;
 
 class Store extends FormRequest
@@ -13,7 +14,7 @@ class Store extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('create', Calendar::class);
     }
 
     /**
@@ -24,7 +25,8 @@ class Store extends FormRequest
     public function rules()
     {
         return [
-            //
+            'title' => 'required|string',
+            'description' => 'required|string',
         ];
     }
 }

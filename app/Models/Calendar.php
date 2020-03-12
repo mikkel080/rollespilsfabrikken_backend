@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Calendar extends Model
 {
+    protected $fillable = [
+        'title',
+        'description',
+        'obj_id'
+    ];
 
     public function obj() {
         return $this->belongsTo('App\Models\Obj');
