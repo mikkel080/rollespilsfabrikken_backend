@@ -55,6 +55,29 @@ Route::group([
 });
 
 Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'calendar'
+], function () {
+    Route::get('/', 'Resources\CalendarController@index');
+    Route::post('/', 'Resources\CalendarController@store');
+
+    Route::get(   '/{calendar}', 'Resources\CalendarController@show');
+    Route::patch( '/{calendar}', 'Resources\CalendarController@update');
+    Route::delete('/{calendar}', 'Resources\CalendarController@destroy');
+
+    // Posts
+    Route::get('/{calendar}/events',  'Resources\EventController@index');
+
+    Route::prefix('/{calendar}/event')->group(function () {
+        Route::post('/', 'Resources\EventController@store');
+
+        Route::get('/{event}', 'Resources\EventController@show');
+        Route::patch('/{event}', 'Resources\EventController@update');
+        Route::delete('/{event}', 'Resources\EventController@destroy');
+    });
+});
+
+Route::group([
     'prefix' => 'test'
 ], function() {
    Route::get('comments', 'TestController@comments');

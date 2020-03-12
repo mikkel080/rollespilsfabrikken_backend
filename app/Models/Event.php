@@ -11,6 +11,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Event extends Model
 {
+    protected $fillable = [
+        'calendar_id',
+        'user_id',
+        'title',
+        'description',
+        'start',
+        'end'
+    ];
+
     public function calendar() {
         return $this->belongsTo('App\Models\Calendar');
     }

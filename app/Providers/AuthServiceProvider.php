@@ -15,6 +15,8 @@ use App\Models\Event;
 // Policies
 use App\Policies\ForumPolicy;
 use App\Policies\PostPolicy;
+use App\Policies\CalendarPolicy;
+use App\Policies\EventPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -27,6 +29,8 @@ class AuthServiceProvider extends ServiceProvider
         // 'App\Model' => 'App\Policies\ModelPolicy',
         Forum::class => ForumPolicy::class,
         Post::class => PostPolicy::class,
+        Calendar::class => CalendarPolicy::class,
+        Event::class => EventPolicy::class,
     ];
 
     /**
