@@ -19,6 +19,10 @@ class Comment extends Model
         return $this->belongsTo('App\Models\Post');
     }
 
+    public function forum() {
+        return $this->post->forum;
+    }
+
     public function parent() {
         if ($this['parent_id'] == null) {
             return $this->post;
