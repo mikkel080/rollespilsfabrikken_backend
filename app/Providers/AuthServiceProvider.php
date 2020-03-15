@@ -17,6 +17,7 @@ use App\Policies\ForumPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\CalendarPolicy;
 use App\Policies\EventPolicy;
+use App\Policies\CommentPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,7 @@ class AuthServiceProvider extends ServiceProvider
         Post::class => PostPolicy::class,
         Calendar::class => CalendarPolicy::class,
         Event::class => EventPolicy::class,
+        Comment::class => CommentPolicy::class,
     ];
 
     /**

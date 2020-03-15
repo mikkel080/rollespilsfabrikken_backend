@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Resources;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 // Models
 use App\Models\Post;
@@ -77,7 +78,7 @@ class CommentController extends Controller
         $data = $request->validated();
         $data['post_id'] = $post['id'];
 
-        if ($data['parent_id']) {
+        if (Arr::has($data, 'parent_id')) {
             if (Comment::find($data['parent_id'])['post_id'] != $data['post_id']) {
                 return response()->json( [
                     'message' => 'The parent comment is not part of this post.',
@@ -117,10 +118,12 @@ class CommentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param Forum $forum
+     * @param Post $post
      * @param Comment $comment
      * @return JsonResponse
      */
-    public function destroy(Comment $comment)
+    public function destroy(Forum $forum, Post $post, Comment $comment)
     {
         $comment->delete();
 
