@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Resources;
 
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+
 // Models
 use App\Http\Controllers\Controller;
 use App\Models\Forum;
 use App\Models\Post;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 // Helpers
+use App\Http\Controllers\Helpers;
 
 // Requests
 use App\Http\Requests\API\Post\Index;
@@ -30,15 +34,16 @@ class PostController extends Controller
      */
     public function index(Index $request,  Forum $forum)
     {
-        $items = 5;
-        if ($request->query('items')) {
-            $items = $request->query('items');
+        if ($request->query('search')) {
+            $posts = (new Helpers())->searchItems($request, Post::class, [
+                [
+                    'key' => 'forum_id',
+                    'value' => $forum['id']
+                ]
+            ]);
+        } else {
+            $posts = (new Helpers())->filterItems($request, $forum->posts());
         }
-
-        $posts = $forum
-            ->posts()
-            ->latest()
-            ->paginate($items);
 
         return response()->json([
             'message' => 'success',

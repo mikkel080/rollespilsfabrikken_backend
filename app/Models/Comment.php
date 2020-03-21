@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Laravel\Scout\Searchable;
 
 /**
  * Class Comment
@@ -11,12 +13,25 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Comment extends Model
 {
+    use Searchable;
     protected $fillable = [
         'body',
         'parent_id',
         'post_id',
         'user_id'
     ];
+
+    public function toSearchableArray() {
+        $array = $this->toArray();
+
+        $array = Arr::only($array, [
+            'id',
+            'title',
+            'body'
+        ]);
+
+        return $array;
+    }
 
     public function user() {
         return $this->belongsTo('App\Models\User');
@@ -40,5 +55,9 @@ class Comment extends Model
 
     public function comments() {
         return $this->hasMany('App\Models\Comment', 'parent_id', 'id');
+    }
+
+    public function getTableColumns() {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
 }

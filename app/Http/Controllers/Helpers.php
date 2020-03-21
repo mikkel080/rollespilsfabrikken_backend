@@ -1,0 +1,109 @@
+<?php
+
+
+namespace App\Http\Controllers;
+
+use App\Models\Post;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Forum;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+
+class Helpers
+{
+    private function convertDate($date)
+    {
+        if ($date == null || $date == '' || $date == false) return false;
+        $approvedFormats = [
+            'Y-m-d h:i:s',
+            'd-m-Y h:i:s',
+            'y-m-d h:i:s',
+            'd-m-y h:i:s',
+            'd M Y h:i:s',
+            'Y-m-d h:i',
+            'd-m-Y h:i',
+            'y-m-d h:i',
+            'd-m-y h:i',
+            'd M Y h:i',
+            'Y-m-d',
+            'd-m-Y',
+            'y-m-d',
+            'd-m-y',
+            'd M Y'
+        ];
+
+        foreach($approvedFormats as $format) {
+            if($carbon = Carbon::createFromFormat($format, $date)) {
+                return $carbon->format('Y-m-d h:i:s');
+            }
+        }
+
+        return false;
+    }
+
+    public function filterItems(FormRequest $request, HasMany $models) {
+        $items = 5;
+        $sortBy = 'created_at';
+        $order  = 'asc';
+
+        if ($request->query('before') && $date = $this->convertDate($request->query('before'))) {
+            $models->where('created_at', '<', $date);
+        }
+
+        if ($request->query('after') && $date = $this->convertDate($request->query('after'))) {
+            $models->where('created_at', '>', $date);
+        }
+
+        if ($request->query('user')) {
+            $models->where('user_id', '=', $request->query('user'));
+        }
+
+        if ($request->query('direction') && in_array($request->query('direction'), ['asc', 'desc'])) {
+            $order = $request->query('direction');
+        }
+
+        if ($request->query('sort') && in_array($request->query('sort'), $models->first()->getTableColumns())) {
+            $models->orderBy($request->query('sort'), $order);
+        }
+
+        if ($request->query('items')) {
+            $items = $request->query('items');
+        }
+
+        $models = $models->paginate($items);
+        $models->appends($request->except('page'))->links();
+
+        return $models;
+    }
+
+    public function searchItems(FormRequest $request, $model, $wheres) {
+        $sortBy = 'created_at';
+        $order  = 'asc';
+        $items = 5;
+
+        $models = $model::search($request->query('search'));
+
+        if ($request->query('items')) {
+            $items = $request->query('items');
+        }
+
+        if ($request->query('direction') && in_array($request->query('direction'), ['asc', 'desc'])) {
+            $order = $request->query('direction');
+        }
+
+        if ($request->query('sort') && in_array($request->query('sort'), $models->first()->getTableColumns())) {
+            $models->orderBy($request->query('sort'), $order);
+        }
+
+        foreach ($wheres as $where) {
+            $models->where($where['key'], $where['value']);
+        }
+
+        $models = $models->paginate($items);
+        $models->appends($request->except('page'))->links();
+
+        return $models;
+    }
+}

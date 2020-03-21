@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Laravel\Scout\Searchable;
 
 /**
  * Class Calendar
@@ -11,11 +13,24 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Calendar extends Model
 {
+    use Searchable;
     protected $fillable = [
         'title',
         'description',
         'obj_id'
     ];
+
+    public function toSearchableArray() {
+        $array = $this->toArray();
+
+        $array = Arr::only($array, [
+            'id',
+            'title',
+            'description'
+        ]);
+
+        return $array;
+    }
 
     public function obj() {
         return $this->belongsTo('App\Models\Obj');
@@ -27,5 +42,9 @@ class Calendar extends Model
 
     public function events() {
         return $this->hasMany('App\Models\Event');
+    }
+
+    public function getTableColumns() {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
 }
