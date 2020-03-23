@@ -3,12 +3,15 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
 use Throwable;
+
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -18,7 +21,6 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
     ];
 
     /**
@@ -58,7 +60,11 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof AccessDeniedHttpException && $request->wantsJson()) {
-            return response()->json(['message' => 'You do not have the rights to perform this action'], 404);
+            return response()->json(['message' => 'You do not have the rights to perform this action'], 403);
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            return response()->json(['message' => 'You do not have the rights to perform this action'], 403);
         }
 
         return parent::render($request, $exception);

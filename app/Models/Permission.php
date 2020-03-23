@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Permission extends Model
 {
+    protected $fillable = [
+        'obj_id',
+        'level',
+        'title',
+        'description'
+    ];
+
     public function object() {
         return $this->belongsTo('App\Models\Object');
     }
