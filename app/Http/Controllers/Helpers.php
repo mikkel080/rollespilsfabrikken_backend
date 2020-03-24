@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Forum;
 use Carbon\Carbon;
@@ -17,16 +18,16 @@ class Helpers
     {
         if ($date == null || $date == '' || $date == false) return false;
         $approvedFormats = [
-            'Y-m-d h:i:s',
-            'd-m-Y h:i:s',
-            'y-m-d h:i:s',
-            'd-m-y h:i:s',
-            'd M Y h:i:s',
-            'Y-m-d h:i',
-            'd-m-Y h:i',
-            'y-m-d h:i',
-            'd-m-y h:i',
-            'd M Y h:i',
+            'Y-m-d H:i:s',
+            'd-m-Y H:i:s',
+            'y-m-d H:i:s',
+            'd-m-y H:i:s',
+            'd M Y H:i:s',
+            'Y-m-d H:i',
+            'd-m-Y H:i',
+            'y-m-d H:i',
+            'd-m-y H:i',
+            'd M Y H:i',
             'Y-m-d',
             'd-m-Y',
             'y-m-d',
@@ -36,14 +37,14 @@ class Helpers
 
         foreach($approvedFormats as $format) {
             if($carbon = Carbon::createFromFormat($format, $date)) {
-                return $carbon->format('Y-m-d h:i:s');
+                return $carbon->format('Y-m-d H:i:s');
             }
         }
 
         return false;
     }
 
-    public function filterItems(FormRequest $request, HasMany $models) {
+    public function filterItems(FormRequest $request, Builder $models) {
         $items = 5;
         $sortBy = 'created_at';
         $order  = 'asc';

@@ -60,7 +60,12 @@ class ForumPolicy
      */
     public function update(User $user, Forum $forum)
     {
-        return $user->isSuperUser();
+        if ($user->isSuperUser()) {
+            return $user->isSuperUser();
+        } else {
+            return (new PolicyHelper())->checkLevel($user,  $forum['obj_id'], 6);
+        }
+
     }
 
     /**

@@ -43,9 +43,8 @@ Route::group([
     Route::delete('/{forum}', 'Resources\ForumController@destroy');
 
     // Posts
-    Route::get('/{forum}/posts',  'Resources\PostController@index');
-
     Route::prefix('/{forum}/post')->group(function () {
+        Route::get('/',  'Resources\PostController@index');
         Route::post('/', 'Resources\PostController@store');
 
         Route::get(   '/{post}', 'Resources\PostController@show');
@@ -53,9 +52,8 @@ Route::group([
         Route::delete('/{post}', 'Resources\PostController@destroy');
 
         // Comments
-        Route::get('/{post}/comments',  'Resources\CommentController@index');
-
         Route::prefix('/{post}/comment')->group(function () {
+            Route::get('/',  'Resources\CommentController@index');
             Route::post('/', 'Resources\CommentController@store');
 
             Route::get(   '/{comment}', 'Resources\CommentController@show');
@@ -77,9 +75,8 @@ Route::group([
     Route::delete('/{calendar}', 'Resources\CalendarController@destroy');
 
     // Events
-    Route::get('/{calendar}/events',  'Resources\EventController@index');
-
     Route::prefix('/{calendar}/event')->group(function () {
+        Route::get('/',  'Resources\EventController@index');
         Route::post('/', 'Resources\EventController@store');
 
         Route::get('/{event}', 'Resources\EventController@show');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Policies\PolicyHelper;
+use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,8 +14,12 @@ use App\Models\User;
 use App\Models\Forum;
 use App\Models\Obj;
 
+// Helpers
+use App\Policies\PolicyHelper;
+use App\Http\Controllers\Helpers;
+
 // Requests
-//use App\Http\Requests\API\Forum\Index;
+use App\Http\Requests\API\Forum\Index;
 use App\Http\Requests\API\Forum\Store;
 use App\Http\Requests\API\Forum\Update;
 use App\Http\Requests\API\Forum\Destroy;
@@ -26,20 +30,23 @@ class ForumController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Index $request
      * @return JsonResponse
      */
-    public function index()
+    public function index(Index $request)
     {
         $user = auth()->user();
 
-        if ($user->isSuperUser()) {
-            $forums = Forum::all();
-        } else {
-            $perms = collect($user->permissions())->pluck("obj_id");
-            $forums = DB::table('forums')
-                ->whereIn('obj_id', $perms)
-                ->get();
+        $forums = Forum::query();
+        if (!$user->isSuperUser()) {
+            $forums = $forums
+                ->whereIn('obj_id', collect($user->permissions())
+                    ->where('level', '>', 1)
+                    ->pluck('obj_id')
+                );
         }
+
+        $forums = (new Helpers())->filterItems($request, $forums);
 
         return response()->json([
             'message' => 'success',

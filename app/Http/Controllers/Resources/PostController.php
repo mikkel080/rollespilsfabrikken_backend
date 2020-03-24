@@ -42,7 +42,7 @@ class PostController extends Controller
                 ]
             ]);
         } else {
-            $posts = (new Helpers())->filterItems($request, $forum->posts());
+            $posts = (new Helpers())->filterItems($request, $forum->posts()->getQuery());
         }
 
         return response()->json([
