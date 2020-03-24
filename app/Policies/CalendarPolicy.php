@@ -60,7 +60,11 @@ class CalendarPolicy
      */
     public function update(User $user, Calendar $calendar)
     {
-        return $user->isSuperUser();
+        if ($user->isSuperUser()) {
+            return $user->isSuperUser();
+        } else {
+            return (new PolicyHelper())->checkLevel($user,  $calendar['obj_id'], 6);
+        }
     }
 
     /**

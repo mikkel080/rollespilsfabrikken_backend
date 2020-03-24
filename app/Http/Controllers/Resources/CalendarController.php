@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Helpers;
+use App\Http\Requests\API\Calendar\Index;
 use App\Http\Requests\API\Calendar\Destroy;
 use App\Http\Requests\API\Calendar\Show;
 use App\Http\Requests\API\Calendar\Store;
@@ -16,31 +18,33 @@ use Illuminate\Support\Facades\DB;
 // Models
 
 // Requests
-//use App\Http\Requests\API\Calendar\Index;
 
 class CalendarController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @param Index $request
      * @return JsonResponse
      */
-    public function index()
+    public function index(Index $request)
     {
         $user = auth()->user();
 
-        if ($user->isSuperUser()) {
-            $forums = Calendar::all();
-        } else {
-            $perms = collect($user->permissions())->pluck("obj_id");
-            $forums = DB::table('calendar')
-                ->whereIn('obj_id', $perms)
-                ->get();
+        $calendars = Calendar::query();
+        if (!$user->isSuperUser()) {
+            $calendars = $calendars
+                ->whereIn('obj_id', collect($user->permissions())
+                    ->where('level', '>', 1)
+                    ->pluck('obj_id')
+                );
         }
+
+        $calendars = (new Helpers())->filterItems($request, $calendars);
 
         return response()->json([
             'message' => 'success',
-            'forums' => $forums
+            'calendars' => $calendars
         ], 200);
     }
 
