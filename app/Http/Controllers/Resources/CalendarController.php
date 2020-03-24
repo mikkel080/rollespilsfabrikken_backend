@@ -3,23 +3,20 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\API\Calendar\Destroy;
+use App\Http\Requests\API\Calendar\Show;
+use App\Http\Requests\API\Calendar\Store;
+use App\Http\Requests\API\Calendar\Update;
+use App\Models\Calendar;
+use App\Models\Obj;
+use App\Policies\PolicyHelper;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
 // Models
-use App\Models\Calendar;
-use App\Models\Obj;
-
-use App\Policies\PolicyHelper;
 
 // Requests
 //use App\Http\Requests\API\Calendar\Index;
-use App\Http\Requests\API\Calendar\Store;
-use App\Http\Requests\API\Calendar\Update;
-use App\Http\Requests\API\Calendar\Destroy;
-use App\Http\Requests\API\Calendar\Show;
 
 class CalendarController extends Controller
 {

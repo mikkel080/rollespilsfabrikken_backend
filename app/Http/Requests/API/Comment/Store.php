@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\API\Comment;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Models\Comment;
+use Illuminate\Foundation\Http\FormRequest;
 
 class Store extends FormRequest
 {

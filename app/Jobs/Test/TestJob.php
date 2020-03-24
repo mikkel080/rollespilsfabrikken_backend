@@ -2,13 +2,12 @@
 
 namespace App\Jobs\Test;
 
+use App\Models\Calendar;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use App\Models\Calendar;
 use Illuminate\Support\Facades\Log;
 
 class TestJob implements ShouldQueue

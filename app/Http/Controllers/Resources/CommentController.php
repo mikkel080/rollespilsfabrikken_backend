@@ -3,22 +3,19 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Comment\Index;
+use App\Http\Requests\API\Comment\Show;
+use App\Http\Requests\API\Comment\Store;
+use App\Http\Requests\API\Comment\Update;
+use App\Models\Comment;
+use App\Models\Forum;
+use App\Models\Post;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 // Models
-use App\Models\Post;
-use App\Models\Comment;
-use App\Models\Forum;
 
 // Requests
-use App\Http\Requests\API\Comment\Index;
-use App\Http\Requests\API\Comment\Store;
-use App\Http\Requests\API\Comment\Update;
-use App\Http\Requests\API\Comment\Destroy;
-use App\Http\Requests\API\Comment\Show;
-use Illuminate\Http\Response;
 
 class CommentController extends Controller
 {

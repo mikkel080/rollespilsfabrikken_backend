@@ -3,27 +3,22 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Models\Post;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-
-// Models
-use App\Models\User;
-use App\Models\Forum;
-use App\Models\Obj;
-
-// Helpers
-use App\Policies\PolicyHelper;
 use App\Http\Controllers\Helpers;
-
-// Requests
+use App\Http\Requests\API\Forum\Destroy;
 use App\Http\Requests\API\Forum\Index;
+use App\Http\Requests\API\Forum\Show;
 use App\Http\Requests\API\Forum\Store;
 use App\Http\Requests\API\Forum\Update;
-use App\Http\Requests\API\Forum\Destroy;
-use App\Http\Requests\API\Forum\Show;
+use App\Models\Forum;
+use App\Models\Obj;
+use App\Policies\PolicyHelper;
+use Illuminate\Http\JsonResponse;
+
+// Models
+
+// Helpers
+
+// Requests
 
 class ForumController extends Controller
 {

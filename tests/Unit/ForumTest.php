@@ -2,11 +2,10 @@
 
 namespace Tests\Unit;
 
-use App\Models\Role;
-use App\Models\User;
-use Tests\TestCase;
 use App\Models\Forum;
-use \Tests\Helpers\TestHelper;
+use App\Models\User;
+use Tests\Helpers\TestHelper;
+use Tests\TestCase;
 
 class ForumTest extends TestCase
 {

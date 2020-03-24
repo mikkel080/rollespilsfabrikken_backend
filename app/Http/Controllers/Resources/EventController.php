@@ -3,22 +3,20 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-
-// Other
-use App\Policies\PolicyHelper;
-
-// Models
-use App\Models\Event;
-use App\Models\Calendar;
-
-// Requests
+use App\Http\Requests\API\Event\Destroy;
 use App\Http\Requests\API\Event\Index;
+use App\Http\Requests\API\Event\Show;
 use App\Http\Requests\API\Event\Store;
 use App\Http\Requests\API\Event\Update;
-use App\Http\Requests\API\Event\Destroy;
-use App\Http\Requests\API\Event\Show;
+use App\Models\Calendar;
+use App\Models\Event;
+use Illuminate\Http\JsonResponse;
+
+// Other
+
+// Models
+
+// Requests
 
 class EventController extends Controller
 {

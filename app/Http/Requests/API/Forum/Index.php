@@ -4,7 +4,6 @@ namespace App\Http\Requests\API\Forum;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-use App\Models\Post;
 class Index extends FormRequest
 {
     /**

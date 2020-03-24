@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers\Resources;
 
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-
-// Models
 use App\Http\Controllers\Controller;
-use App\Models\Forum;
-use App\Models\Post;
-
-// Helpers
 use App\Http\Controllers\Helpers;
-
-// Requests
+use App\Http\Requests\API\Post\Destroy;
 use App\Http\Requests\API\Post\Index;
+use App\Http\Requests\API\Post\Show;
 use App\Http\Requests\API\Post\Store;
 use App\Http\Requests\API\Post\Update;
-use App\Http\Requests\API\Post\Destroy;
-use App\Http\Requests\API\Post\Show;
+use App\Models\Forum;
+use App\Models\Post;
+use Illuminate\Http\JsonResponse;
+
+// Models
+
+// Helpers
+
+// Requests
 
 class PostController extends Controller
 {
