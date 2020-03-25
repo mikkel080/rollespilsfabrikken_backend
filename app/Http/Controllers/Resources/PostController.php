@@ -75,11 +75,10 @@ class PostController extends Controller
      */
     public function store(Store $request, Forum $forum)
     {
-        $data = $request->validated();
-        $data['forum_id'] = $forum['id'];
-        $data['user_id'] = auth()->user()['id'];
-
-        $post = (new Post)->create($data);
+        $post = new Post();
+        $post->fill($request->validated());
+        $post->user()->associate(auth()->user());
+        $forum->posts()->save($post);
 
         return response()->json( [
             'message' => 'success',

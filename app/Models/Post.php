@@ -42,7 +42,11 @@ class Post extends Model
     }
 
     public function comments() {
-        return $this->hasMany('App\Models\Comment')->select()->where('parent_id', '=', null);
+        return $this->hasMany('App\Models\Comment');
+    }
+
+    public function getThreadedComments() {
+        return $this->comments()->with('user')->get()->threaded();
     }
 
     public function getTableColumns() {

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class Helpers
 {
-    private function convertDate($date)
+    public function convertDate($date)
     {
         if ($date == null || $date == '' || $date == false) return false;
         $approvedFormats = [

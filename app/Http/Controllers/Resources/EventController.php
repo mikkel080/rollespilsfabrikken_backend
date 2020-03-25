@@ -11,6 +11,7 @@ use App\Http\Requests\API\Event\Update;
 use App\Models\Calendar;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Helpers;
 
 // Other
 
@@ -29,15 +30,26 @@ class EventController extends Controller
      */
     public function index(Index $request, Calendar $calendar)
     {
-        $items = 5;
-        if ($request->query('items')) {
-            $items = $request->query('items');
-        }
+        if ($request->query('search')) {
+            $events = (new Helpers())->searchItems($request, Event::class, [
+                [
+                    'key' => 'forum_id',
+                    'value' => $calendar['id']
+                ]
+            ]);
+        } else {
+            $events = $calendar->events()->getQuery();
 
-        $events = $calendar
-            ->events()
-            ->latest()
-            ->paginate($items);
+            if ($request->query('timeMax') && $date = (new Helpers())->convertDate($request->query('timeMax'))) {
+                $events->where('start', '<', $date);
+            }
+
+            if ($request->query('timeMin') && $date = (new Helpers())->convertDate($request->query('timeMin'))) {
+                $events->where('start', '>', $date);
+            }
+
+            $events = (new Helpers())->filterItems($request, $events);
+        }
 
         return response()->json([
             'message' => 'success',

@@ -49,7 +49,7 @@ $factory->afterCreating(App\Models\Calendar::class, function ($calendar, $faker)
         ]);
     }
 
-    factory(App\Models\Event::class, 100)->create([
+    factory(App\Models\Event::class, 1)->create([
        'calendar_id' => $calendar['id']
     ]);
 });

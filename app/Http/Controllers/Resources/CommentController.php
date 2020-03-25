@@ -12,6 +12,7 @@ use App\Models\Forum;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
+use App\Http\Controllers\Helpers;
 
 // Models
 
@@ -29,15 +30,13 @@ class CommentController extends Controller
      */
     public function index(Index $request, Forum $forum, Post $post)
     {
-        $items = 5;
-        if ($request->query('items')) {
-            $items = $request->query('items');
-        }
-
         $comments = $post
             ->comments()
-            ->latest()
-            ->paginate($items);
+            ->where('parent_id', '=', null)
+            ->with('childComments')
+            ->getQuery();
+
+        $comments = (new Helpers())->filterItems($request, $comments);
 
         return response()->json([
             'message' => 'success',
@@ -73,18 +72,26 @@ class CommentController extends Controller
     public function store(Store $request, Forum $forum, Post $post)
     {
         $data = $request->validated();
+
+        $comment = (new Comment())->fill($data);
+        $comment->user()->associate(auth()->user());
+        $comment->post()->associate($post);
+
         $data['post_id'] = $post['id'];
 
         if (Arr::has($data, 'parent_id')) {
-            if (Comment::find($data['parent_id'])['post_id'] != $data['post_id']) {
+            $parentComment = (new Comment)->findOrFail($data['parent_id']);
+
+            if ($post['id'] != $parentComment['post_id']) {
                 return response()->json( [
                     'message' => 'The parent comment is not part of this post.',
                 ], 400);
+            } else {
+                $parentComment->comments()->save($comment);
             }
+        } else {
+            $comment->save();
         }
-        $data['user_id'] = auth()->user()['id'];
-
-        $comment = (new Comment)->create($data);
 
         return response()->json( [
             'message' => 'success',

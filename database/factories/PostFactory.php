@@ -16,7 +16,7 @@ $factory->define(Post::class, function (Faker $faker) {
 });
 
 $factory->afterCreating(App\Models\Post::class, function ($post, $factory) {
-    factory(App\Models\Comment::class, 10)->create([
+    factory(App\Models\Comment::class, 1)->create([
         'post_id' => $post['id']
     ]);
 });
