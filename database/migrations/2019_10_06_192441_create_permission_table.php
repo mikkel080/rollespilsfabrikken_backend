@@ -15,11 +15,17 @@ class CreatePermissionTable extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('obj_id');
-            $table->bigInteger('level');
+            $table->unsignedBigInteger('obj_id')->index();
+            $table->unsignedInteger('level');
             $table->string('title');
             $table->text('description');
             $table->timestamps();
+
+            $table
+                ->foreign('obj_id')
+                ->references('id')
+                ->on('objs')
+                ->onDelete('cascade');
         });
     }
 
