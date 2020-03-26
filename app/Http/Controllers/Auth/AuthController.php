@@ -42,7 +42,7 @@ class AuthController extends Controller
         $user['password'] = Hash::make($user['password']);
         $user['activation_token'] = Str::random(60);
 
-        $user = User::create($user);
+        $user = (new \App\Models\User)->create($user);
 
         $avatar = (new \Laravolt\Avatar\Avatar)->create($user->username)->getImageObject()->encode('png');
         Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);

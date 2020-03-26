@@ -2,46 +2,54 @@
 
 namespace App\Http\Controllers\Resources;
 
-use App\Models\User;
-use App\Models\Forum;
-use App\Models\Obj;
-
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-
-// Requests
+use App\Http\Controllers\Helpers;
+use App\Http\Requests\API\Forum\Destroy;
 use App\Http\Requests\API\Forum\Index;
+use App\Http\Requests\API\Forum\Show;
 use App\Http\Requests\API\Forum\Store;
 use App\Http\Requests\API\Forum\Update;
-use App\Http\Requests\API\Forum\Destroy;
-use App\Http\Requests\API\Forum\Show;
+use App\Models\Forum;
+use App\Models\Obj;
+use App\Policies\PolicyHelper;
+use Illuminate\Http\JsonResponse;
+
+use App\Http\Resources\Forum\Forum as ForumResource;
+use App\Http\Resources\Forum\ForumWithPosts as ForumWithPostsResource;
+use App\Http\Resources\Forum\ForumCollection as ForumCollection;
+// Models
+
+// Helpers
+
+// Requests
 
 class ForumController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @param Index $request
      * @return JsonResponse
      */
-    public function index()
+    public function index(Index $request)
     {
         $user = auth()->user();
 
-        if ($user->isSuperUser()) {
-            $forums = Forum::all();
-        } else {
-            $perms = collect($user->permissions())->pluck("obj_id");
-            $forums = DB::table('forums')
-                ->whereIn('obj_id', $perms)
-                ->get();
+        $forums = Forum::query();
+
+        if (!$user->isSuperUser()) {
+            $forums = $forums
+                ->whereIn('obj_id', collect($user->permissions())
+                    ->where('level', '>', 1)
+                    ->pluck('obj_id')
+                );
         }
 
+        $forums = (new Helpers())->filterItems($request, $forums);
+        //return new ForumCollection($forums);
         return response()->json([
             'message' => 'success',
-            'forums' => $forums
+            'data' => new ForumCollection($forums)
         ], 200);
     }
 
@@ -54,19 +62,11 @@ class ForumController extends Controller
      */
     public function show(Show $request, Forum $forum)
     {
-        $forum['access_level'] = collect(auth()->user()->permissions())
-            ->where('obj_id', '=', $forum['obj_id'])
-            ->pluck('level')
-            ->max();
-
-        $forum['posts'] = $forum
-            ->posts()
-            ->latest()
-            ->paginate(10);
+        $forum['access_level'] = (new PolicyHelper())->getLevel(auth()->user(), $forum['obj_id']);
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum,
+            'forum' => new ForumWithPostsResource($forum),
         ], 200);
     }
 
@@ -78,17 +78,18 @@ class ForumController extends Controller
      */
     public function store(Store $request)
     {
-        $obj = (new Obj)->create([
-            'type' => 'forum'
-        ]);
-
-        $data = $request->validated();
-        $data['obj_id'] = $obj['id'];
-        $forum = (new Forum)->create($data);
+        $forum = (new Forum)
+            ->fill($request->validated())
+            ->obj()
+            ->associate((new Obj)->create([
+                    'type' => 'forum'
+                ])
+            );
+        $forum->save();
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'forum' => new ForumResource($forum->refresh())
         ], 201);
     }
 
@@ -101,12 +102,11 @@ class ForumController extends Controller
      */
     public function update(Update $request, Forum $forum)
     {
-        $data = $request->validated();
-        $forum->update($data);
+        $forum->update($request->validated());
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'forum' => new ForumResource($forum)
         ], 200);
     }
 

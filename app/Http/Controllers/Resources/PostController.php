@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\Resources;
 
-// Models
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Helpers;
+use App\Http\Requests\API\Post\Destroy;
+use App\Http\Requests\API\Post\Index;
+use App\Http\Requests\API\Post\Show;
+use App\Http\Requests\API\Post\Store;
+use App\Http\Requests\API\Post\Update;
 use App\Models\Forum;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
-// Helpers
-
-// Requests
-use App\Http\Requests\API\Post\Index;
-use App\Http\Requests\API\Post\Store;
-use App\Http\Requests\API\Post\Update;
-use App\Http\Requests\API\Post\Destroy;
-use App\Http\Requests\API\Post\Show;
+use App\Http\Resources\Post\Post as PostResource;
+use App\Http\Resources\Post\PostCollection as PostCollection;
+use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
+use App\Http\Resources\Post\PostWithUserCollection as PostWithUserCollection;
 
 class PostController extends Controller
 {
@@ -30,19 +30,20 @@ class PostController extends Controller
      */
     public function index(Index $request,  Forum $forum)
     {
-        $items = 5;
-        if ($request->query('items')) {
-            $items = $request->query('items');
+        if ($request->query('search')) {
+            $posts = (new Helpers())->searchItems($request, Post::class, [
+                [
+                    'key' => 'forum_id',
+                    'value' => $forum['id']
+                ]
+            ]);
+        } else {
+            $posts = (new Helpers())->filterItems($request, $forum->posts()->getQuery());
         }
-
-        $posts = $forum
-            ->posts()
-            ->latest()
-            ->paginate($items);
 
         return response()->json([
             'message' => 'success',
-            'posts' => $posts,
+            'data' => new PostWithUserCollection($posts),
         ], 200);
     }
 
@@ -59,7 +60,7 @@ class PostController extends Controller
     {
         return response()->json([
             'message' => 'success',
-            'post' => $post,
+            'post' => new PostWithUserResource($post),
         ], 200);
     }
 
@@ -73,15 +74,16 @@ class PostController extends Controller
      */
     public function store(Store $request, Forum $forum)
     {
-        $data = $request->validated();
-        $data['forum_id'] = $forum['id'];
-        $data['user_id'] = auth()->user()['id'];
-
-        $post = (new Post)->create($data);
+        $post = new Post();
+        $post
+            ->fill($request->validated())
+            ->user()
+            ->associate(auth()->user());
+        $forum->posts()->save($post);
 
         return response()->json( [
             'message' => 'success',
-            'post' => $post
+            'post' => new PostResource($post->refresh())
         ], 201);
     }
 
@@ -99,7 +101,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'post' => $post
+            'post' => new PostResource($post)
         ], 200);
     }
 
@@ -116,7 +118,7 @@ class PostController extends Controller
         $post->delete();
 
         return response()->json([
-           'data' => "Success"
+           'message' => "success"
         ], 200);
     }
 }

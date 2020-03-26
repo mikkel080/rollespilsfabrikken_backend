@@ -15,11 +15,23 @@ class CreatePostsTable extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('forum_id');
-            $table->bigInteger('user_id');
+            $table->unsignedBigInteger('forum_id')->index();
+            $table->unsignedBigInteger('user_id')->index();
             $table->string('title');
             $table->text('body');
             $table->timestamps();
+
+            $table
+                ->foreign('forum_id')
+                ->references('id')
+                ->on('forums')
+                ->onDelete('cascade');
+
+            $table
+                ->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

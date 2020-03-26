@@ -13,7 +13,7 @@ class Destroy extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('delete', $this->event);
     }
 
     /**

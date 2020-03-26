@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Post;
 use App\Models\Forum;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -28,7 +28,7 @@ class PostPolicy
      */
     public function viewAny(User $user, Forum $forum)
     {
-        return (new PolicyHelper())->getLevel($user,  $forum['obj_id'], 2);
+        return (new PolicyHelper())->checkLevel($user,  $forum['obj_id'], 2);
     }
 
     /**
@@ -40,7 +40,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 2);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 2);
     }
 
     /**
@@ -52,7 +52,7 @@ class PostPolicy
      */
     public function create(User $user, Forum $forum)
     {
-        return (new PolicyHelper())->getLevel($user,  $forum['obj_id'], 4);
+        return (new PolicyHelper())->checkLevel($user,  $forum['obj_id'], 4);
     }
 
     /**
@@ -66,7 +66,7 @@ class PostPolicy
     {
         if ($post['user_id'] == $user['id']) return true;
 
-        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
@@ -80,7 +80,7 @@ class PostPolicy
     {
         if ($post['user_id'] == $user['id']) return true;
 
-        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
@@ -92,7 +92,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
@@ -104,6 +104,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post)
     {
-        return (new PolicyHelper())->getLevel($user,  $post->forum()['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum()['obj_id'], 5);
     }
 }

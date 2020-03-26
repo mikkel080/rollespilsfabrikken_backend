@@ -13,7 +13,7 @@ class Update extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('update', $this->event);
     }
 
     /**
@@ -24,7 +24,10 @@ class Update extends FormRequest
     public function rules()
     {
         return [
-            //
+            'title'         => 'required|string',
+            'description'   => 'required|string',
+            'start'         => 'required|date',
+            'end'           => 'required|date'
         ];
     }
 }

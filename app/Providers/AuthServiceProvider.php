@@ -2,19 +2,22 @@
 
 namespace App\Providers;
 
+use App\Models\Calendar;
+use App\Models\Comment;
+use App\Models\Event;
+use App\Models\Forum;
+use App\Models\Post;
+use App\Policies\CalendarPolicy;
+use App\Policies\CommentPolicy;
+use App\Policies\EventPolicy;
+use App\Policies\ForumPolicy;
+use App\Policies\PostPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 
 // Models
-use App\Models\Forum;
-use App\Models\Post;
-use App\Models\Comment;
-use App\Models\Calendar;
-use App\Models\Event;
 
 // Policies
-use App\Policies\ForumPolicy;
-use App\Policies\PostPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -27,6 +30,9 @@ class AuthServiceProvider extends ServiceProvider
         // 'App\Model' => 'App\Policies\ModelPolicy',
         Forum::class => ForumPolicy::class,
         Post::class => PostPolicy::class,
+        Calendar::class => CalendarPolicy::class,
+        Event::class => EventPolicy::class,
+        Comment::class => CommentPolicy::class,
     ];
 
     /**
