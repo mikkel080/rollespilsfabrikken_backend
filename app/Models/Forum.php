@@ -16,8 +16,7 @@ class Forum extends Model
     use Searchable;
     protected $fillable = [
         'title',
-        'description',
-        'obj_id'
+        'description'
     ];
 
     public function obj() {

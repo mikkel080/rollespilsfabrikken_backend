@@ -76,11 +76,34 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'obj_id',
+                        'title',
+                        'description'
+                    ]
+                ]
+            );
+    }
+
+    public function testGetForumAsAdmin() {
+        $forum = factory(Forum::class)->create();
+        $user = factory(User::class)->create();
+
+        $user['super_user'] = 1;
+        $user->save();
+
+        $this
+            ->actingAs($user, 'api')->json('GET', '/api/forum/' . $forum['id'])
+            ->assertStatus(200)
+            ->assertJson([
+                'message' => 'success',
+            ])
+            ->assertJsonStructure(
+                [
+                    'message',
+                    'forum' => [
+                        'id',
                         'title',
                         'description',
-                        'created_at',
-                        'updated_at',
+                        'posts'
                     ]
                 ]
             );
@@ -102,28 +125,27 @@ class ForumTest extends TestCase
             ->assertJsonStructure(
                 [
                     'message',
-                    'forums' => [
-                        'data' => [
+                    'data' => [
+                        'forums' => [
                             [
                                 'id',
-                                'obj_id',
                                 'title',
-                                'description',
-                                'created_at',
-                                'updated_at',
+                                'description'
                             ]
                         ],
-                        'current_page',
-                        'first_page_url',
-                        'from',
-                        'last_page',
-                        'last_page_url',
-                        'next_page_url',
-                        'path',
-                        'per_page',
-                        'prev_page_url',
-                        'to',
-                        'total',
+                        'links' => [
+                            'first_page',
+                            'last_page',
+                            'prev_page',
+                            'next_page'
+                        ],
+                        'meta' => [
+                            'current_page',
+                            'first_item',
+                            'last_item',
+                            'per_page',
+                            'total',
+                        ]
                     ]
                 ]
             );
@@ -144,28 +166,27 @@ class ForumTest extends TestCase
             ->assertJsonStructure(
                 [
                     'message',
-                    'forums' => [
-                        'data' => [
+                    'data' => [
+                        'forums' => [
                             [
                                 'id',
-                                'obj_id',
                                 'title',
-                                'description',
-                                'created_at',
-                                'updated_at',
+                                'description'
                             ]
                         ],
-                        'current_page',
-                        'first_page_url',
-                        'from',
-                        'last_page',
-                        'last_page_url',
-                        'next_page_url',
-                        'path',
-                        'per_page',
-                        'prev_page_url',
-                        'to',
-                        'total',
+                        'links' => [
+                            'first_page',
+                            'last_page',
+                            'prev_page',
+                            'next_page'
+                        ],
+                        'meta' => [
+                            'current_page',
+                            'first_item',
+                            'last_item',
+                            'per_page',
+                            'total',
+                        ]
                     ]
                 ]
             );
@@ -190,8 +211,7 @@ class ForumTest extends TestCase
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['id'],
-                    'obj_id' => $forum['obj_id'],
+                    'id' => $forum['id']
                 ]
             ])
             ->assertJsonStructure(
@@ -199,11 +219,8 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'obj_id',
                         'title',
                         'description',
-                        'created_at',
-                        'updated_at',
                     ]
                 ]
             );
@@ -229,8 +246,7 @@ class ForumTest extends TestCase
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['id'],
-                    'obj_id' => $forum['obj_id'],
+                    'id' => $forum['id']
                 ]
             ])
             ->assertJsonStructure(
@@ -238,11 +254,8 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'obj_id',
                         'title',
-                        'description',
-                        'created_at',
-                        'updated_at',
+                        'description'
                     ]
                 ]
             );
@@ -257,7 +270,7 @@ class ForumTest extends TestCase
         $forum = $this
             ->actingAs($user, 'api')->json('GET', '/api/forum')
             ->assertStatus(200)
-            ->decodeResponseJson()['forums']['data'][1];
+            ->decodeResponseJson()['data']['forums'][1];
 
         $this
             ->actingAs($user, 'api')->json('DELETE', '/api/forum/' . $forum['id'])

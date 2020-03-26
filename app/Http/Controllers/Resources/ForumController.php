@@ -14,6 +14,9 @@ use App\Models\Obj;
 use App\Policies\PolicyHelper;
 use Illuminate\Http\JsonResponse;
 
+use App\Http\Resources\Forum\Forum as ForumResource;
+use App\Http\Resources\Forum\ForumWithPosts as ForumWithPostsResource;
+use App\Http\Resources\Forum\ForumCollection as ForumCollection;
 // Models
 
 // Helpers
@@ -33,6 +36,7 @@ class ForumController extends Controller
         $user = auth()->user();
 
         $forums = Forum::query();
+
         if (!$user->isSuperUser()) {
             $forums = $forums
                 ->whereIn('obj_id', collect($user->permissions())
@@ -42,10 +46,10 @@ class ForumController extends Controller
         }
 
         $forums = (new Helpers())->filterItems($request, $forums);
-
+        //return new ForumCollection($forums);
         return response()->json([
             'message' => 'success',
-            'forums' => $forums
+            'data' => new ForumCollection($forums)
         ], 200);
     }
 
@@ -60,14 +64,9 @@ class ForumController extends Controller
     {
         $forum['access_level'] = (new PolicyHelper())->getLevel(auth()->user(), $forum['obj_id']);
 
-        $forum['posts'] = $forum
-            ->posts()
-            ->latest()
-            ->paginate(10);
-
         return response()->json([
             'message' => 'success',
-            'forum' => $forum,
+            'forum' => new ForumWithPostsResource($forum),
         ], 200);
     }
 
@@ -79,17 +78,18 @@ class ForumController extends Controller
      */
     public function store(Store $request)
     {
-        $obj = (new Obj)->create([
-            'type' => 'forum'
-        ]);
-
-        $data = $request->validated();
-        $data['obj_id'] = $obj['id'];
-        $forum = (new Forum)->create($data);
+        $forum = (new Forum)
+            ->fill($request->validated())
+            ->obj()
+            ->associate((new Obj)->create([
+                    'type' => 'forum'
+                ])
+            );
+        $forum->save();
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'forum' => new ForumResource($forum->refresh())
         ], 201);
     }
 
@@ -107,7 +107,7 @@ class ForumController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'forum' => $forum
+            'forum' => new ForumResource($forum)
         ], 200);
     }
 
