@@ -15,8 +15,6 @@ class Post extends Model
 {
     use Searchable;
     protected $fillable = [
-        'user_id',
-        'forum_id',
         'title',
         'body'
     ];

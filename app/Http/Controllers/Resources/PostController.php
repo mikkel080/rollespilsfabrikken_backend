@@ -13,11 +13,10 @@ use App\Models\Forum;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 
-// Models
-
-// Helpers
-
-// Requests
+use App\Http\Resources\Post\Post as PostResource;
+use App\Http\Resources\Post\PostCollection as PostCollection;
+use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
+use App\Http\Resources\Post\PostWithUserCollection as PostWithUserCollection;
 
 class PostController extends Controller
 {
@@ -44,7 +43,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'posts' => $posts,
+            'data' => new PostWithUserCollection($posts),
         ], 200);
     }
 
@@ -61,7 +60,7 @@ class PostController extends Controller
     {
         return response()->json([
             'message' => 'success',
-            'post' => $post,
+            'post' => new PostWithUserResource($post),
         ], 200);
     }
 
@@ -76,13 +75,15 @@ class PostController extends Controller
     public function store(Store $request, Forum $forum)
     {
         $post = new Post();
-        $post->fill($request->validated());
-        $post->user()->associate(auth()->user());
+        $post
+            ->fill($request->validated())
+            ->user()
+            ->associate(auth()->user());
         $forum->posts()->save($post);
 
         return response()->json( [
             'message' => 'success',
-            'post' => $post
+            'post' => new PostResource($post->refresh())
         ], 201);
     }
 
@@ -100,7 +101,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'post' => $post
+            'post' => new PostResource($post)
         ], 200);
     }
 

@@ -158,9 +158,10 @@ class CommentTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 2);
 
         $post = $this
-            ->actingAs($user, 'api')->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->actingAs($user, 'api')
+            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
             ->assertStatus(200)
-            ->decodeResponseJson()['posts']['data'][1];
+            ->decodeResponseJson()['data']['posts'][1];
 
         $this
             ->actingAs($user, 'api')
