@@ -102,8 +102,7 @@ class ForumController extends Controller
      */
     public function update(Update $request, Forum $forum)
     {
-        $data = $request->validated();
-        $forum->update($data);
+        $forum->update($request->validated());
 
         return response()->json([
             'message' => 'success',

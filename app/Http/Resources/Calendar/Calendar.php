@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Forum;
+namespace App\Http\Resources\Calendar;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Post\PostWithUserCollection;
-class ForumWithPosts extends JsonResource
+
+class Calendar extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,7 +18,6 @@ class ForumWithPosts extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'posts' => $this->posts()->count()
         ];
     }
 }

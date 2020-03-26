@@ -9,15 +9,14 @@ use App\Http\Requests\API\Calendar\Destroy;
 use App\Http\Requests\API\Calendar\Show;
 use App\Http\Requests\API\Calendar\Store;
 use App\Http\Requests\API\Calendar\Update;
+use App\Http\Resources\Calendar\CalendarWithEvents as CalendarWithEvents;;
 use App\Models\Calendar;
 use App\Models\Obj;
 use App\Policies\PolicyHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-
-// Models
-
-// Requests
+use App\Http\Resources\Calendar\Calendar as CalendarResource;
+use App\Http\Resources\Calendar\CalendarCollection as CalendarCollection;
 
 class CalendarController extends Controller
 {
@@ -32,6 +31,7 @@ class CalendarController extends Controller
         $user = auth()->user();
 
         $calendars = Calendar::query();
+
         if (!$user->isSuperUser()) {
             $calendars = $calendars
                 ->whereIn('obj_id', collect($user->permissions())
@@ -44,7 +44,7 @@ class CalendarController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'calendars' => $calendars
+            'data' => new CalendarCollection($calendars)
         ], 200);
     }
 
@@ -60,14 +60,9 @@ class CalendarController extends Controller
     {
         $calendar['access_level'] = (new PolicyHelper)->getLevel(auth()->user(), $calendar['obj_id']);
 
-        $calendar['posts'] = $calendar
-            ->events()
-            ->latest()
-            ->paginate(10);
-
         return response()->json([
             'message' => 'success',
-            'calendar' => $calendar,
+            'calendar' => new CalendarWithEvents($calendar),
         ], 200);
     }
 
@@ -79,17 +74,17 @@ class CalendarController extends Controller
      */
     public function store(Store $request)
     {
-        $obj = (new Obj)->create([
-            'type' => 'calendar'
-        ]);
-
-        $data = $request->validated();
-        $data['obj_id'] = $obj['id'];
-        $calendar = (new Calendar)->create($data);
+        $calendar = (new Calendar())
+            ->fill($request->validated())
+            ->obj()
+            ->associate((new Obj)->create([
+                'type' => 'calendar'
+            ]));
+        $calendar->save();
 
         return response()->json([
             'message' => 'success',
-            'calendar' => $calendar
+            'calendar' => new CalendarResource($calendar->refresh())
         ], 201);
     }
 
@@ -103,12 +98,11 @@ class CalendarController extends Controller
      */
     public function update(Update $request, Calendar $calendar)
     {
-        $data = $request->validated();
-        $calendar->update($data);
+        $calendar->update( $request->validated());
 
         return response()->json([
             'message' => 'success',
-            'calendar' => $calendar
+            'calendar' => new CalendarResource($calendar)
         ], 200);
     }
 
