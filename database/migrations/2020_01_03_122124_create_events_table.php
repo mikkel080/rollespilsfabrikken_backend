@@ -17,6 +17,7 @@ class CreateEventsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('calendar_id')->index();
             $table->unsignedBigInteger('user_id')->index();
+            $table->enum('recurrence', ['daily', 'weekly', 'monthly'])->nullable();
             $table->string('title');
             $table->text('description');
             $table->dateTime('start');

@@ -72,7 +72,6 @@ class EventTest extends TestCase
                 'event' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'calendar_id' => $calendar['id'],
                     'user_id' => $user['id'],
                 ]
             ])
@@ -80,13 +79,12 @@ class EventTest extends TestCase
                 [
                     'message',
                     'event' => [
+                        'id',
                         'title',
                         'description',
-                        'calendar_id',
                         'user_id',
                         'created_at',
                         'updated_at',
-                        'id'
                     ]
                 ]
             );
@@ -115,7 +113,6 @@ class EventTest extends TestCase
                 'event' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'calendar_id' => $calendar['id'],
                     'user_id' => $user['id'],
                 ]
             ])
@@ -125,7 +122,6 @@ class EventTest extends TestCase
                     'event' => [
                         'title',
                         'description',
-                        'calendar_id',
                         'user_id',
                         'created_at',
                         'updated_at',
@@ -151,29 +147,35 @@ class EventTest extends TestCase
             ->assertJsonStructure(
                 [
                     'message',
-                    'events' => [
-                        'data' => [
+                    'data' => [
+                        'events' => [
                             [
                                 'id',
-                                'calendar_id',
-                                'user_id',
+                                'user' => [
+                                    'id',
+                                    'username',
+                                    'avatar_url',
+                                    'created_at'
+                                ],
                                 'title',
                                 'description',
                                 'created_at',
                                 'updated_at',
                             ]
                         ],
-                        'current_page',
-                        'first_page_url',
-                        'from',
-                        'last_page',
-                        'last_page_url',
-                        'next_page_url',
-                        'path',
-                        'per_page',
-                        'prev_page_url',
-                        'to',
-                        'total',
+                        'links' => [
+                            'first_page',
+                            'last_page',
+                            'prev_page',
+                            'next_page'
+                        ],
+                        'meta' => [
+                            'current_page',
+                            'first_item',
+                            'last_item',
+                            'per_page',
+                            'total',
+                        ]
                     ]
                 ]
             );
@@ -190,15 +192,16 @@ class EventTest extends TestCase
         $calendar = factory(Calendar::class)->create();
         $user = factory(User::class)->create();
 
-        $calendar
-            ->events()
-            ->create([
+        $event = (new Event)
+            ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'user_id' => $user['id'],
                 'start' => '2020-03-24 12:00:00',
                 'end' => '2020-03-24 12:30:00'
-            ]);
+            ])
+            ->user()
+            ->associate($user);
+        $calendar->events()->save($event);
 
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
@@ -206,7 +209,7 @@ class EventTest extends TestCase
             ->actingAs($user, 'api')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
-            ->decodeResponseJson()['events']['data'][1];
+            ->decodeResponseJson()['data']['events'][1];
 
         $this
             ->actingAs($user, 'api')
@@ -217,7 +220,6 @@ class EventTest extends TestCase
                 'event' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'calendar_id' => $calendar['id'],
                     'user_id' => $user['id'],
                 ]
             ])
@@ -227,7 +229,6 @@ class EventTest extends TestCase
                     'event' => [
                         'title',
                         'description',
-                        'calendar_id',
                         'user_id',
                         'created_at',
                         'updated_at',
@@ -241,15 +242,16 @@ class EventTest extends TestCase
         $calendar = factory(Calendar::class)->create();
         $user = factory(User::class)->create();
 
-        $calendar
-            ->events()
-            ->create([
+        $event = (new Event)
+            ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'user_id' => $user['id'],
                 'start' => '2020-03-24 12:00:00',
                 'end' => '2020-03-24 12:30:00'
-            ]);
+            ])
+            ->user()
+            ->associate($user);
+        $calendar->events()->save($event);
 
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
@@ -257,7 +259,7 @@ class EventTest extends TestCase
             ->actingAs($user, 'api')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
-            ->decodeResponseJson()['events']['data'][1];
+            ->decodeResponseJson()['data']['events'][1];
 
         $this
             ->actingAs($user, 'api')
@@ -272,15 +274,16 @@ class EventTest extends TestCase
         $calendar = factory(Calendar::class)->create();
         $user = factory(User::class)->create();
 
-        $calendar
-            ->events()
-            ->create([
+        $event = (new Event)
+            ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'user_id' => 1,
                 'start' => '2020-03-24 12:00:00',
                 'end' => '2020-03-24 12:30:00'
-            ]);
+            ])
+            ->user()
+            ->associate($user);
+        $calendar->events()->save($event);
 
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 5);
 
@@ -288,7 +291,7 @@ class EventTest extends TestCase
             ->actingAs($user, 'api')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
-            ->decodeResponseJson()['events']['data'][1];
+            ->decodeResponseJson()['data']['events'][1];
 
         $this
             ->actingAs($user, 'api')

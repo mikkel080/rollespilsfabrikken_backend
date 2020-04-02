@@ -15,12 +15,11 @@ class Event extends Model
 {
     use Searchable;
     protected $fillable = [
-        'calendar_id',
-        'user_id',
         'title',
         'description',
         'start',
-        'end'
+        'end',
+        'recurrence'
     ];
 
     public function toSearchableArray() {
@@ -43,5 +42,9 @@ class Event extends Model
 
     public function getTableColumns() {
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
+
+    public function user() {
+        return $this->belongsTo('App\Models\User');
     }
 }
