@@ -46,7 +46,7 @@ class CommentTest extends TestCase
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
     }
 
-    public function  testCreateCommentWithRoles() {
+    public function testCreateCommentWithRoles() {
         $data = [
             'body'  => '# Comment body\n## This\n### Is\nFor\n- Unit\n- Testing'
         ];
@@ -65,7 +65,6 @@ class CommentTest extends TestCase
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'post_id' => $post['id'],
                     'user_id' => $user['id'],
                 ]
             ]);
@@ -94,7 +93,6 @@ class CommentTest extends TestCase
                 'comment' => [
                     'body' => $data['body'],
                     'parent_id' => $data['parent_id'],
-                    'post_id' => $post['id'],
                     'user_id' => $user['id'],
                 ]
             ]);
@@ -120,7 +118,6 @@ class CommentTest extends TestCase
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'post_id' => $post['id'],
                     'user_id' => $user['id'],
                 ]
             ]);
@@ -171,7 +168,6 @@ class CommentTest extends TestCase
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'post_id' => $post['id'],
                     'parent_id' => $comment['parent_id'],
                     'user_id' => $user['id'],
                 ]

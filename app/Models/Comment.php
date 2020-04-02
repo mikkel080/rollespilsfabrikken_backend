@@ -16,8 +16,6 @@ class Comment extends Model
     use Searchable;
     protected $fillable = [
         'body',
-        'parent_id',
-        'post_id',
         'user_id'
     ];
 
@@ -54,10 +52,6 @@ class Comment extends Model
     }
 
     public function parent() {
-        if ($this['parent_id'] == null) {
-            return $this->post();
-        }
-
         return $this->belongsTo('App\Models\Comment', 'parent_id', 'id');
     }
 
