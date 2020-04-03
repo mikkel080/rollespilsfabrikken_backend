@@ -10,6 +10,7 @@ use App\Http\Requests\API\Event\Store;
 use App\Http\Requests\API\Event\Update;
 use App\Models\Calendar;
 use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Helpers;
 use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
@@ -81,6 +82,8 @@ class EventController extends Controller
     public function store(Store $request, Calendar $calendar)
     {
         $data = $request->validated();
+        $data['start'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['start'])->toDateTimeString();
+        $data['end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['end'])->toDateTimeString();
         $event = (new Event())
             ->fill($data)
             ->user()

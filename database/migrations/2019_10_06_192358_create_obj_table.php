@@ -27,6 +27,6 @@ class CreateObjTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('obj');
+        Schema::dropIfExists('objs');
     }
 }

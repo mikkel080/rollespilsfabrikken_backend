@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
+use App\Events\Event\EventSaved;
 
 /**
  * Class Event
@@ -14,6 +15,7 @@ use Laravel\Scout\Searchable;
 class Event extends Model
 {
     use Searchable;
+
     protected $fillable = [
         'title',
         'description',
@@ -46,5 +48,19 @@ class Event extends Model
 
     public function user() {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function events()  {
+        return $this->hasMany(Event::class, 'event_id', 'id');
+    }
+
+    public function event() {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function saveQuietly() {
+        return static::withoutEvents(function () {
+            return $this->save();
+        });
     }
 }
