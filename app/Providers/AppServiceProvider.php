@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Calendar;
 use App\Models\Event;
+use App\Models\Forum;
+use App\Observers\CalendarObserver;
 use App\Observers\EventObserver;
+use App\Observers\ForumObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,5 +32,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Event::observe(EventObserver::class);
+        Forum::observe(ForumObserver::class);
+        Calendar::observe(CalendarObserver::class);
     }
 }
