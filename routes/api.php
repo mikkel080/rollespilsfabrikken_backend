@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -24,7 +24,7 @@ Route::prefix('auth')->group(function () {
     Route::get('activate/{token}', 'Auth\AuthController@activate');
 
     Route::middleware([
-        'auth:api'
+        'auth:sanctum'
     ])->group(function () {
         Route::get('logout', 'Auth\AuthController@logout');
         Route::get('user', 'Auth\AuthController@user');
@@ -32,7 +32,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => 'auth:sanctum',
 ], function () {
     Route::apiResource('forum', 'Resources\ForumController');
     Route::apiResource('forum.post', 'Resources\PostController');
@@ -40,7 +40,7 @@ Route::group([
 });
 
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => 'auth:sanctum',
 ], function () {
     Route::apiResource('calendar', 'Resources\CalendarController');
     Route::apiResource('calendar.event', 'Resources\EventController');

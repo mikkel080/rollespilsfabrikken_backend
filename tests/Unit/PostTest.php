@@ -40,7 +40,7 @@ class PostTest extends TestCase
         $user = factory(User::class)->create();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
@@ -58,7 +58,7 @@ class PostTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 4);
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
             ->assertStatus(201)
             ->assertJson([
@@ -97,7 +97,7 @@ class PostTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
             ->assertStatus(201)
             ->assertJson([
@@ -130,7 +130,7 @@ class PostTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 2);
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/forum/' . $forum['id'] . '/post')
             ->assertStatus(200)
             ->assertJson([
@@ -191,13 +191,13 @@ class PostTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 2);
 
         $post = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/forum/' . $forum['id'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('PATCH', '/api/forum/' . $forum['id'] . '/post/' . $post['id'], $data)
             ->assertStatus(200)
             ->assertJson([
@@ -236,13 +236,13 @@ class PostTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 2);
 
         $post = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/forum/' . $forum['id'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'])
             ->assertStatus(200)
             ->assertJson([
@@ -263,13 +263,13 @@ class PostTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 5);
 
         $post = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/forum/' . $forum['id'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'])
             ->assertStatus(200)
             ->assertJson([

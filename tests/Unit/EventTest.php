@@ -45,7 +45,7 @@ class EventTest extends TestCase
         $user = factory(User::class)->create();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/' . $calendar['id'] . '/event', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
@@ -65,7 +65,7 @@ class EventTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 4);
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/' . $calendar['id'] . '/event', $data)
             ->assertStatus(201)
             ->assertJson([
@@ -106,7 +106,7 @@ class EventTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/' . $calendar['id'] . '/event', $data)
             ->assertStatus(201)
             ->assertJson([
@@ -139,7 +139,7 @@ class EventTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
             ->assertJson([
@@ -207,13 +207,13 @@ class EventTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
         $event = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['events'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('PATCH', '/api/calendar/' . $calendar['id'] . '/event/' . $event['id'], $data)
             ->assertStatus(200)
             ->assertJson([
@@ -257,13 +257,13 @@ class EventTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
         $event = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['events'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('DELETE', '/api/calendar/' . $calendar['id'] . '/event/' . $event['id'])
             ->assertStatus(200)
             ->assertJson([
@@ -289,13 +289,13 @@ class EventTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 5);
 
         $event = $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar/' . $calendar['id'] . '/event')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['events'][1];
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('DELETE', '/api/calendar/' . $calendar['id'] . '/event/' . $event['id'])
             ->assertStatus(200)
             ->assertJson([

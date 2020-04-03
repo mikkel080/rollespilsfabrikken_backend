@@ -102,25 +102,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-
-
         $user = $request->user();
 
-        $createdToken = $user->createToken('Personal Access Token');
-        $token = $createdToken->token;
-
-        if ($request->validated()['remember_me']) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        }
-
-        $token->save();
+        $token = $user->createToken('API token');
 
         return response()->json([
-            'access_token' => $createdToken->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $createdToken->token->expires_at
-            )->toDateTime()
+            'access_token' => $token->plainTextToken,
+            'token_type' => 'Bearer'
         ], 200);
     }
 
