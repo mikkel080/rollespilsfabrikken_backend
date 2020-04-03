@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Calendar;
 use App\Models\User;
 use App\Models\Event;
+use Carbon\Carbon;
 use Tests\TestCase;
 use Tests\Helpers\TestHelper;
 
@@ -20,8 +21,8 @@ class EventTest extends TestCase
         $data = [
             'title' => 'Event title for unit',
             'description'  => '# Event description\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'start' => '2020-03-24 12:00:00',
-            'end' => '2020-03-24 12:30:00'
+            'start' => '01-01-2022 23:02:01',
+            'end' => '01-01-2022 23:30:01'
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -36,8 +37,8 @@ class EventTest extends TestCase
         $data = [
             'title' => 'Event title for unit',
             'description'  => '# Event description\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'start' => '2020-03-24 12:00:00',
-            'end' => '2020-03-24 12:30:00'
+            'start' => '01-01-2022 23:02:01',
+            'end' => '01-01-2022 23:30:01'
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -54,8 +55,8 @@ class EventTest extends TestCase
         $data = [
             'title' => 'Event title for unit',
             'description'  => '# Event description\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'start' => '2020-03-24 12:00:00',
-            'end' => '2020-03-24 12:30:00'
+            'start' => '01-01-2022 23:02:01',
+            'end' => '01-01-2022 23:30:01'
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -94,8 +95,8 @@ class EventTest extends TestCase
         $data = [
             'title' => 'Event title for unit',
             'description'  => '# Event description\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'start' => '2020-03-24 12:00:00',
-            'end' => '2020-03-24 12:30:00'
+            'start' => '01-01-2022 23:02:01',
+            'end' => '01-01-2022 23:30:01'
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -185,8 +186,8 @@ class EventTest extends TestCase
         $data = [
             'title' => 'Updated event title for unit',
             'description'  => '# Update Event description\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'start' => '2020-03-24 12:00:00',
-            'end' => '2020-03-24 12:30:00'
+            'start' => '01-01-2022 23:02:01',
+            'end' => '01-01-2022 23:03:01'
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -196,8 +197,8 @@ class EventTest extends TestCase
             ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'start' => '2020-03-24 12:00:00',
-                'end' => '2020-03-24 12:30:00'
+                'start' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:02:01')->toDateTimeString(),
+                'end' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:03:01')->toDateTimeString(),
             ])
             ->user()
             ->associate($user);
@@ -246,8 +247,8 @@ class EventTest extends TestCase
             ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'start' => '2020-03-24 12:00:00',
-                'end' => '2020-03-24 12:30:00'
+                'start' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:02:01')->toDateTimeString(),
+                'end' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:03:01')->toDateTimeString(),
             ])
             ->user()
             ->associate($user);
@@ -278,8 +279,8 @@ class EventTest extends TestCase
             ->fill([
                 'title' => 'hello',
                 'description' => 'hello again',
-                'start' => '2020-03-24 12:00:00',
-                'end' => '2020-03-24 12:30:00'
+                'start' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:02:01')->toDateTimeString(),
+                'end' => Carbon::createFromFormat('d-m-Y H:i:s', '01-01-2022 23:03:01')->toDateTimeString(),
             ])
             ->user()
             ->associate($user);

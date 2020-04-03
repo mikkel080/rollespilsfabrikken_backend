@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API\Event;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class Update extends FormRequest
 {
@@ -26,8 +27,9 @@ class Update extends FormRequest
         return [
             'title'         => 'required|string',
             'description'   => 'required|string',
-            'start'         => 'required|date',
-            'end'           => 'required|date'
+            'recurrence'    => Rule::in(['daily', 'weekly', 'monthly']),
+            'start'         => 'required|date_format:d-m-Y H:i:s',
+            'end'           => 'required|date_format:d-m-Y H:i:s'
         ];
     }
 }

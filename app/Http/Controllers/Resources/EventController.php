@@ -107,7 +107,11 @@ class EventController extends Controller
      */
     public function update(Update $request, Calendar $calendar, Event $event)
     {
-        $event->update($request->validated());
+        $data = $request->validated();
+        $data['start'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['start'])->toDateTimeString();
+        $data['end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['end'])->toDateTimeString();
+
+        $event->update($data);
 
         return response()->json([
             'message' => 'success',
