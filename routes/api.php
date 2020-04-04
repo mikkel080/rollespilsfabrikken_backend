@@ -28,6 +28,27 @@ Route::prefix('auth')->group(function () {
     ])->group(function () {
         Route::get('logout', 'Auth\AuthController@logout');
         Route::get('user', 'Auth\AuthController@user');
+
+        // TODO: REMOVE COMMENTS
+        // Get permissions
+        Route::get('/permission', 'Auth\PermissionController@index'); // DONE - tested
+        Route::get('/permission/{permission}', 'Auth\PermissionController@show'); // DONE - tested
+        Route::get('/calendar/{calendar}/permission', 'Auth\PermissionController@calendarIndex'); // DONE - tested
+        Route::get('/forum/{forum}/permission', 'Auth\PermissionController@forumIndex'); // DONE - tested
+
+        // Get permissions from role in the context of an obj
+        Route::get('/role/{role}/forum/{forum}/permission', 'Auth\PermissionRoleController@forumIndex'); // DONE - tested
+        Route::get('/role/{role}/calendar/{calendar}/permission', 'Auth\PermissionRoleController@calendarIndex'); // DONE - tested
+
+        // Create edit, delete roles
+        Route::resource('role', 'Auth\RoleController'); // DONE - tested
+
+        // Add permissions to roles in different ways.
+        Route::post('/permission/{permission}/role/{role}', 'Auth\PermissionRoleController@permissionAdd'); // DONE - tested
+        Route::post('/role/{role}/permission/{permission}', 'Auth\PermissionRoleController@roleAdd'); // DONE - tested
+        Route::post('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarAdd'); // DONE - tested
+        Route::post('/forum/{forum}/level/{level}/role/{role}', 'Auth\PermissionRoleController@forumAdd'); // DONE - tested
+
     });
 });
 

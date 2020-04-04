@@ -23,7 +23,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Route::pattern('level', '[0-6]+');
 
         parent::boot();
     }

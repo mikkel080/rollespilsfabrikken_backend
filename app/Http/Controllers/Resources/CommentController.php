@@ -98,7 +98,7 @@ class CommentController extends Controller
 
         return response()->json( [
             'message' => 'success',
-            'comment' => new CommentResource($comment),
+            'comment' => new CommentResource($comment->refresh()),
         ], 201);
     }
 
