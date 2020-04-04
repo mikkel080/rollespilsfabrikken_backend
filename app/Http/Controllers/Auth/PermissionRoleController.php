@@ -162,4 +162,78 @@ class PermissionRoleController extends Controller
             'role' => new RoleWithPermissions($role)
         ]);
     }
+
+    public function permissionDelete(Add $request, Permission $permission, Role $role) {
+        (new RolePerm)
+            ->where([
+                ['permission_id', '=', $permission['id']],
+                ['role_id', '=', $role['id']]
+            ])->get()
+            ->each(function (RolePerm $role, $key) {
+               $role->delete();
+               return true;
+            });
+
+        return response()->json([
+            'message' => 'success'
+        ]);
+    }
+
+    public function roleDelete(Add $request, Role $role, Permission $permission) {
+        (new RolePerm)
+            ->where([
+                ['permission_id', '=', $permission['id']],
+                ['role_id', '=', $role['id']]
+            ])->get()
+            ->each(function (RolePerm $role, $key) {
+                $role->delete();
+                return true;
+            });
+
+        return response()->json([
+            'message' => 'success'
+        ]);
+    }
+
+    public function calendarDelete(CalendarAdd $request, Calendar $calendar, $level, Role $role) {
+        $permission = $calendar
+            ->permissions()
+            ->where('level', '=', $level)
+            ->first();
+
+        (new RolePerm)
+            ->where([
+                ['permission_id', '=', $permission['id']],
+                ['role_id', '=', $role['id']]
+            ])->get()
+            ->each(function (RolePerm $role, $key) {
+                $role->delete();
+                return true;
+            });
+
+        return response()->json([
+            'message' => 'success'
+        ]);
+    }
+
+    public function forumDelete(ForumAdd $request, Forum $forum, $level, Role $role) {
+        $permission = $forum
+            ->permissions()
+            ->where('level', '=', $level)
+            ->first();
+
+        (new RolePerm)
+            ->where([
+                ['permission_id', '=', $permission['id']],
+                ['role_id', '=', $role['id']]
+            ])->get()
+            ->each(function (RolePerm $role, $key) {
+                $role->delete();
+                return true;
+            });
+
+        return response()->json([
+            'message' => 'success'
+        ]);
+    }
 }

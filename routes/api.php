@@ -49,6 +49,10 @@ Route::prefix('auth')->group(function () {
         Route::post('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarAdd'); // DONE - tested
         Route::post('/forum/{forum}/level/{level}/role/{role}', 'Auth\PermissionRoleController@forumAdd'); // DONE - tested
 
+        Route::delete('/permission/{permission}/role/{role}', 'Auth\PermissionRoleController@permissionDelete'); // DONE - tested
+        Route::delete('/role/{role}/permission/{permission}', 'Auth\PermissionRoleController@roleDelete'); // DONE - tested
+        Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarDelete'); // DONE - tested
+        Route::delete('/forum/{forum}/level/{level}/role/{role}', 'Auth\PermissionRoleController@forumDelete'); // DONE - tested
     });
 });
 
