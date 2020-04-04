@@ -53,6 +53,11 @@ Route::prefix('auth')->group(function () {
         Route::delete('/role/{role}/permission/{permission}', 'Auth\PermissionRoleController@roleDelete'); // DONE - tested
         Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarDelete'); // DONE - tested
         Route::delete('/forum/{forum}/level/{level}/role/{role}', 'Auth\PermissionRoleController@forumDelete'); // DONE - tested
+
+        // Assign, index and delete roles from user
+        Route::get('/user/{user}/role', 'Auth\UserRoleController@index');
+        Route::post('/user/{user}/role/{role}', 'Auth\UserRoleController@add');
+        Route::delete('/user/{user}/role/{role}', 'Auth\UserRoleController@delete');
     });
 });
 
