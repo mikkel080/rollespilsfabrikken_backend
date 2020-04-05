@@ -4,7 +4,7 @@ namespace App\Http\Requests\API\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResendEmail extends FormRequest
+class ResendEmailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

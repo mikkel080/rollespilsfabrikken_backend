@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
+use App\Http\Requests\API\Auth\ResendEmailRequest;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 
 // Notifications
 
@@ -135,7 +137,7 @@ class AuthController extends Controller
         return response()->json($request->user());
     }
 
-    public function resendEmail(ResendEmail $request) {
+    public function resendEmail(ResendEmailRequest $request) {
         $email = $request->validated()['email'];
 
         $user = (new User)->where('email', '=', $email)->firstOrFail();
