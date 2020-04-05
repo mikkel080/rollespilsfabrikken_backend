@@ -3,10 +3,11 @@
 namespace App\Notifications\API\Auth;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ActivationEmail extends Notification
+class PasswordResetSuccess extends Notification
 {
     use Queueable;
 
@@ -39,15 +40,12 @@ class ActivationEmail extends Notification
      */
     public function toMail($notifiable)
     {
-        $url = url('/api/auth/activate/' . $notifiable->activation_token);
-
         return (new MailMessage)
-                ->greeting('Hej')
-                ->subject('Bekræft din konto hos Rollespilsfabrikkens forum')
-                ->line('Vi har modtaget en anmodning vedrørende oprettelse af en konto til Rollespilsfabrikkens forum linket til denne email adresse.')
-                ->line('For at fuldføre opsætningen benyt linket herunder')
-                ->action('Bekræft konto', url($url))
-                ->line('Tak for at du anvender forummet');
+            ->subject("Din agangskode er nulstillet.")
+            ->greeting('Hej')
+            ->line('Din agangskode er blevet nulstillet.')
+            ->line('Hvis det var dig der nulstillede din adgangskode så er dette bare en bekræftelse.')
+            ->line('Hvis det ikke var dig der nulstillede din adgangskode så skal du beskytte din email konto og kontakte en administrator.');
     }
 
     /**

@@ -3,21 +3,23 @@
 namespace App\Notifications\API\Auth;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ActivationEmail extends Notification
+class PasswordResetRequest extends Notification
 {
     use Queueable;
 
+    protected $token;
+
     /**
      * Create a new notification instance.
-     *
-     * @return void
+     * @param string $token
      */
-    public function __construct()
+    public function __construct(string $token)
     {
-        //
+        $this->token = $token;
     }
 
     /**
@@ -35,19 +37,17 @@ class ActivationEmail extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
-        $url = url('/api/auth/activate/' . $notifiable->activation_token);
-
+        $url = url('/api/password/find/'.$this->token);
         return (new MailMessage)
-                ->greeting('Hej')
-                ->subject('Bekræft din konto hos Rollespilsfabrikkens forum')
-                ->line('Vi har modtaget en anmodning vedrørende oprettelse af en konto til Rollespilsfabrikkens forum linket til denne email adresse.')
-                ->line('For at fuldføre opsætningen benyt linket herunder')
-                ->action('Bekræft konto', url($url))
-                ->line('Tak for at du anvender forummet');
+            ->subject("Nulstil din adgangskode")
+            ->greeting('Hej')
+            ->line('Du modtager denne mail da vi har modtaget en anmodning om at nulstille din adgangskode')
+            ->action('Nulstil adgangskode: ', url($url))
+            ->line('Hvis det ikke var dig der lavede denne anmodning, så skal du intet gøre.');
     }
 
     /**

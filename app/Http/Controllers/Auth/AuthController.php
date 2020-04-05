@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Laravolt\Avatar\Avatar;
 
 
 // Notifications
@@ -41,12 +42,17 @@ class AuthController extends Controller
 
     public function signup(SignupRequest $request) {
         $user = $request->validated();
+
         $user['password'] = Hash::make($user['password']);
         $user['activation_token'] = Str::random(60);
 
-        $user = (new \App\Models\User)->create($user);
+        $user = (new User)->create($user);
 
-        $avatar = (new \Laravolt\Avatar\Avatar)->create($user->username)->getImageObject()->encode('png');
+        $avatar = (new Avatar)
+            ->create($user->username)
+            ->getImageObject()
+            ->encode('png');
+
         Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);
 
         $user->notify(new ActivationEmail($user));
@@ -95,8 +101,20 @@ class AuthController extends Controller
     // TODO: RESEND MAIL OPTION
     public function login(LoginRequest $request) {
         $credentials = Arr::only($request->validated(), ['email', 'password']);
-        $credentials['active'] = 1;
-        $credentials['deleted_at'] = null;
+
+        $user = (new User)->where('email', '=', $credentials['email'])->firstOrFail();
+
+        if ($user['active'] !== 1) {
+            return response()->json([
+                'message' => 'Konto er ikke aktiveret'
+            ], 401);
+        }
+
+        if ($user['deleted_at'] !== null) {
+            return response()->json([
+                'message' => 'Konto er bannet eller slettet'
+            ], 401);
+        }
 
         if (!Auth::attempt($credentials)) {
             return response()->json([

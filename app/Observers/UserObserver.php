@@ -40,8 +40,14 @@ class UserObserver
         (new UserRole)
             ->where('user_id', '=', $user['id'])
             ->get()
-            ->each(function (UserRole $userRole, $item) {
+            ->each(function (UserRole $userRole, $key) {
                 $userRole->delete();
+            });
+
+        $user
+            ->tokens()
+            ->each(function($item, $key) {
+               $item->delete();
             });
     }
 

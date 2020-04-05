@@ -24,67 +24,73 @@ Route::prefix('auth')->group(function () {
     Route::get('activate/{token}',  'Auth\AuthController@activate');
     Route::post('/resend-email',    'Auth\AuthController@resendEmail');
 
-    Route::middleware([
-        'auth:sanctum'
-    ])->group(function () {
+    // Reset passwords
+    Route::group([
+        'namespace' => 'Auth',
+        'prefix' => 'password',
+    ], function () {
+        Route::post('forgot',   'PasswordResetController@create');
+        Route::get('find/{token}',     'PasswordResetController@find');
+        Route::post('reset',    'PasswordResetController@reset');
+    });
 
-        Route::get('logout', 'Auth\AuthController@logout');
+    Route::group([
+        'namespace' => 'Auth',
+        'middleware' => 'auth:sanctum'
+    ], function () {
+
+        Route::get('logout', 'AuthController@logout');
 
         // Get permissions related to object
-        Route::get('/calendar/{calendar}/permission',   'Auth\PermissionController@calendarIndex');
-        Route::get('/forum/{forum}/permission',         'Auth\PermissionController@forumIndex');
+        Route::get('/calendar/{calendar}/permission',   'PermissionController@calendarIndex');
+        Route::get('/forum/{forum}/permission',         'PermissionController@forumIndex');
 
         // Add level permission from object to role
-        Route::post('/calendar/{calendar}/level/{level}/role/{role}',   'Auth\PermissionRoleController@calendarAdd');
-        Route::post('/forum/{forum}/level/{level}/role/{role}',         'Auth\PermissionRoleController@forumAdd');
+        Route::post('/calendar/{calendar}/level/{level}/role/{role}',   'PermissionRoleController@calendarAdd');
+        Route::post('/forum/{forum}/level/{level}/role/{role}',         'PermissionRoleController@forumAdd');
 
         // Delete objects level permission from role
-        Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarDelete');
-        Route::delete('/forum/{forum}/level/{level}/role/{role}',       'Auth\PermissionRoleController@forumDelete');
+        Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'PermissionRoleController@calendarDelete');
+        Route::delete('/forum/{forum}/level/{level}/role/{role}',       'PermissionRoleController@forumDelete');
 
         Route::prefix('permission')->group(function () {
-            Route::get('/',                             'Auth\PermissionController@index');
-            Route::get('/{permission}',                 'Auth\PermissionController@show');
-            Route::delete('/{permission}/role/{role}',  'Auth\PermissionRoleController@permissionDelete');
-            Route::post('/{permission}/role/{role}',    'Auth\PermissionRoleController@permissionAdd');
+            Route::get('/',                             'PermissionController@index');
+            Route::get('/{permission}',                 'PermissionController@show');
+            Route::delete('/{permission}/role/{role}',  'PermissionRoleController@permissionDelete');
+            Route::post('/{permission}/role/{role}',    'PermissionRoleController@permissionAdd');
         });
 
         Route::prefix('role')->group(function () {// Get permissions from role in the context of an obj
             // Create edit, delete roles
-            Route::resource('/', 'Auth\RoleController');
+            Route::resource('/', 'RoleController');
 
             // Index permissions in roles
-            Route::get('/{role}/forum/{forum}/permission',          'Auth\PermissionRoleController@forumIndex');
-            Route::get('/{role}/calendar/{calendar}/permission',    'Auth\PermissionRoleController@calendarIndex');
+            Route::get('/{role}/forum/{forum}/permission',          'PermissionRoleController@forumIndex');
+            Route::get('/{role}/calendar/{calendar}/permission',    'PermissionRoleController@calendarIndex');
 
             // Add permissions to roles in different ways.
-            Route::post('/{role}/permission/{permission}',      'Auth\PermissionRoleController@roleAdd');
-            Route::delete('/{role}/permission/{permission}',    'Auth\PermissionRoleController@roleDelete');
+            Route::post('/{role}/permission/{permission}',      'PermissionRoleController@roleAdd');
+            Route::delete('/{role}/permission/{permission}',    'PermissionRoleController@roleDelete');
         });
 
         Route::prefix('user')->group(function () {
-            Route::get('/', 'Auth\AuthController@user');
+            Route::get('/', 'AuthController@user');
 
             // Assign, index and delete roles from user
-            Route::get('/{user}/role',              'Auth\UserRoleController@index');
-            Route::post('/{user}/role/{role}',      'Auth\UserRoleController@add');
-            Route::delete('/{user}/role/{role}',    'Auth\UserRoleController@delete');
+            Route::get('/{user}/role',              'UserRoleController@index');
+            Route::post('/{user}/role/{role}',      'UserRoleController@add');
+            Route::delete('/{user}/role/{role}',    'UserRoleController@delete');
         });
     });
 });
 
-
 Route::group([
+    'namespace' => 'Resources',
     'middleware' => 'auth:sanctum',
 ], function () {
-    Route::apiResource('forum',                 'Resources\ForumController');
-    Route::apiResource('forum.post',            'Resources\PostController');
-    Route::apiResource('forum.post.comment',    'Resources\CommentController');
-});
-
-Route::group([
-    'middleware' => 'auth:sanctum',
-], function () {
-    Route::apiResource('calendar',          'Resources\CalendarController');
-    Route::apiResource('calendar.event',    'Resources\EventController');
+    Route::apiResource('forum',                 'ForumController');
+    Route::apiResource('forum.post',            'PostController');
+    Route::apiResource('forum.post.comment',    'CommentController');
+    Route::apiResource('calendar',              'CalendarController');
+    Route::apiResource('calendar.event',        'EventController');
 });
