@@ -22,6 +22,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login',            'Auth\AuthController@login');
     Route::post('signup',           'Auth\AuthController@signup');
     Route::get('activate/{token}',  'Auth\AuthController@activate');
+    Route::post('/resend-email',    'Auth\AuthController@resendEmail');
 
     Route::middleware([
         'auth:sanctum'
@@ -29,13 +30,15 @@ Route::prefix('auth')->group(function () {
 
         Route::get('logout', 'Auth\AuthController@logout');
 
-        // Get permissions
+        // Get permissions related to object
         Route::get('/calendar/{calendar}/permission',   'Auth\PermissionController@calendarIndex');
         Route::get('/forum/{forum}/permission',         'Auth\PermissionController@forumIndex');
 
+        // Add level permission from object to role
         Route::post('/calendar/{calendar}/level/{level}/role/{role}',   'Auth\PermissionRoleController@calendarAdd');
         Route::post('/forum/{forum}/level/{level}/role/{role}',         'Auth\PermissionRoleController@forumAdd');
 
+        // Delete objects level permission from role
         Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'Auth\PermissionRoleController@calendarDelete');
         Route::delete('/forum/{forum}/level/{level}/role/{role}',       'Auth\PermissionRoleController@forumDelete');
 

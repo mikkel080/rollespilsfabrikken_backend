@@ -134,4 +134,18 @@ class AuthController extends Controller
     public function user(Request $request) {
         return response()->json($request->user());
     }
+
+    public function resendEmail(ResendEmail $request) {
+        $email = $request->validated()['email'];
+
+        $user = (new User)->where('email', '=', $email)->firstOrFail();
+        $user['activation_token'] = Str::random(60);
+        $user->save();
+
+        $user->notify(new ActivationEmail($user));
+
+        return response()->json([
+            'message' => 'Successfully resend email',
+        ], 201);
+    }
 }
