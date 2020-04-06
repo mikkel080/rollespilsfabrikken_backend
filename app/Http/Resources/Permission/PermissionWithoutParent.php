@@ -15,7 +15,7 @@ class PermissionWithoutParent extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => $this->uuid,
             'level' => $this->level,
             'title' => $this->title,
             'description' => $this->description,

@@ -16,9 +16,11 @@ class Comment extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'user_id' => $this->user_id,
-            'parent_id' => $this->parent_id,
+            'id' => $this->uuid,
+            'user_id' => $this->user->uuid,
+            'parent_id' => $this->when($this->parent_id !== null, function () {
+                return $this->parent->uuid;
+            }),
             'body' => $this->body,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

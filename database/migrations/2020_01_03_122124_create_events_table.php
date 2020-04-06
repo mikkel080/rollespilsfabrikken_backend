@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Dyrynda\Database\Casts\EfficientUuid;
 
 class CreateEventsTable extends Migration
 {
@@ -15,6 +16,7 @@ class CreateEventsTable extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->unsignedBigInteger('event_id')->nullable();
             $table->unsignedBigInteger('calendar_id')->index();
             $table->unsignedBigInteger('user_id')->index();

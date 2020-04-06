@@ -91,7 +91,7 @@ class ForumTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'sanctum')->json('GET', '/api/forum/' . $forum['id'])
+            ->actingAs($user, 'sanctum')->json('GET', '/api/forum/' . $forum['uuid'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
@@ -204,14 +204,14 @@ class ForumTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $forum['obj_id'], 6);
 
         $this
-            ->actingAs($user, 'sanctum')->json('PATCH', '/api/forum/' . $forum['id'], $data)
+            ->actingAs($user, 'sanctum')->json('PATCH', '/api/forum/' . $forum['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['id']
+                    'id' => $forum['uuid']
                 ]
             ])
             ->assertJsonStructure(
@@ -239,14 +239,14 @@ class ForumTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'sanctum')->json('PATCH', '/api/forum/' . $forum['id'], $data)
+            ->actingAs($user, 'sanctum')->json('PATCH', '/api/forum/' . $forum['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['id']
+                    'id' => $forum['uuid']
                 ]
             ])
             ->assertJsonStructure(

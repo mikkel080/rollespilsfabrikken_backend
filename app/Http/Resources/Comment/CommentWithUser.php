@@ -18,8 +18,10 @@ class CommentWithUser extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'parent_id' => $this->parent_id,
+            'id' => $this->uuid,
+            'parent_id' => $this->when($this->parent_id !== null, function () {
+                return $this->parent->uuid;
+            }),
             'user' => new UserResource((new User)->find($this->user_id)),
             'body' => $this->body,
             'created_at' => $this->created_at,

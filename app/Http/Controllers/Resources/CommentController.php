@@ -83,7 +83,7 @@ class CommentController extends Controller
         $comment->user()->associate(auth()->user());
 
         if (Arr::has($data, 'parent_id')) {
-            $parentComment = (new Comment)->findOrFail($data['parent_id']);
+            $parentComment = Comment::whereUuid($data['parent_id'])->firstOrFail();
 
             if ($post['id'] != $parentComment['post_id']) {
                 return response()->json( [

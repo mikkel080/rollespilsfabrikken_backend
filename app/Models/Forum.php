@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -13,11 +15,21 @@ use Laravel\Scout\Searchable;
  */
 class Forum extends Model
 {
-    use Searchable;
+    use Searchable, GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
+
     protected $fillable = [
         'title',
         'description'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function obj() {
         return $this->belongsTo('App\Models\Obj');

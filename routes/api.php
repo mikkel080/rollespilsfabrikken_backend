@@ -60,9 +60,9 @@ Route::prefix('auth')->group(function () {
             Route::post('/{permission}/role/{role}',    'PermissionRoleController@permissionAdd');
         });
 
+        // Create edit, delete roles
+        Route::resource('role', 'RoleController');
         Route::prefix('role')->group(function () {// Get permissions from role in the context of an obj
-            // Create edit, delete roles
-            Route::resource('/', 'RoleController');
 
             // Index permissions in roles
             Route::get('/{role}/forum/{forum}/permission',          'PermissionRoleController@forumIndex');

@@ -15,7 +15,7 @@ class Forum extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => $this->uuid,
             'title' => $this->title,
             'description' => $this->description,
         ];

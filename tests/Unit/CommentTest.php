@@ -25,7 +25,7 @@ class CommentTest extends TestCase
         $post  = factory(Post::class)->create(['forum_id' => $forum['id']]);
 
         $this
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment', $data)
             ->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }
@@ -41,7 +41,7 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
     }
@@ -59,13 +59,13 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment', $data)
             ->assertStatus(201)
             ->assertJson([
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ]);
     }
@@ -77,7 +77,7 @@ class CommentTest extends TestCase
 
         $data = [
             'body'  => '# Comment body\n## This\n### Is\nFor\n- Unit\n- Testing',
-            'parent_id' => $comment['id'],
+            'parent_id' => $comment['uuid'],
         ];
 
         $user = factory(User::class)->create();
@@ -86,14 +86,14 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment', $data)
             ->assertStatus(201)
             ->assertJson([
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
                     'parent_id' => $data['parent_id'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ]);
     }
@@ -112,13 +112,13 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment', $data)
             ->assertStatus(201)
             ->assertJson([
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ]);
     }
@@ -132,7 +132,7 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment')
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
@@ -156,20 +156,19 @@ class CommentTest extends TestCase
 
         $post = $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('PATCH', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment/' . $comment['id'], $data)
+            ->json('PATCH', '/api/forum/' . $forum['uuid'] . '/post/' . $post['id'] . '/comment/' . $comment['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'comment' => [
                     'body' => $data['body'],
-                    'parent_id' => $comment['parent_id'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ]);
     }
@@ -186,7 +185,7 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment/' . $comment['id'])
+            ->json('DELETE', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment/' . $comment['uuid'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
@@ -203,7 +202,7 @@ class CommentTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'] . '/comment/' . $comment['id'])
+            ->json('DELETE', '/api/forum/' . $forum['uuid'] . '/post/' . $post['uuid'] . '/comment/' . $comment['uuid'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',

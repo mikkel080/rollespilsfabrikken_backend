@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 /**
  * Class Calendar
@@ -13,12 +15,22 @@ use Laravel\Scout\Searchable;
  */
 class Calendar extends Model
 {
-    use Searchable;
+    use Searchable, GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
+
     protected $fillable = [
         'title',
         'description',
         'obj_id'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function toSearchableArray() {
         $array = $this->toArray();

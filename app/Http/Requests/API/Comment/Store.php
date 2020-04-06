@@ -25,7 +25,7 @@ class Store extends FormRequest
     public function rules()
     {
         return [
-            'parent_id' => 'integer',
+            'parent_id' => 'string',
             'body' => 'string|required'
         ];
     }

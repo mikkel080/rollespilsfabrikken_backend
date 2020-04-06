@@ -18,7 +18,7 @@ class PermissionWithRoles extends JsonResource
     {
         return [
             'parent' => new ForumResource($this->obj->obj),
-            'id' => $this->id,
+            'id' => $this->uuid,
             'level' => $this->level,
             'title' => $this->title,
             'description' => $this->description,

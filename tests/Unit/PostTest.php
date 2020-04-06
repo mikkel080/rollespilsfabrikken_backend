@@ -25,7 +25,7 @@ class PostTest extends TestCase
         $forum = factory(Forum::class)->create();
 
         $this
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post', $data)
             ->assertStatus(401)
             ->assertJson(['message' => 'Unauthenticated.']);
     }
@@ -41,7 +41,7 @@ class PostTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
     }
@@ -59,14 +59,14 @@ class PostTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post', $data)
             ->assertStatus(201)
             ->assertJson([
                 'message' => 'success',
                 'post' => [
                     'title' => $data['title'],
                     'body' => $data['body'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ])
             ->assertJsonStructure(
@@ -98,14 +98,14 @@ class PostTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('POST', '/api/forum/' . $forum['id'] . '/post', $data)
+            ->json('POST', '/api/forum/' . $forum['uuid'] . '/post', $data)
             ->assertStatus(201)
             ->assertJson([
                 'message' => 'success',
                 'post' => [
                     'title' => $data['title'],
                     'body' => $data['body'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ])
             ->assertJsonStructure(
@@ -131,7 +131,7 @@ class PostTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post')
             ->assertStatus(200)
             ->assertJson([
             'message' => 'success',
@@ -192,20 +192,20 @@ class PostTest extends TestCase
 
         $post = $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('PATCH', '/api/forum/' . $forum['id'] . '/post/' . $post['id'], $data)
+            ->json('PATCH', '/api/forum/' . $forum['uuid'] . '/post/' . $post['id'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'post' => [
                     'title' => $data['title'],
                     'body' => $data['body'],
-                    'user_id' => $user['id'],
+                    'user_id' => $user['uuid'],
                 ]
             ])
             ->assertJsonStructure(
@@ -237,13 +237,13 @@ class PostTest extends TestCase
 
         $post = $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'])
+            ->json('DELETE', '/api/forum/' . $forum['uuid'] . '/post/' . $post['id'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
@@ -264,13 +264,13 @@ class PostTest extends TestCase
 
         $post = $this
             ->actingAs($user, 'sanctum')
-            ->json('GET', '/api/forum/' . $forum['id'] . '/post')
+            ->json('GET', '/api/forum/' . $forum['uuid'] . '/post')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['posts'][1];
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('DELETE', '/api/forum/' . $forum['id'] . '/post/' . $post['id'])
+            ->json('DELETE', '/api/forum/' . $forum['uuid'] . '/post/' . $post['id'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',

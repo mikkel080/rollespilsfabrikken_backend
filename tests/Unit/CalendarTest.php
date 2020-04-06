@@ -184,14 +184,14 @@ class CalendarTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('PATCH', '/api/calendar/' . $calendar['id'], $data)
+            ->json('PATCH', '/api/calendar/' . $calendar['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $calendar['id'],
+                    'id' => $calendar['uuid'],
                 ]
             ])
             ->assertJsonStructure(
@@ -220,14 +220,14 @@ class CalendarTest extends TestCase
 
         $this
             ->actingAs($user, 'sanctum')
-            ->json('PATCH', '/api/calendar/' . $calendar['id'], $data)
+            ->json('PATCH', '/api/calendar/' . $calendar['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $calendar['id']
+                    'id' => $calendar['uuid']
                 ]
             ])
             ->assertJsonStructure(

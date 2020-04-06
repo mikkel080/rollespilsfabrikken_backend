@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, Notifiable, GeneratesUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -48,11 +50,17 @@ class User extends Authenticatable implements CanResetPassword
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'uuid' => EfficientUuid::class,
     ];
 
     protected $appends = [
         'avatar_url',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function getAvatarUrlAttribute() {
         return asset('storage/avatars/' . $this->id . '/' . $this->avatar);

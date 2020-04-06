@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -14,7 +16,11 @@ use App\Events\Event\EventSaved;
  */
 class Event extends Model
 {
-    use Searchable;
+    use Searchable, GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     protected $fillable = [
         'title',
@@ -23,6 +29,11 @@ class Event extends Model
         'end',
         'recurrence'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function toSearchableArray() {
         $array = $this->toArray();

@@ -15,6 +15,7 @@ class CreateObjTable extends Migration
     {
         Schema::create('objs', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->enum('type', ['calendar', 'forum']);
             $table->timestamps();
         });
