@@ -5,8 +5,9 @@ namespace App\Notifications\API\Auth;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ActivationEmail extends Notification
+class ActivationEmail extends Notification implements ShouldQueue
 {
     use Queueable;
 
