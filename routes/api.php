@@ -14,79 +14,83 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Route::prefix('auth')->group(function () {
-    Route::post('login', 'Auth\AuthController@login');
-    Route::post('signup', 'Auth\AuthController@signup');
-    Route::get('activate/{token}', 'Auth\AuthController@activate');
+    Route::post('login',            'Auth\AuthController@login');
+    Route::post('signup',           'Auth\AuthController@signup');
+    Route::get('activate/{token}',  'Auth\AuthController@activate');
+    Route::post('/resend-email',    'Auth\AuthController@resendEmail');
 
-    Route::middleware([
-        'auth:api'
-    ])->group(function () {
-        Route::get('logout', 'Auth\AuthController@logout');
-        Route::get('user', 'Auth\AuthController@user');
+    // Reset passwords
+    Route::group([
+        'namespace' => 'Auth',
+        'prefix' => 'password',
+    ], function () {
+        Route::post('forgot',   'PasswordResetController@create');
+        Route::get('find/{token}',     'PasswordResetController@find');
+        Route::post('reset',    'PasswordResetController@reset');
     });
-});
 
-Route::group([
-    'middleware' => 'auth:api',
-    'prefix' => 'forum'
-], function () {
-    Route::get( '/', 'Resources\ForumController@index');
-    Route::post('/', 'Resources\ForumController@store');
+    Route::group([
+        'namespace' => 'Auth',
+        'middleware' => 'auth:sanctum'
+    ], function () {
 
-    Route::get(   '/{forum}', 'Resources\ForumController@show');
-    Route::patch( '/{forum}', 'Resources\ForumController@update');
-    Route::delete('/{forum}', 'Resources\ForumController@destroy');
+        Route::get('logout', 'AuthController@logout');
 
-    // Posts
-    Route::prefix('/{forum}/post')->group(function () {
-        Route::get('/',  'Resources\PostController@index');
-        Route::post('/', 'Resources\PostController@store');
+        // Get permissions related to object
+        Route::get('/calendar/{calendar}/permission',   'PermissionController@calendarIndex');
+        Route::get('/forum/{forum}/permission',         'PermissionController@forumIndex');
 
-        Route::get(   '/{post}', 'Resources\PostController@show');
-        Route::patch( '/{post}', 'Resources\PostController@update');
-        Route::delete('/{post}', 'Resources\PostController@destroy');
+        // Add level permission from object to role
+        Route::post('/calendar/{calendar}/level/{level}/role/{role}',   'PermissionRoleController@calendarAdd');
+        Route::post('/forum/{forum}/level/{level}/role/{role}',         'PermissionRoleController@forumAdd');
 
-        // Comments
-        Route::prefix('/{post}/comment')->group(function () {
-            Route::get('/',  'Resources\CommentController@index');
-            Route::post('/', 'Resources\CommentController@store');
+        // Delete objects level permission from role
+        Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'PermissionRoleController@calendarDelete');
+        Route::delete('/forum/{forum}/level/{level}/role/{role}',       'PermissionRoleController@forumDelete');
 
-            Route::get(   '/{comment}', 'Resources\CommentController@show');
-            Route::patch( '/{comment}', 'Resources\CommentController@update');
-            Route::delete('/{comment}', 'Resources\CommentController@destroy');
+        Route::prefix('permission')->group(function () {
+            Route::get('/',                             'PermissionController@index');
+            Route::get('/{permission}',                 'PermissionController@show');
+            Route::delete('/{permission}/role/{role}',  'PermissionRoleController@permissionDelete');
+            Route::post('/{permission}/role/{role}',    'PermissionRoleController@permissionAdd');
+        });
+
+        // Create edit, delete roles
+        Route::resource('role', 'RoleController');
+        Route::prefix('role')->group(function () {// Get permissions from role in the context of an obj
+
+            // Index permissions in roles
+            Route::get('/{role}/forum/{forum}/permission',          'PermissionRoleController@forumIndex');
+            Route::get('/{role}/calendar/{calendar}/permission',    'PermissionRoleController@calendarIndex');
+
+            // Add permissions to roles in different ways.
+            Route::post('/{role}/permission/{permission}',      'PermissionRoleController@roleAdd');
+            Route::delete('/{role}/permission/{permission}',    'PermissionRoleController@roleDelete');
+        });
+
+        Route::prefix('user')->group(function () {
+            Route::get('/', 'AuthController@user');
+
+            // Assign, index and delete roles from user
+            Route::get('/{user}/role',              'UserRoleController@index');
+            Route::post('/{user}/role/{role}',      'UserRoleController@add');
+            Route::delete('/{user}/role/{role}',    'UserRoleController@delete');
         });
     });
 });
 
 Route::group([
-    'middleware' => 'auth:api',
-    'prefix' => 'calendar'
+    'namespace' => 'Resources',
+    'middleware' => 'auth:sanctum',
 ], function () {
-    Route::get( '/', 'Resources\CalendarController@index');
-    Route::post('/', 'Resources\CalendarController@store');
-
-    Route::get(   '/{calendar}', 'Resources\CalendarController@show');
-    Route::patch( '/{calendar}', 'Resources\CalendarController@update');
-    Route::delete('/{calendar}', 'Resources\CalendarController@destroy');
-
-    // Events
-    Route::prefix('/{calendar}/event')->group(function () {
-        Route::get('/',  'Resources\EventController@index');
-        Route::post('/', 'Resources\EventController@store');
-
-        Route::get('/{event}', 'Resources\EventController@show');
-        Route::patch('/{event}', 'Resources\EventController@update');
-        Route::delete('/{event}', 'Resources\EventController@destroy');
-    });
-});
-
-Route::group([
-    'prefix' => 'test'
-], function() {
-   Route::get('comments', 'TestController@comments');
+    Route::apiResource('forum',                 'ForumController');
+    Route::apiResource('forum.post',            'PostController');
+    Route::apiResource('forum.post.comment',    'CommentController');
+    Route::apiResource('calendar',              'CalendarController');
+    Route::apiResource('calendar.event',        'EventController');
 });

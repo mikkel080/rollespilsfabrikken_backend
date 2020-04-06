@@ -10,14 +10,13 @@ use App\Http\Requests\API\Event\Store;
 use App\Http\Requests\API\Event\Update;
 use App\Models\Calendar;
 use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Helpers;
-
-// Other
-
-// Models
-
-// Requests
+use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
+use App\Http\Resources\Event\EventWithUser as EventWithUser;
+use App\Http\Resources\Event\EventCollection as EventCollection;
+use App\Http\Resources\Event\Event as EventResource;
 
 class EventController extends Controller
 {
@@ -53,7 +52,7 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'events' => $events,
+            'data' => new EventWithUserCollection($events),
         ], 200);
     }
 
@@ -69,7 +68,7 @@ class EventController extends Controller
     {
         return response()->json([
             'message' => 'success',
-            'post' => $event,
+            'post' => new EventWithUser($event),
         ], 200);
     }
 
@@ -83,14 +82,18 @@ class EventController extends Controller
     public function store(Store $request, Calendar $calendar)
     {
         $data = $request->validated();
-        $data['calendar_id'] = $calendar['id'];
-        $data['user_id'] = auth()->user()['id'];
+        $data['start'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['start'])->toDateTimeString();
+        $data['end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['end'])->toDateTimeString();
+        $event = (new Event())
+            ->fill($data)
+            ->user()
+            ->associate(auth()->user());
 
-        $event = (new Event)->create($data);
+        $calendar->events()->save($event);
 
         return response()->json( [
             'message' => 'success',
-            'event' => $event
+            'event' => new EventResource($event)
         ], 201);
     }
 
@@ -104,11 +107,15 @@ class EventController extends Controller
      */
     public function update(Update $request, Calendar $calendar, Event $event)
     {
-        $event->update($request->validated());
+        $data = $request->validated();
+        $data['start'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['start'])->toDateTimeString();
+        $data['end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['end'])->toDateTimeString();
+
+        $event->update($data);
 
         return response()->json([
             'message' => 'success',
-            'event' => $event
+            'event' => new EventResource($event)
         ], 200);
     }
 

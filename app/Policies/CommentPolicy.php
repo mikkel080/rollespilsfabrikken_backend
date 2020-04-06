@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Comment;
 use App\Models\Forum;
-use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -47,11 +46,10 @@ class CommentPolicy
      * Determine whether the user can create comments.
      *
      * @param User $user
-     * @param Post $post
      * @param Forum $forum
      * @return mixed
      */
-    public function create(User $user, Post $post, Forum $forum)
+    public function create(User $user, Forum $forum)
     {
         return (new PolicyHelper())->checkLevel($user,  $forum['obj_id'], 3);
     }
@@ -67,7 +65,7 @@ class CommentPolicy
     {
         if ($comment['user_id'] == $user['id']) return true;
 
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
     }
 
     /**
@@ -81,7 +79,7 @@ class CommentPolicy
     {
         if ($comment['user_id'] == $user['id']) return true;
 
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
     }
 
     /**
@@ -93,7 +91,7 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment)
     {
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
     }
 
     /**
@@ -105,6 +103,6 @@ class CommentPolicy
      */
     public function forceDelete(User $user, Comment $comment)
     {
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 6);
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 5);
     }
 }

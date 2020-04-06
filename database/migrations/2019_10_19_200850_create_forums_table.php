@@ -15,6 +15,7 @@ class CreateForumsTable extends Migration
     {
         Schema::create('forums', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->unsignedBigInteger('obj_id')->index();
             $table->string('title');
             $table->text('description');

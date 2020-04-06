@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -13,11 +15,14 @@ use Laravel\Scout\Searchable;
  */
 class Comment extends Model
 {
-    use Searchable;
+    use Searchable, GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
+
     protected $fillable = [
         'body',
-        'parent_id',
-        'post_id',
         'user_id'
     ];
 
@@ -31,6 +36,11 @@ class Comment extends Model
         ]);
 
         return $array;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
     public function user() {
@@ -54,10 +64,6 @@ class Comment extends Model
     }
 
     public function parent() {
-        if ($this['parent_id'] == null) {
-            return $this->post();
-        }
-
         return $this->belongsTo('App\Models\Comment', 'parent_id', 'id');
     }
 

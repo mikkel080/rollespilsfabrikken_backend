@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
+use App\Http\Requests\API\Auth\ResendEmailRequest;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Laravolt\Avatar\Avatar;
+
 
 // Notifications
 
@@ -39,12 +42,17 @@ class AuthController extends Controller
 
     public function signup(SignupRequest $request) {
         $user = $request->validated();
+
         $user['password'] = Hash::make($user['password']);
         $user['activation_token'] = Str::random(60);
 
-        $user = (new \App\Models\User)->create($user);
+        $user = (new User)->create($user);
 
-        $avatar = (new \Laravolt\Avatar\Avatar)->create($user->username)->getImageObject()->encode('png');
+        $avatar = (new Avatar)
+            ->create($user->username)
+            ->getImageObject()
+            ->encode('png');
+
         Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);
 
         $user->notify(new ActivationEmail($user));
@@ -93,8 +101,20 @@ class AuthController extends Controller
     // TODO: RESEND MAIL OPTION
     public function login(LoginRequest $request) {
         $credentials = Arr::only($request->validated(), ['email', 'password']);
-        $credentials['active'] = 1;
-        $credentials['deleted_at'] = null;
+
+        $user = (new User)->where('email', '=', $credentials['email'])->firstOrFail();
+
+        if ($user['active'] !== 1) {
+            return response()->json([
+                'message' => 'Konto er ikke aktiveret'
+            ], 401);
+        }
+
+        if ($user['deleted_at'] !== null) {
+            return response()->json([
+                'message' => 'Konto er bannet eller slettet'
+            ], 401);
+        }
 
         if (!Auth::attempt($credentials)) {
             return response()->json([
@@ -102,25 +122,13 @@ class AuthController extends Controller
             ], 401);
         }
 
-
-
         $user = $request->user();
 
-        $createdToken = $user->createToken('Personal Access Token');
-        $token = $createdToken->token;
-
-        if ($request->validated()['remember_me']) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        }
-
-        $token->save();
+        $token = $user->createToken('API token');
 
         return response()->json([
-            'access_token' => $createdToken->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $createdToken->token->expires_at
-            )->toDateTime()
+            'access_token' => $token->plainTextToken,
+            'token_type' => 'Bearer'
         ], 200);
     }
 
@@ -145,5 +153,19 @@ class AuthController extends Controller
      */
     public function user(Request $request) {
         return response()->json($request->user());
+    }
+
+    public function resendEmail(ResendEmailRequest $request) {
+        $email = $request->validated()['email'];
+
+        $user = (new User)->where('email', '=', $email)->firstOrFail();
+        $user['activation_token'] = Str::random(60);
+        $user->save();
+
+        $user->notify(new ActivationEmail($user));
+
+        return response()->json([
+            'message' => 'Successfully resend email',
+        ], 201);
     }
 }

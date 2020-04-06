@@ -17,7 +17,7 @@ class PostWithUser extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => $this->uuid,
             'user' => new UserResource((new User)->find($this->user_id)),
             'title' => $this->title,
             'body' => $this->body,

@@ -14,6 +14,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use App\Http\Controllers\Helpers;
 
+use App\Http\Resources\Comment\Comment as CommentResource;
+use App\Http\Resources\Comment\CommentCollection;
+use App\Http\Resources\Comment\CommentWithUser;
+use App\Http\Resources\Comment\CommentWithChildComments;
+use App\Http\Resources\Comment\CommentWithChildCommentsCollection;
+
 // Models
 
 // Requests
@@ -40,7 +46,7 @@ class CommentController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'comments' => $comments,
+            'data' => new CommentWithChildCommentsCollection($comments),
         ], 200);
     }
 
@@ -57,7 +63,7 @@ class CommentController extends Controller
     {
         return response()->json([
             'message' => 'success',
-            'comment' => $comment,
+            'comment' => new CommentResource($comment),
         ], 200);
     }
 
@@ -75,27 +81,24 @@ class CommentController extends Controller
 
         $comment = (new Comment())->fill($data);
         $comment->user()->associate(auth()->user());
-        $comment->post()->associate($post);
-
-        $data['post_id'] = $post['id'];
 
         if (Arr::has($data, 'parent_id')) {
-            $parentComment = (new Comment)->findOrFail($data['parent_id']);
+            $parentComment = Comment::whereUuid($data['parent_id'])->firstOrFail();
 
             if ($post['id'] != $parentComment['post_id']) {
                 return response()->json( [
                     'message' => 'The parent comment is not part of this post.',
                 ], 400);
             } else {
-                $parentComment->comments()->save($comment);
+                $comment->parent()->associate($parentComment);
             }
-        } else {
-            $comment->save();
         }
+
+        $post->comments()->save($comment);
 
         return response()->json( [
             'message' => 'success',
-            'comment' => $comment
+            'comment' => new CommentResource($comment->refresh()),
         ], 201);
     }
 
@@ -115,7 +118,7 @@ class CommentController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'comment' => $comment
+            'comment' => new CommentResource($comment),
         ], 200);
     }
 

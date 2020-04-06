@@ -15,6 +15,7 @@ class CreateObjTable extends Migration
     {
         Schema::create('objs', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->enum('type', ['calendar', 'forum']);
             $table->timestamps();
         });
@@ -27,6 +28,6 @@ class CreateObjTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('obj');
+        Schema::dropIfExists('objs');
     }
 }

@@ -15,6 +15,7 @@ class CreatePermissionTable extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->unsignedBigInteger('obj_id')->index();
             $table->unsignedInteger('level');
             $table->string('title');

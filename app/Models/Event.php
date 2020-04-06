@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Scout\Searchable;
+use App\Events\Event\EventSaved;
 
 /**
  * Class Event
@@ -13,15 +16,24 @@ use Laravel\Scout\Searchable;
  */
 class Event extends Model
 {
-    use Searchable;
+    use Searchable, GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
+
     protected $fillable = [
-        'calendar_id',
-        'user_id',
         'title',
         'description',
         'start',
-        'end'
+        'end',
+        'recurrence'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function toSearchableArray() {
         $array = $this->toArray();
@@ -43,5 +55,23 @@ class Event extends Model
 
     public function getTableColumns() {
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    }
+
+    public function user() {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    public function events()  {
+        return $this->hasMany(Event::class, 'event_id', 'id');
+    }
+
+    public function event() {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
+
+    public function saveQuietly() {
+        return static::withoutEvents(function () {
+            return $this->save();
+        });
     }
 }

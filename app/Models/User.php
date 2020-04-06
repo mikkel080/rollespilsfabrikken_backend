@@ -2,18 +2,21 @@
 
 namespace App\Models;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
  * @mixin Builder
  */
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, Notifiable;
+    use HasApiTokens, Notifiable, GeneratesUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -47,11 +50,17 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'uuid' => EfficientUuid::class,
     ];
 
     protected $appends = [
         'avatar_url',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function getAvatarUrlAttribute() {
         return asset('storage/avatars/' . $this->id . '/' . $this->avatar);
@@ -97,5 +106,10 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

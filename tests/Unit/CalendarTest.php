@@ -31,7 +31,7 @@ class CalendarTest extends TestCase
         $user = factory(User::class)->create();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
@@ -46,7 +46,7 @@ class CalendarTest extends TestCase
         $user = factory(User::class)->create();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/', $data)
             ->assertStatus(403)
             ->assertJson(['message' => 'You do not have the rights to perform this action']);
@@ -64,7 +64,7 @@ class CalendarTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('POST', '/api/calendar/', $data)
             ->assertStatus(201)
             ->assertJson([
@@ -94,7 +94,7 @@ class CalendarTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar')
             ->assertStatus(200)
             ->assertJson([
@@ -136,7 +136,7 @@ class CalendarTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 2);
 
         $this
-            ->actingAs($user, 'api')
+            ->actingAs($user, 'sanctum')
             ->json('GET', '/api/calendar')
             ->assertStatus(200)
             ->assertJson([
@@ -183,15 +183,15 @@ class CalendarTest extends TestCase
         (new TestHelper())->giveUserPermission($user, $calendar['obj_id'], 6);
 
         $this
-            ->actingAs($user, 'api')
-            ->json('PATCH', '/api/calendar/' . $calendar['id'], $data)
+            ->actingAs($user, 'sanctum')
+            ->json('PATCH', '/api/calendar/' . $calendar['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $calendar['id'],
+                    'id' => $calendar['uuid'],
                 ]
             ])
             ->assertJsonStructure(
@@ -219,15 +219,15 @@ class CalendarTest extends TestCase
         $user->save();
 
         $this
-            ->actingAs($user, 'api')
-            ->json('PATCH', '/api/calendar/' . $calendar['id'], $data)
+            ->actingAs($user, 'sanctum')
+            ->json('PATCH', '/api/calendar/' . $calendar['uuid'], $data)
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $calendar['id']
+                    'id' => $calendar['uuid']
                 ]
             ])
             ->assertJsonStructure(
@@ -249,12 +249,12 @@ class CalendarTest extends TestCase
         $user->save();
 
         $calendar = $this
-            ->actingAs($user, 'api')->json('GET', '/api/calendar')
+            ->actingAs($user, 'sanctum')->json('GET', '/api/calendar')
             ->assertStatus(200)
             ->decodeResponseJson()['data']['calendars'][1];
 
         $this
-            ->actingAs($user, 'api')->json('DELETE', '/api/calendar/' . $calendar['id'])
+            ->actingAs($user, 'sanctum')->json('DELETE', '/api/calendar/' . $calendar['id'])
             ->assertStatus(200)
             ->assertJson([
                 'message' => 'success',

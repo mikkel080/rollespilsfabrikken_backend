@@ -15,6 +15,7 @@ class CreateCalendarsTable extends Migration
     {
         Schema::create('calendars', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->efficientUuid('uuid')->index();
             $table->unsignedBigInteger('obj_id')->index();
             $table->string('title');
             $table->text('description');
