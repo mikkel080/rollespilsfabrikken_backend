@@ -19,6 +19,7 @@ class Post extends Model
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'pinned' => 'boolean'
     ];
 
     protected $fillable = [

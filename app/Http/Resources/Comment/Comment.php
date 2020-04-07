@@ -22,6 +22,7 @@ class Comment extends JsonResource
                 return $this->parent->uuid;
             }),
             'body' => $this->body,
+            'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

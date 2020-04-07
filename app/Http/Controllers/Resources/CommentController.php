@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Comment\Index;
+use App\Http\Requests\API\Comment\Pin;
 use App\Http\Requests\API\Comment\Show;
 use App\Http\Requests\API\Comment\Store;
 use App\Http\Requests\API\Comment\Update;
@@ -39,6 +40,7 @@ class CommentController extends Controller
         $comments = $post
             ->comments()
             ->where('parent_id', '=', null)
+            ->orderBy('pinned', 'desc')
             ->with('childComments')
             ->getQuery();
 
@@ -136,6 +138,32 @@ class CommentController extends Controller
 
         return response()->json([
             'message' => "success"
+        ], 200);
+    }
+
+    /**
+     * Pin the specified comment.
+     *
+     * @param Pin $request
+     * @param Forum $forum
+     * @param Post $post
+     * @param Comment $comment
+     * @return JsonResponse
+     */
+    public function pin(Pin $request, Forum $forum, Post $post, Comment $comment)
+    {
+        if ($comment->parent_id !== null) {
+            return response()->json([
+               'message' => 'You can only pin root comments'
+            ], 400);
+        }
+
+        $comment->pinned = true;
+        $comment->save();
+
+        return response()->json([
+            'message' => 'success',
+            'comment' => new CommentResource($comment),
         ], 200);
     }
 }

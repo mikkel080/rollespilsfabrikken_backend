@@ -24,6 +24,7 @@ class CommentWithChildComments extends JsonResource
             }),
             'user' => new UserResource((new User)->find($this->user_id)),
             'body' => $this->body,
+            'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'child_comments' => CommentResource::collection($this->comments)

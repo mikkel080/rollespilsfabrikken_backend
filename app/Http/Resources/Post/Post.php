@@ -19,6 +19,7 @@ class Post extends JsonResource
             'user_id' => $this->user->uuid,
             'title' => $this->title,
             'body' => $this->body,
+            'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];

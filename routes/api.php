@@ -41,7 +41,7 @@ Route::prefix('auth')->group(function () {
 
         Route::get('logout', 'AuthController@logout');
 
-        // Get permissions related to object
+        // Getæ permissions related to object
         Route::get('/calendar/{calendar}/permission',   'PermissionController@calendarIndex');
         Route::get('/forum/{forum}/permission',         'PermissionController@forumIndex');
 
@@ -93,4 +93,7 @@ Route::group([
     Route::apiResource('forum.post.comment',    'CommentController');
     Route::apiResource('calendar',              'CalendarController');
     Route::apiResource('calendar.event',        'EventController');
+
+    Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');
+    Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
 });
