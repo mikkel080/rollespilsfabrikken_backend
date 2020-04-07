@@ -123,7 +123,11 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        $token = $user->createToken('API token');
+        if ($request->device_name) {
+            $token = $user->createToken($request->device_name . ' - API token');
+        } else {
+            $token = $user->createToken('API token');
+        }
 
         return response()->json([
             'access_token' => $token->plainTextToken,

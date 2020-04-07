@@ -28,6 +28,7 @@ class LoginRequest extends FormRequest
             'email'         => 'required|string',
             'password'      => 'required|string',
             'remember_me'   => 'required|integer',
+            'device_name'   => 'string'
         ];
     }
 }
