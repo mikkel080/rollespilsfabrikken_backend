@@ -92,7 +92,7 @@ class UserController extends Controller
             ->each(function($item, $key) {
                 $item->delete();
             });
-        
+
         return response()->json([
             'message' => 'success',
             'user' => new UserResource($user->refresh()),
@@ -108,6 +108,40 @@ class UserController extends Controller
      */
     public function unban(Unban $request, User $user) {
         $user->deleted_at = null;
+        $user->save();
+
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Op user
+     *
+     * @param Ban $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function op(Ban $request, User $user) {
+        $user->super_user = true;
+        $user->save();
+
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Deop user
+     *
+     * @param Unban $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function deop(Unban $request, User $user) {
+        $user->super_user = false;
         $user->save();
 
         return response()->json([

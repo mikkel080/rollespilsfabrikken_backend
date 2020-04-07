@@ -32,4 +32,12 @@ class UserPolicy
     public function changeUsername(User $user, User $userTarget) {
         return $userTarget['id'] === $user['id'];
     }
+
+    public function op(User $user, User $userTarget) {
+        return $user->isSuperUser();
+    }
+
+    public function deop(User $user, User $userTarget) {
+        return $user->isSuperUser();
+    }
 }

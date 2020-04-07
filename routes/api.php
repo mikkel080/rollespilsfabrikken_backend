@@ -89,10 +89,18 @@ Route::group([
 ], function () {
     Route::get('/',             'UserController@user');
     Route::patch('/username',   'UserController@updateUsername');
+
+    // Permanently delete user
     Route::delete('/',          'UserController@destroySelf');
     Route::delete('/{user}',    'UserController@destroy');
+
+    // Restrict access to forum without deleting user
     Route::post('/{user}/ban',  'UserController@ban');
     Route::post('/{user}/unban','UserController@unban');
+
+    // Op to superuser
+    Route::post('/{user}/op',  'UserController@op');
+    Route::post('/{user}/deop','UserController@deop');
 });
 
 Route::group([
