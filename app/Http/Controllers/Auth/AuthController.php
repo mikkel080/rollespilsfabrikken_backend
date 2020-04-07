@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Http\Requests\API\Auth\ResendEmailRequest;
-use App\Http\Resources\User\LoggedInUser;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
@@ -103,7 +102,7 @@ class AuthController extends Controller
         $credentials = Arr::only($request->validated(), ['email', 'password']);
 
         $user = (new User)->where('email', '=', $credentials['email'])->firstOrFail();
-        
+
         if (!$user['active']) {
             return response()->json([
                 'message' => 'Kontoen er ikke aktiveret'
@@ -144,18 +143,6 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Logged out!'
         ], 200);
-    }
-
-    /**
-     * Fetch the authed user
-     *
-     * @return JsonResponse
-     */
-    public function user(Request $request) {
-        return response()->json([
-            'message' => 'success',
-            'user' => new LoggedInUser(auth()->user())
-        ]);
     }
 
     public function resendEmail(ResendEmailRequest $request) {

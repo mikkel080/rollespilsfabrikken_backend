@@ -29,9 +29,9 @@ Route::prefix('auth')->group(function () {
         'namespace' => 'Auth',
         'prefix' => 'password',
     ], function () {
-        Route::post('forgot',   'PasswordResetController@create');
-        Route::get('find/{token}',     'PasswordResetController@find');
-        Route::post('reset',    'PasswordResetController@reset');
+        Route::post('forgot',       'PasswordResetController@create');
+        Route::get('find/{token}',  'PasswordResetController@find');
+        Route::post('reset',        'PasswordResetController@reset');
     });
 
     Route::group([
@@ -41,7 +41,7 @@ Route::prefix('auth')->group(function () {
 
         Route::get('logout', 'AuthController@logout');
 
-        // Getæ permissions related to object
+        // Get permissions related to object
         Route::get('/calendar/{calendar}/permission',   'PermissionController@calendarIndex');
         Route::get('/forum/{forum}/permission',         'PermissionController@forumIndex');
 
@@ -74,14 +74,21 @@ Route::prefix('auth')->group(function () {
         });
 
         Route::prefix('user')->group(function () {
-            Route::get('/', 'AuthController@user');
-
             // Assign, index and delete roles from user
             Route::get('/{user}/role',              'UserRoleController@index');
             Route::post('/{user}/role/{role}',      'UserRoleController@add');
             Route::delete('/{user}/role/{role}',    'UserRoleController@delete');
         });
     });
+});
+
+Route::group([
+    'namespace' => 'Auth',
+    'middleware' => 'auth:sanctum',
+    'prefix' => 'user',
+], function () {
+    Route::get('/',             'UserController@user');
+    Route::patch('/username',   'UserController@updateUsername');
 });
 
 Route::group([

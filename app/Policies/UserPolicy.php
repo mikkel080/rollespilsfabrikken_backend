@@ -25,6 +25,10 @@ class UserPolicy
         }
     }
 
+    public function reset(User $user, User $userTarget) {
+        return $userTarget['id'] === $user['id'];
+    }
+
     public function changeUsername(User $user, User $userTarget) {
         return $userTarget['id'] === $user['id'];
     }
