@@ -101,6 +101,9 @@ Route::group([
     // Op to superuser
     Route::post('/{user}/op',  'UserController@op');
     Route::post('/{user}/deop','UserController@deop');
+
+    // Reset user
+    Route::post('/{user}/reset','UserController@reset');
 });
 
 Route::group([
