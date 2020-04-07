@@ -19,6 +19,7 @@ class User extends JsonResource
             'username' => $this->username,
             'avatar_url' => $this->avatar_url,
             'created_at' => $this->created_at,
+            'banned_at' => $this->when($this->deleted_at !== null, $this->deleted_at)
         ];
     }
 }

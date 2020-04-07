@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Auth\User\Ban;
+use App\Http\Requests\API\Auth\User\Unban;
 use App\Http\Resources\User\LoggedInUser;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\API\Auth\User\UpdateUsername;
 use App\Http\Requests\API\Auth\User\Destroy;
 use App\Http\Requests\API\Auth\User\DestroySelf;
+use App\Http\Resources\User\User as UserResource;
 
 class UserController extends Controller
 {
@@ -69,6 +73,46 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'success',
+        ]);
+    }
+
+    /**
+     * Ban user
+     *
+     * @param Ban $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function ban(Ban $request, User $user) {
+        $user->deleted_at = Carbon::now()->toDateTimeString();
+        $user->save();
+
+        $user
+            ->tokens()
+            ->each(function($item, $key) {
+                $item->delete();
+            });
+        
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Unban user
+     *
+     * @param Unban $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function unban(Unban $request, User $user) {
+        $user->deleted_at = null;
+        $user->save();
+
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
         ]);
     }
 }

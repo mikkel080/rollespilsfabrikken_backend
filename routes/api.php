@@ -91,6 +91,8 @@ Route::group([
     Route::patch('/username',   'UserController@updateUsername');
     Route::delete('/',          'UserController@destroySelf');
     Route::delete('/{user}',    'UserController@destroy');
+    Route::post('/{user}/ban',  'UserController@ban');
+    Route::post('/{user}/unban','UserController@unban');
 });
 
 Route::group([

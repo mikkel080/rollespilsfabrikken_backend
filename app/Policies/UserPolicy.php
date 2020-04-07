@@ -9,11 +9,11 @@ class UserPolicy
 {
     use HandlesAuthorization;
 
-    public function ban(User $user) {
+    public function ban(User $user, User $userTarget) {
         return $user->isSuperUser();
     }
 
-    public function unban(User $user) {
+    public function unban(User $user, User $userTarget) {
         return $user->isSuperUser();
     }
 
