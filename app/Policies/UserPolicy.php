@@ -26,7 +26,11 @@ class UserPolicy
     }
 
     public function reset(User $user, User $userTarget) {
-        return $userTarget['id'] === $user['id'];
+        return $user->isSuperUser();
+    }
+
+    public function clear(User $user, User $userTarget) {
+        return $user->isSuperUser();
     }
 
     public function changeUsername(User $user, User $userTarget) {
