@@ -98,16 +98,15 @@ class AuthController extends Controller
      * @return string token_type
      * @return string expires_at
      */
-    // TODO: ADD ERROR MESSAGES FOR NON ACTIVATED ACCOUNT
-    // TODO: RESEND MAIL OPTION
+
     public function login(LoginRequest $request) {
         $credentials = Arr::only($request->validated(), ['email', 'password']);
 
         $user = (new User)->where('email', '=', $credentials['email'])->firstOrFail();
-
-        if ($user['active'] !== 1) {
+        
+        if (!$user['active']) {
             return response()->json([
-                'message' => 'Konto er ikke aktiveret'
+                'message' => 'Kontoen er ikke aktiveret'
             ], 401);
         }
 
