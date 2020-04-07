@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\User\Ban;
+use App\Http\Requests\API\Auth\User\Clear;
 use App\Http\Requests\API\Auth\User\Reset;
 use App\Http\Requests\API\Auth\User\Unban;
 use App\Http\Resources\User\LoggedInUser;
+use App\Models\Comment;
+use App\Models\Event;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -172,6 +175,38 @@ class UserController extends Controller
         $user->password = Hash::make(Str::random(40));
 
         $user->save();
+
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Clear all data created by the user
+     *
+     * @param Clear $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function clear(Clear $request, User $user) {
+        $user
+            ->posts()
+            ->each(function(\App\Models\Post $post, $key) {
+               $post->delete();
+            });
+
+        $user
+            ->comments()
+            ->each(function(Comment $comment, $key) {
+                $comment->delete();
+            });
+
+        $user
+            ->events()
+            ->each(function(Event $event, $key) {
+                $event->delete();
+            });
 
         return response()->json([
             'message' => 'success',

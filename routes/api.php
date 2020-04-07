@@ -104,6 +104,7 @@ Route::group([
 
     // Reset user
     Route::post('/{user}/reset','UserController@reset');
+    Route::delete('/{user}/clear','UserController@clear');
 });
 
 Route::group([
