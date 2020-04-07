@@ -9,6 +9,10 @@ class UserPolicy
 {
     use HandlesAuthorization;
 
+    public function viewAny(User $user) {
+        return $user->isSuperUser();
+    }
+
     public function ban(User $user, User $userTarget) {
         return $user->isSuperUser();
     }

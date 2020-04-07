@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\User\Ban;
 use App\Http\Requests\API\Auth\User\Clear;
+use App\Http\Requests\API\Auth\User\Index;
 use App\Http\Requests\API\Auth\User\Reset;
 use App\Http\Requests\API\Auth\User\Unban;
 use App\Http\Resources\User\LoggedInUser;
@@ -23,6 +24,19 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    /**
+     * Fetch the authed user
+     *
+     * @param Index $request
+     * @return JsonResponse
+     */
+    public function index(Index $request) {
+        return response()->json([
+            'message' => 'success',
+            'user' => UserResource::collection(User::all())
+        ]);
+    }
+
     /**
      * Fetch the authed user
      *

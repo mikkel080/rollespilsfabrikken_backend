@@ -88,6 +88,7 @@ Route::group([
     'prefix' => 'user',
 ], function () {
     Route::get('/',             'UserController@user');
+    Route::get('/index',             'UserController@index');
     Route::patch('/username',   'UserController@updateUsername');
 
     // Permanently delete user
