@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Auth\User\AvatarUpload;
 use App\Http\Requests\API\Auth\User\Ban;
 use App\Http\Requests\API\Auth\User\Clear;
 use App\Http\Requests\API\Auth\User\Index;
@@ -20,6 +21,7 @@ use App\Http\Requests\API\Auth\User\Destroy;
 use App\Http\Requests\API\Auth\User\DestroySelf;
 use App\Http\Resources\User\User as UserResource;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -221,6 +223,36 @@ class UserController extends Controller
             ->each(function(Event $event, $key) {
                 $event->delete();
             });
+
+        return response()->json([
+            'message' => 'success',
+            'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Update avatar
+     *
+     * @param Clear $request
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function avatar(AvatarUpload $request) {
+        $user = auth()->user();
+
+        $file = $request
+            ->file('avatar');
+
+        if ($file->getSize() > 2000000) {
+            return response()->json([
+                'message' => 'Fil må være max 2mb'
+            ], 400);
+        }
+
+        $path = $file
+            ->storeAs('public/avatars/' . $user->uuid, 'avatar.' . $file->extension());
+        $user->avatar = 'avatar.' . $file->extension();
+        $user->save();
 
         return response()->json([
             'message' => 'success',

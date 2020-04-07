@@ -88,7 +88,11 @@ Route::group([
     'prefix' => 'user',
 ], function () {
     Route::get('/',             'UserController@user');
+
+    // Index users
     Route::get('/index',             'UserController@index');
+
+    // Update own username
     Route::patch('/username',   'UserController@updateUsername');
 
     // Permanently delete user
@@ -104,8 +108,11 @@ Route::group([
     Route::post('/{user}/deop','UserController@deop');
 
     // Reset user
-    Route::post('/{user}/reset','UserController@reset');
-    Route::delete('/{user}/clear','UserController@clear');
+    Route::post('/{user}/reset',    'UserController@reset');
+    Route::delete('/{user}/clear',  'UserController@clear');
+
+    // Avatar update
+    Route::post('avatar', 'UserController@avatar');
 });
 
 Route::group([

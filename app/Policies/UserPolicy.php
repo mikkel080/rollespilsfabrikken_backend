@@ -48,4 +48,8 @@ class UserPolicy
     public function deop(User $user, User $userTarget) {
         return $user->isSuperUser();
     }
+
+    public function changeAvatar(User $user, User $userTarget) {
+        return $userTarget['id'] === $user['id'];
+    }
 }
