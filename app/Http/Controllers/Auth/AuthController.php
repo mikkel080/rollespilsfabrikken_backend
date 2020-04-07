@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Http\Requests\API\Auth\ResendEmailRequest;
+use App\Http\Resources\User\LoggedInUser;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
@@ -152,7 +153,10 @@ class AuthController extends Controller
      * @return JsonResponse
      */
     public function user(Request $request) {
-        return response()->json($request->user());
+        return response()->json([
+            'message' => 'success',
+            'user' => new LoggedInUser(auth()->user())
+        ]);
     }
 
     public function resendEmail(ResendEmailRequest $request) {

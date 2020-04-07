@@ -51,6 +51,8 @@ class User extends Authenticatable implements CanResetPassword
     protected $casts = [
         'email_verified_at' => 'datetime',
         'uuid' => EfficientUuid::class,
+        'active' => 'boolean',
+        'super_user' => 'boolean',
     ];
 
     protected $appends = [
@@ -101,11 +103,7 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     public function isSuperUser() {
-        if ($this['super_user'] == 1) {
-            return true;
-        }
-
-        return false;
+        return $this->super_user;
     }
 
     public function sendPasswordResetNotification($token)
