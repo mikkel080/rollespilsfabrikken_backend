@@ -89,6 +89,8 @@ Route::group([
 ], function () {
     Route::get('/',             'UserController@user');
     Route::patch('/username',   'UserController@updateUsername');
+    Route::delete('/',          'UserController@destroySelf');
+    Route::delete('/{user}',    'UserController@destroy');
 });
 
 Route::group([

@@ -17,7 +17,7 @@ class UserPolicy
         return $user->isSuperUser();
     }
 
-    public function delete(User $user, User $userTarget) {
+    public function destroy(User $user, User $userTarget) {
         if ($user->isSuperUser()) {
             return true;
         } else {
