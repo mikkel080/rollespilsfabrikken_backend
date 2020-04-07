@@ -65,7 +65,7 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     public function getAvatarUrlAttribute() {
-        return asset('storage/avatars/' . $this->id . '/' . $this->avatar);
+        return asset('storage/avatars/' . $this->uuid . '/' . $this->avatar);
     }
 
     public function roles() {

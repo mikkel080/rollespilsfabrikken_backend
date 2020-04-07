@@ -54,7 +54,7 @@ class AuthController extends Controller
             ->getImageObject()
             ->encode('png');
 
-        Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);
+        Storage::disk('local')->put('public/avatars/' . $user->uuid . '/avatar.png', (string) $avatar);
 
         $user->notify(new ActivationEmail($user));
 
