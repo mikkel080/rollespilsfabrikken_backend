@@ -113,6 +113,10 @@ Route::group([
 
     // Avatar update
     Route::post('avatar', 'UserController@avatar');
+
+    // Tokens
+    Route::get('/token',                    'UserController@indexTokens');
+    Route::delete('/token/{token}/revoke',  'UserController@revokeToken');
 });
 
 Route::group([

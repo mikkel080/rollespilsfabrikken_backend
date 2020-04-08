@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserPolicy
 {
@@ -51,5 +52,13 @@ class UserPolicy
 
     public function changeAvatar(User $user, User $userTarget) {
         return $userTarget['id'] === $user['id'];
+    }
+
+    public function viewAnyTokens(User $user, User $userTarget) {
+        return $userTarget['id'] === $user['id'];
+    }
+
+    public function revokeToken(User $user, PersonalAccessToken $token) {
+        return $token['tokenable_id'] === $user['id'];
     }
 }

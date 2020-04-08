@@ -7,13 +7,17 @@ use App\Http\Requests\API\Auth\User\AvatarUpload;
 use App\Http\Requests\API\Auth\User\Ban;
 use App\Http\Requests\API\Auth\User\Clear;
 use App\Http\Requests\API\Auth\User\Index;
+use App\Http\Requests\API\Auth\User\IndexTokens;
 use App\Http\Requests\API\Auth\User\Reset;
+use App\Http\Requests\API\Auth\User\RevokeToken;
 use App\Http\Requests\API\Auth\User\Unban;
+use App\Http\Resources\Token\Token;
 use App\Http\Resources\User\LoggedInUser;
 use App\Models\Comment;
 use App\Models\Event;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\API\Auth\User\UpdateUsername;
@@ -23,6 +27,7 @@ use App\Http\Resources\User\User as UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserController extends Controller
 {
@@ -233,8 +238,7 @@ class UserController extends Controller
     /**
      * Update avatar
      *
-     * @param Clear $request
-     * @param User $user
+     * @param AvatarUpload $request
      * @return JsonResponse
      */
     public function avatar(AvatarUpload $request) {
@@ -257,6 +261,40 @@ class UserController extends Controller
         return response()->json([
             'message' => 'success',
             'user' => new UserResource($user->refresh()),
+        ]);
+    }
+
+    /**
+     * Update avatar
+     *
+     * @param IndexTokens $request
+     * @return JsonResponse
+     */
+    public function indexTokens(IndexTokens $request) {
+        $user = auth()->user();
+
+        return response()->json([
+            'message' => 'success',
+            'tokens' => Token::collection($user->tokens),
+        ]);
+    }
+
+    /**
+     * Update avatar
+     *
+     * @param RevokeToken $request
+     * @param PersonalAccessToken $token
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function revokeToken(RevokeToken $request, PersonalAccessToken $token) {
+        $user = auth()->user();
+
+        $token->delete();
+
+        return response()->json([
+            'message' => 'success',
+            'tokens' => Token::collection($user->tokens),
         ]);
     }
 }
