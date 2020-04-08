@@ -13,7 +13,8 @@ class ForumTest extends TestCase
     {
         $data = [
             'title' => 'Forum title for unit',
-            'description'  => 'Forum description for unit'
+            'description'  => 'Forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $this
@@ -25,7 +26,8 @@ class ForumTest extends TestCase
     public function  testCreateForumWithoutRoles() {
         $data = [
             'title' => 'Forum title for unit',
-            'description'  => 'Forum description for unit'
+            'description'  => 'Forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -39,7 +41,8 @@ class ForumTest extends TestCase
     public function  testCreateForumWithRoles() {
         $data = [
             'title' => 'Forum title for unit',
-            'description'  => 'Forum description for unit'
+            'description'  => 'Forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -53,7 +56,8 @@ class ForumTest extends TestCase
     public function  testCreateForumAsAdmin() {
         $data = [
             'title' => 'Forum title for unit',
-            'description'  => 'Forum description for unit'
+            'description'  => 'Forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -69,6 +73,7 @@ class ForumTest extends TestCase
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -77,7 +82,8 @@ class ForumTest extends TestCase
                     'forum' => [
                         'id',
                         'title',
-                        'description'
+                        'description',
+                        'colour'
                     ]
                 ]
             );
@@ -103,6 +109,7 @@ class ForumTest extends TestCase
                         'id',
                         'title',
                         'description',
+                        'colour',
                         'posts'
                     ]
                 ]
@@ -130,7 +137,8 @@ class ForumTest extends TestCase
                             [
                                 'id',
                                 'title',
-                                'description'
+                                'description',
+                                'colour'
                             ]
                         ],
                         'links' => [
@@ -171,7 +179,8 @@ class ForumTest extends TestCase
                             [
                                 'id',
                                 'title',
-                                'description'
+                                'description',
+                                'colour'
                             ]
                         ],
                         'links' => [
@@ -195,7 +204,8 @@ class ForumTest extends TestCase
     public function testUpdateForumAsUser() {
         $data = [
             'title' => 'Updated forum title for unit',
-            'description'  => 'Updated forum description for unit'
+            'description'  => 'Updated forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $forum = factory(Forum::class)->create();
@@ -211,7 +221,8 @@ class ForumTest extends TestCase
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['uuid']
+                    'id' => $forum['uuid'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -221,6 +232,7 @@ class ForumTest extends TestCase
                         'id',
                         'title',
                         'description',
+                        'colour'
                     ]
                 ]
             );
@@ -229,7 +241,8 @@ class ForumTest extends TestCase
     public function testUpdateForumAsAdmin() {
         $data = [
             'title' => 'Updated forum title for unit',
-            'description'  => 'Updated forum description for unit'
+            'description'  => 'Updated forum description for unit',
+            'colour' => '#9448bc',
         ];
 
         $forum = factory(Forum::class)->create();
@@ -246,7 +259,8 @@ class ForumTest extends TestCase
                 'forum' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $forum['uuid']
+                    'id' => $forum['uuid'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -255,7 +269,8 @@ class ForumTest extends TestCase
                     'forum' => [
                         'id',
                         'title',
-                        'description'
+                        'description',
+                        'colour'
                     ]
                 ]
             );

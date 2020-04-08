@@ -23,7 +23,8 @@ class Forum extends Model
 
     protected $fillable = [
         'title',
-        'description'
+        'description',
+        'colour'
     ];
 
     public function getRouteKeyName()

@@ -18,6 +18,7 @@ class ForumWithPosts extends JsonResource
             'id' => $this->uuid,
             'title' => $this->title,
             'description' => $this->description,
+            'colour' => $this->colour,
             'posts' => $this->posts()->count()
         ];
     }
