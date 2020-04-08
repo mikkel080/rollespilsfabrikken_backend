@@ -13,7 +13,8 @@ class CalendarTest extends TestCase
     {
         $data = [
             'title' => 'Calendar title for unit',
-            'description'  => 'Calendar description for unit'
+            'description'  => 'Calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $this
@@ -25,7 +26,8 @@ class CalendarTest extends TestCase
     public function  testCreateCalendarWithoutRoles() {
         $data = [
             'title' => 'Calendar title for unit',
-            'description'  => 'Calendar description for unit'
+            'description'  => 'Calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -40,7 +42,8 @@ class CalendarTest extends TestCase
     public function  testCreateCalendarWithRoles() {
         $data = [
             'title' => 'Calendar title for unit',
-            'description'  => 'Calendar description for unit'
+            'description'  => 'Calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -55,7 +58,8 @@ class CalendarTest extends TestCase
     public function  testCreateCalendarAsAdmin() {
         $data = [
             'title' => 'Calendar title for unit',
-            'description'  => 'Calendar description for unit'
+            'description'  => 'Calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $user = factory(User::class)->create();
@@ -72,6 +76,7 @@ class CalendarTest extends TestCase
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -80,7 +85,8 @@ class CalendarTest extends TestCase
                     'calendar' => [
                         'id',
                         'title',
-                        'description'
+                        'description',
+                        'colour'
                     ]
                 ]
             );
@@ -108,7 +114,8 @@ class CalendarTest extends TestCase
                             [
                                 'id',
                                 'title',
-                                'description'
+                                'description',
+                                'colour'
                             ]
                         ],
                         'links' => [
@@ -150,7 +157,8 @@ class CalendarTest extends TestCase
                             [
                                 'id',
                                 'title',
-                                'description'
+                                'description',
+                                'colour'
                             ]
                         ],
                         'links' => [
@@ -174,7 +182,8 @@ class CalendarTest extends TestCase
     public function testUpdateCalendarAsUser() {
         $data = [
             'title' => 'Updated calendar title for unit',
-            'description'  => 'Updated calendar description for unit'
+            'description'  => 'Updated calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -192,6 +201,7 @@ class CalendarTest extends TestCase
                     'title' => $data['title'],
                     'description' => $data['description'],
                     'id' => $calendar['uuid'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -200,7 +210,8 @@ class CalendarTest extends TestCase
                     'calendar' => [
                         'id',
                         'title',
-                        'description'
+                        'description',
+                        'colour'
                     ]
                 ]
             );
@@ -209,7 +220,8 @@ class CalendarTest extends TestCase
     public function testUpdateCalendarAsAdmin() {
         $data = [
             'title' => 'Updated calendar title for unit',
-            'description'  => 'Updated calendar description for unit'
+            'description'  => 'Updated calendar description for unit',
+            'colour' => '#9448bc',
         ];
 
         $calendar = factory(Calendar::class)->create();
@@ -227,7 +239,8 @@ class CalendarTest extends TestCase
                 'calendar' => [
                     'title' => $data['title'],
                     'description' => $data['description'],
-                    'id' => $calendar['uuid']
+                    'id' => $calendar['uuid'],
+                    'colour' => $data['colour']
                 ]
             ])
             ->assertJsonStructure(
@@ -236,7 +249,8 @@ class CalendarTest extends TestCase
                     'calendar' => [
                         'id',
                         'title',
-                        'description'
+                        'description',
+                        'colour'
                     ]
                 ]
             );

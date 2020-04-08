@@ -24,7 +24,7 @@ class Calendar extends Model
     protected $fillable = [
         'title',
         'description',
-        'obj_id'
+        'colour'
     ];
 
     public function getRouteKeyName()

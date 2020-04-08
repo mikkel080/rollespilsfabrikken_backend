@@ -18,6 +18,7 @@ class CreateForumsTable extends Migration
             $table->efficientUuid('uuid')->index();
             $table->unsignedBigInteger('obj_id')->index();
             $table->string('title');
+            $table->string('colour');
             $table->text('description');
             $table->timestamps();
 

@@ -9,6 +9,7 @@ $factory->define(Calendar::class, function (Faker $faker) {
     return [
         'title' => $faker->streetName,
         'description' => $faker->text(200),
+        'colour' => $faker->hexColor,
         'obj_id' => function() {
             return (new App\Models\Obj)->create([
                 'type' => 'calendar'
