@@ -55,6 +55,20 @@ class CommentPolicy
     }
 
     /**
+     * Determine whether the user can pin the comment.
+     *
+     * @param User $user
+     * @param Comment $comment
+     * @return mixed
+     */
+    public function pin(User $user, Comment $comment)
+    {
+        if ($comment['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
+    }
+
+    /**
      * Determine whether the user can update the comment.
      *
      * @param User $user

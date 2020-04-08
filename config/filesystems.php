@@ -42,10 +42,13 @@ return [
     */
 
     'disks' => [
-
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
+            'links' => [
+                public_path('storage') => storage_path('app/public'),
+                public_path('avatars') => storage_path('app/public/avatars'),
+            ]
         ],
 
         'public' => [

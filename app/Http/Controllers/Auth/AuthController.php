@@ -53,7 +53,7 @@ class AuthController extends Controller
             ->getImageObject()
             ->encode('png');
 
-        Storage::disk('local')->put('public/avatars/' . $user->id . '/avatar.png', (string) $avatar);
+        Storage::disk('local')->put('public/avatars/' . $user->uuid . '/avatar.png', (string) $avatar);
 
         $user->notify(new ActivationEmail($user));
 
@@ -97,16 +97,15 @@ class AuthController extends Controller
      * @return string token_type
      * @return string expires_at
      */
-    // TODO: ADD ERROR MESSAGES FOR NON ACTIVATED ACCOUNT
-    // TODO: RESEND MAIL OPTION
+
     public function login(LoginRequest $request) {
         $credentials = Arr::only($request->validated(), ['email', 'password']);
 
         $user = (new User)->where('email', '=', $credentials['email'])->firstOrFail();
 
-        if ($user['active'] !== 1) {
+        if (!$user['active']) {
             return response()->json([
-                'message' => 'Konto er ikke aktiveret'
+                'message' => 'Kontoen er ikke aktiveret'
             ], 401);
         }
 
@@ -124,7 +123,11 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        $token = $user->createToken('API token');
+        if ($request->device_name) {
+            $token = $user->createToken($request->device_name . ' - API token');
+        } else {
+            $token = $user->createToken('API token');
+        }
 
         return response()->json([
             'access_token' => $token->plainTextToken,
@@ -144,15 +147,6 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Logged out!'
         ], 200);
-    }
-
-    /**
-     * Fetch the authed user
-     *
-     * @return JsonResponse
-     */
-    public function user(Request $request) {
-        return response()->json($request->user());
     }
 
     public function resendEmail(ResendEmailRequest $request) {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Auth\Reset\RequestResetRequest;
+use App\Http\Requests\API\Auth\Reset\ResetRequest;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Notifications\API\Auth\PasswordResetRequest;
@@ -20,16 +22,12 @@ class PasswordResetController extends Controller
     /**
      * Create token password reset
      *
-     * @param Request $request
+     * @param RequestResetRequest $request
      * @return JsonResponse [string] message
      */
-    public function create(Request $request)
+    public function create(RequestResetRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-        ]);
-
-        $user = (new User)->where('email', $request->email)->firstOrFail();
+        $user = (new User)->where('email', $request->validated()['email'])->firstOrFail();
 
         $passwordReset = (new PasswordReset)->updateOrCreate(
             ['email' => $user->email],
@@ -71,26 +69,21 @@ class PasswordResetController extends Controller
     /**
      * Reset password
      *
-     * @param Request $request
+     * @param ResetRequest $request
      * @return JsonResponse [string] message
      * @throws Exception
      */
-    public function reset(Request $request)
+    public function reset(ResetRequest $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string|confirmed',
-            'token' => 'required|string'
-        ]);
-
+        $data = $request->validated();
         $passwordReset = PasswordReset::where([
-            ['token', $request->token],
-            ['email', $request->email]
+            ['token', $data['token']],
+            ['email', $data['email']]
         ])->firstOrFail();
 
         $user = User::where('email', $passwordReset->email)->firstOrFail();
 
-        $user->password = Hash::make($request['password']);
+        $user->password = Hash::make($data['password']);
         $user->save();
         $user->notify(new PasswordResetSuccess());
 

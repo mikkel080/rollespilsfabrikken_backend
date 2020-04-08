@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\API\Auth\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class IndexUser extends FormRequest
+class DestroySelf extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class IndexUser extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('destroy', auth()->user());
     }
 
     /**

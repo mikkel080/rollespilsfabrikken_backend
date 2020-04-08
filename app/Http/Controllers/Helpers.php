@@ -53,7 +53,8 @@ class Helpers
         }
 
         if ($request->query('user')) {
-            $models->where('user_id', '=', $request->query('user'));
+            $user = (new User)->whereUuid($request->query('user'))->firstOrFail();
+            $models->where('user_id', '=', $user['id']);
         }
 
         if ($request->query('direction') && in_array($request->query('direction'), ['asc', 'desc'])) {

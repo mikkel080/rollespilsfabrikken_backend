@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Comment;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\User;
@@ -17,6 +18,20 @@ class PostPolicy
         if ($user->isSuperUser()) {
             return true;
         }
+    }
+
+    /**
+     * Determine whether the user can pin the comment.
+     *
+     * @param User $user
+     * @param Comment $comment
+     * @return mixed
+     */
+    public function pin(User $user, Comment $comment)
+    {
+        if ($comment['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
     }
 
     /**

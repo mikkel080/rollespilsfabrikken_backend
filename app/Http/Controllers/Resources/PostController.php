@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Helpers;
 use App\Http\Requests\API\Post\Destroy;
 use App\Http\Requests\API\Post\Index;
+use App\Http\Requests\API\Post\Pin;
 use App\Http\Requests\API\Post\Show;
 use App\Http\Requests\API\Post\Store;
 use App\Http\Requests\API\Post\Update;
@@ -38,7 +39,12 @@ class PostController extends Controller
                 ]
             ]);
         } else {
-            $posts = (new Helpers())->filterItems($request, $forum->posts()->getQuery());
+            $query = $forum
+                ->posts()
+                ->orderBy('pinned', 'desc')
+                ->getQuery();
+
+            $posts = (new Helpers())->filterItems($request, $query);
         }
 
         return response()->json([
@@ -92,6 +98,7 @@ class PostController extends Controller
      * Url : /api/forum/{forum}/post/{post}
      *
      * @param Update $request
+     * @param Forum $forum
      * @param Post $post
      * @return JsonResponse
      */
@@ -110,6 +117,7 @@ class PostController extends Controller
      * Url : /api/forum/{forum}/post/{post}
      *
      * @param Destroy $request
+     * @param Forum $forum
      * @param Post $post
      * @return JsonResponse
      */
@@ -119,6 +127,26 @@ class PostController extends Controller
 
         return response()->json([
            'message' => "success"
+        ], 200);
+    }
+
+    /**
+     * Pin the post
+     * Url : /api/forum/{forum}/post/{post}/pin
+     *
+     * @param Pin $request
+     * @param Forum $forum
+     * @param Post $post
+     * @return JsonResponse
+     */
+    public function pin(Pin $request, Forum $forum, Post $post)
+    {
+        $post->pinned = true;
+        $post->save();
+
+        return response()->json([
+            'message' => 'success',
+            'post' => new PostResource($post)
         ], 200);
     }
 }

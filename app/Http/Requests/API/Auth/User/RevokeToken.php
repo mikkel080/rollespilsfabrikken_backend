@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\API\Auth;
+namespace App\Http\Requests\API\Auth\User;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class RevokeToken extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -14,7 +14,7 @@ class LoginRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user()->can('revokeToken', [User::class, $this->token]);
     }
 
     /**
@@ -25,10 +25,7 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email'         => 'required|string',
-            'password'      => 'required|string',
-            'remember_me'   => 'required|integer',
-            'device_name'   => 'string'
+            //
         ];
     }
 }

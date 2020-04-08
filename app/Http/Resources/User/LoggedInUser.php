@@ -4,7 +4,7 @@ namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class User extends JsonResource
+class LoggedInUser extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +17,10 @@ class User extends JsonResource
         return [
             'id' => $this->uuid,
             'username' => $this->username,
+            'email' => $this->email,
             'avatar_url' => $this->avatar_url,
             'created_at' => $this->created_at,
-            'banned_at' => $this->when($this->deleted_at !== null, $this->deleted_at),
-            'super_user' => $this->when($this->super_user === true, $this->super_user)
+            'super_user' => $this->when($this->isSuperUser(), $this->super_user)
         ];
     }
 }

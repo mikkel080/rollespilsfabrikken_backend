@@ -29,9 +29,9 @@ Route::prefix('auth')->group(function () {
         'namespace' => 'Auth',
         'prefix' => 'password',
     ], function () {
-        Route::post('forgot',   'PasswordResetController@create');
-        Route::get('find/{token}',     'PasswordResetController@find');
-        Route::post('reset',    'PasswordResetController@reset');
+        Route::post('forgot',       'PasswordResetController@create');
+        Route::get('find/{token}',  'PasswordResetController@find');
+        Route::post('reset',        'PasswordResetController@reset');
     });
 
     Route::group([
@@ -74,14 +74,49 @@ Route::prefix('auth')->group(function () {
         });
 
         Route::prefix('user')->group(function () {
-            Route::get('/', 'AuthController@user');
-
             // Assign, index and delete roles from user
             Route::get('/{user}/role',              'UserRoleController@index');
             Route::post('/{user}/role/{role}',      'UserRoleController@add');
             Route::delete('/{user}/role/{role}',    'UserRoleController@delete');
         });
     });
+});
+
+Route::group([
+    'namespace' => 'Auth',
+    'middleware' => 'auth:sanctum',
+    'prefix' => 'user',
+], function () {
+    Route::get('/',             'UserController@user');
+
+    // Index users
+    Route::get('/index',             'UserController@index');
+
+    // Update own username
+    Route::patch('/username',   'UserController@updateUsername');
+
+    // Permanently delete user
+    Route::delete('/',          'UserController@destroySelf');
+    Route::delete('/{user}',    'UserController@destroy');
+
+    // Restrict access to forum without deleting user
+    Route::post('/{user}/ban',  'UserController@ban');
+    Route::post('/{user}/unban','UserController@unban');
+
+    // Op to superuser
+    Route::post('/{user}/op',  'UserController@op');
+    Route::post('/{user}/deop','UserController@deop');
+
+    // Reset user
+    Route::post('/{user}/reset',    'UserController@reset');
+    Route::delete('/{user}/clear',  'UserController@clear');
+
+    // Avatar update
+    Route::post('avatar', 'UserController@avatar');
+
+    // Tokens
+    Route::get('/token',                    'UserController@indexTokens');
+    Route::delete('/token/{token}/revoke',  'UserController@revokeToken');
 });
 
 Route::group([
@@ -93,4 +128,7 @@ Route::group([
     Route::apiResource('forum.post.comment',    'CommentController');
     Route::apiResource('calendar',              'CalendarController');
     Route::apiResource('calendar.event',        'EventController');
+
+    Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');
+    Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
 });

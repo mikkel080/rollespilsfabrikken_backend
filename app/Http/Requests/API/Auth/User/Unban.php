@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Requests\API\Auth;
+namespace App\Http\Requests\API\Auth\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class Unban extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -14,7 +13,7 @@ class LoginRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user()->can('unban', $this->user);
     }
 
     /**
@@ -25,10 +24,7 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email'         => 'required|string',
-            'password'      => 'required|string',
-            'remember_me'   => 'required|integer',
-            'device_name'   => 'string'
+            //
         ];
     }
 }
