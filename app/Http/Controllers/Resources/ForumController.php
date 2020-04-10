@@ -46,7 +46,7 @@ class ForumController extends Controller
         }
 
         $forums = (new Helpers())->filterItems($request, $forums);
-        //return new ForumCollection($forums);
+
         return response()->json([
             'message' => 'success',
             'data' => new ForumCollection($forums)
