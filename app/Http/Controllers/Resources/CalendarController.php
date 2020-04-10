@@ -9,7 +9,7 @@ use App\Http\Requests\API\Calendar\Destroy;
 use App\Http\Requests\API\Calendar\Show;
 use App\Http\Requests\API\Calendar\Store;
 use App\Http\Requests\API\Calendar\Update;
-use App\Http\Resources\Calendar\CalendarWithEvents as CalendarWithEvents;;
+use App\Http\Resources\Calendar\CalendarWithEvents as CalendarWithEvents;
 use App\Models\Calendar;
 use App\Models\Obj;
 use App\Policies\PolicyHelper;
