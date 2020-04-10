@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Http\Requests\API\Auth\ResendEmailRequest;
+use App\Models\SecurityQuestion;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
@@ -41,7 +42,17 @@ class AuthController extends Controller
      */
 
     public function signup(SignupRequest $request) {
-        $user = $request->validated();
+        $data = $request->validated();
+
+        $securityQuestion = (new SecurityQuestion)->whereUuid($data['security_question'])->firstOrFail();
+
+        if ($securityQuestion['answer'] !== $data['answer']) {
+            return response()->json([
+                'message' => 'Svaret var forkert'
+            ], 401);
+        }
+
+        $user = Arr::only($data, ['username', 'email', 'password']);
 
         $user['password'] = Hash::make($user['password']);
         $user['activation_token'] = Str::random(60);
