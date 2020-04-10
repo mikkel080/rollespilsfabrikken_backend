@@ -10,6 +10,7 @@ use App\Models\Permission;
 use App\Models\Post;
 use App\Models\Role;
 use App\Models\RolePerm;
+use App\Models\SecurityQuestion;
 use App\Models\User;
 use App\Policies\CalendarPolicy;
 use App\Policies\CommentPolicy;
@@ -19,6 +20,7 @@ use App\Policies\PermissionPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\RolePermPolicy;
 use App\Policies\RolePolicy;
+use App\Policies\SecurityQuesitonPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
@@ -36,15 +38,16 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // 'App\Model' => 'App\Policies\ModelPolicy',
-        Forum::class        => ForumPolicy::class,
-        Post::class         => PostPolicy::class,
-        Calendar::class     => CalendarPolicy::class,
-        Event::class        => EventPolicy::class,
-        Comment::class      => CommentPolicy::class,
-        Permission::class   => PermissionPolicy::class,
-        Role::class         => RolePolicy::class,
-        RolePerm::class     => RolePermPolicy::class,
-        User::class         => UserPolicy::class
+        Forum::class            => ForumPolicy::class,
+        Post::class             => PostPolicy::class,
+        Calendar::class         => CalendarPolicy::class,
+        Event::class            => EventPolicy::class,
+        Comment::class          => CommentPolicy::class,
+        Permission::class       => PermissionPolicy::class,
+        Role::class             => RolePolicy::class,
+        RolePerm::class         => RolePermPolicy::class,
+        User::class             => UserPolicy::class,
+        SecurityQuestion::class => SecurityQuesitonPolicy::class
     ];
 
     /**

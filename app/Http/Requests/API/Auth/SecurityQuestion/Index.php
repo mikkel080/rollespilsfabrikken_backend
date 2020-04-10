@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\API\Auth;
+namespace App\Http\Requests\API\Auth\SecurityQuestion;
 
+use App\Models\SecurityQuestion;
 use Illuminate\Foundation\Http\FormRequest;
 
-class SignupRequest extends FormRequest
+class Index extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class SignupRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->user()->can('viewAny', SecurityQuestion::class);
     }
 
     /**
@@ -24,11 +25,7 @@ class SignupRequest extends FormRequest
     public function rules()
     {
         return [
-            'username' => 'string|required',
-            'email' => 'email|unique:users,email|confirmed|required',
-            'password' => 'string|required|min:8|confirmed|',
-            'security_question' => 'string|required',
-            'answer' => 'string|required'
+            //
         ];
     }
 }

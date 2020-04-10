@@ -10,6 +10,7 @@ use App\Models\Obj;
 use App\Models\Permission;
 use App\Models\Post;
 use App\Models\Role;
+use App\Models\SecurityQuestion;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -82,6 +83,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('user', function ($model) {
             return (new User)->whereUuid($model)->first();
+        });
+
+        Route::bind('securityQuestion', function ($model) {
+            return (new SecurityQuestion)->whereUuid($model)->first();
         });
     }
 

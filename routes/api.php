@@ -23,6 +23,7 @@ Route::prefix('auth')->group(function () {
     Route::post('signup',           'Auth\AuthController@signup');
     Route::get('activate/{token}',  'Auth\AuthController@activate');
     Route::post('/resend-email',    'Auth\AuthController@resendEmail');
+    Route::get('/security-question','Auth\SecurityQuestionController@show');
 
     // Reset passwords
     Route::group([
@@ -118,6 +119,10 @@ Route::group([
     Route::get('/token',                    'UserController@indexTokens');
     Route::delete('/token/{token}/revoke',  'UserController@revokeToken');
 });
+
+Route::apiResource('securityQuestion', 'Auth\SecurityQuestionController')->except([
+    'show'
+])->middleware('auth:sanctum');
 
 Route::group([
     'namespace' => 'Resources',
