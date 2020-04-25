@@ -141,7 +141,12 @@ class PostController extends Controller
      */
     public function pin(Pin $request, Forum $forum, Post $post)
     {
-        $post->pinned = true;
+        if ($post->pinned) {
+            $post->pinned = false;
+        } else {
+            $post->pinned = true;
+        }
+
         $post->save();
 
         return response()->json([

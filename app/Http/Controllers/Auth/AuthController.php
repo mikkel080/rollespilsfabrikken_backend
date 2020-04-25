@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Http\Requests\API\Auth\ResendEmailRequest;
+use App\Http\Resources\User\User as UserResource;
 use App\Models\SecurityQuestion;
 use App\Models\User;
 use App\Notifications\API\Auth\ActivationEmail;
@@ -96,7 +97,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Activated',
-            'user' => $user
+            'user' => new UserResource($user)
         ]);
     }
 
