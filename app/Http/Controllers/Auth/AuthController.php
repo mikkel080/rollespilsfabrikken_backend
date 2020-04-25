@@ -153,7 +153,7 @@ class AuthController extends Controller
      * @return string message
      */
     public function logout(Request $request) {
-        $request->user()->token()->revoke();
+        $request->user()->tokens()->orderBy('last_used_at', 'desc')->firstOrFail()->delete();
 
         return response()->json([
             'message' => 'Logged out!'
