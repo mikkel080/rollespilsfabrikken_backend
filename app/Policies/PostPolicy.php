@@ -59,6 +59,32 @@ class PostPolicy
     }
 
     /**
+     * Determine whether the user can view the file attached to a post.
+     *
+     * @param User $user
+     * @param Post $post
+     * @return mixed
+     */
+    public function downloadFile(User $user, Post $post)
+    {
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 2);
+    }
+
+    /**
+     * Determine whether the user can add files the post.
+     *
+     * @param User $user
+     * @param Post $post
+     * @return mixed
+     */
+    public function addFile(User $user, Post $post)
+    {
+        if ($post['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
+    }
+
+    /**
      * Determine whether the user can create posts.
      *
      * @param User $user

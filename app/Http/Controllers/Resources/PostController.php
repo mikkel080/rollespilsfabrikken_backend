@@ -9,15 +9,20 @@ use App\Http\Requests\API\Post\Index;
 use App\Http\Requests\API\Post\Pin;
 use App\Http\Requests\API\Post\Show;
 use App\Http\Requests\API\Post\Store;
+use App\Http\Requests\API\Post\File as AddFile;
+use App\Http\Requests\API\Post\DownloadFile;
 use App\Http\Requests\API\Post\Update;
 use App\Models\Forum;
 use App\Models\Post;
+use App\Models\PostFile;
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Resources\Post\Post as PostResource;
+use App\Http\Resources\PostFile\PostFile as PostFileResource;
 use App\Http\Resources\Post\PostCollection as PostCollection;
 use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
 use App\Http\Resources\Post\PostWithUserCollection as PostWithUserCollection;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -85,7 +90,19 @@ class PostController extends Controller
             ->fill($request->validated())
             ->user()
             ->associate(auth()->user());
+
         $forum->posts()->save($post);
+
+        if ($request->hasFile(('files'))) {
+            foreach ($request->file('files') as $file) {
+                $postFile = (new PostFile)->fill([
+                    'name' => $file->getClientOriginalName(),
+                    'saved_name' => $file->store('post_uploads')
+                ]);
+
+                $post->files()->save($postFile);
+            }
+        }
 
         return response()->json( [
             'message' => 'success',
@@ -153,5 +170,52 @@ class PostController extends Controller
             'message' => 'success',
             'post' => new PostResource($post)
         ], 200);
+    }
+
+    public function file(AddFile $request, Forum $forum, Post $post) {
+        if ($request->hasFile(('files'))) {
+            foreach ($request->file('files') as $file) {
+                $existingFile = (new PostFile)->where([
+                    ['post_id', '=', $post['id']],
+                    ['name', '=', $file->getClientOriginalName()]
+                ])->first();
+
+                if ($existingFile) {
+                    Storage::delete($existingFile->saved_name);
+                    $existingFile->delete();
+                }
+
+                $postFile = (new PostFile)->fill([
+                    'name' => $file->getClientOriginalName(),
+                    'saved_name' => $file->store('post_uploads')
+                ]);
+
+                $post->files()->save($postFile);
+            }
+        }
+
+        if ($request->exists('file_changes')) {
+            foreach ($request->validated()['file_changes'] as $file_change) {
+                $file = (new PostFile)->whereUuid($file_change['id'])->first();
+
+                if (!$file) {
+                    continue;
+                }
+
+                if ($file_change['change'] === 'delete') {
+                    Storage::delete($file->saved_name);
+                    $file->delete();
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'post' => new PostResource($post)
+        ], 200);
+    }
+
+    public function getFile(DownloadFile $request, Forum $forum, Post $post, PostFile $file) {
+        return Storage::download($file->saved_name, $file->name);
     }
 }

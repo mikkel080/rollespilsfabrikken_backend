@@ -26,7 +26,7 @@ class Store extends FormRequest
     {
         return [
             'title' => 'string|required',
-            'body' => 'string|required'
+            'body' => 'string|required',
         ];
     }
 }
