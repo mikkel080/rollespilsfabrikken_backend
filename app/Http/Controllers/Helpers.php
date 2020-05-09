@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
@@ -81,6 +82,10 @@ class Helpers
         $items = 5;
 
         $models = $model::search($request->query('search'));
+
+        if ($models == null || $models->first() == null) {
+            return $models->paginate();
+        }
 
         if ($request->query('items')) {
             $items = $request->query('items');

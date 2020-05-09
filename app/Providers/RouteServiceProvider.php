@@ -9,6 +9,7 @@ use App\Models\Forum;
 use App\Models\Obj;
 use App\Models\Permission;
 use App\Models\Post;
+use App\Models\PostFile;
 use App\Models\Role;
 use App\Models\SecurityQuestion;
 use App\Models\User;
@@ -87,6 +88,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('securityQuestion', function ($model) {
             return (new SecurityQuestion)->whereUuid($model)->first();
+        });
+
+        Route::bind('file', function ($model) {
+            return (new PostFile)->whereUuid($model)->first();
         });
     }
 

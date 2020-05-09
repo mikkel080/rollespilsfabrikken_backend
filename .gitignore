@@ -3,6 +3,10 @@
 /public/storage
 /storage/*.key
 /storage/*.index
+/storage/app/post_uploads/*
+/storage/app/public/avatars/*
+!/storage/app/post_uploads/.gitkeep
+!/storage/app/public/avatars/.gitkeep
 /vendor
 .env
 .env.backup
