@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -63,6 +64,12 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof AuthorizationException) {
             return response()->json(['message' => 'You do not have the rights to perform this action'], 403);
+        }
+
+        if ($exception instanceof PostTooLargeException) {
+            ob_get_contents();
+            ob_end_clean();
+            return response()->json(['message' => 'That file is too large, max size: ' . ini_get('upload_max_filesize')], 422);
         }
 
         return parent::render($request, $exception);
