@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Helpers;
 use App\Http\Requests\API\Post\Destroy;
 use App\Http\Requests\API\Post\Index;
+use App\Http\Requests\API\Post\Newest;
 use App\Http\Requests\API\Post\Pin;
 use App\Http\Requests\API\Post\Show;
 use App\Http\Requests\API\Post\Store;
@@ -13,6 +14,8 @@ use App\Http\Requests\API\Post\File as AddFile;
 use App\Http\Requests\API\Post\DownloadFile;
 use App\Http\Requests\API\Post\Update;
 use App\Http\Resources\Post\PostIndexCollection;
+use App\Http\Resources\Post\PostIndexNewest;
+use App\Http\Resources\Post\PostIndexNewestCollection;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostFile;
@@ -26,6 +29,43 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     * Url : /api/forum/{forum}/posts
+     *
+     * @param Newest $request
+     * @param Forum $forum
+     * @return JsonResponse
+     */
+    public function newest(Newest $request,  Forum $forum)
+    {
+        $user = auth()->user();
+
+        $forums = Forum::query();
+
+        if (!$user->isSuperUser()) {
+            $forums
+                ->whereIn('obj_id',
+                    collect($user->permissions())
+                        ->where('level', '>', 1)
+                        ->pluck('obj_id')
+                );
+        }
+
+        $forums
+            ->select('id')
+            ->get();
+
+        $query = Post::query()
+            ->whereIn('forum_id', $forums)
+            ->orderBy('created_at', 'desc');
+
+        return response()->json([
+            'message' => 'success',
+            'data' => new PostIndexNewestCollection((new Helpers())->filterItems($request, $query)),
+        ], 200);
+    }
+
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts

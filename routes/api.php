@@ -141,4 +141,5 @@ Route::group([
     // Get posts file
     Route::post('/forum/{forum}/post/{post}/file',                  'PostController@file');
     Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostController@getFile');
+    Route::get('/post',                                             'PostController@newest');
 });

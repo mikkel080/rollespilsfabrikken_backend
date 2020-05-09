@@ -35,6 +35,17 @@ class PostPolicy
     }
 
     /**
+     * Determine whether the user can view newest posts.
+     *
+     * @param User $user
+     * @return mixed
+     */
+    public function viewNewest(User $user)
+    {
+        dd(auth()->check());
+    }
+
+    /**
      * Determine whether the user can view any posts.
      *
      * @param User $user

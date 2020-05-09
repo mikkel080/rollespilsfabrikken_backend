@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Http\Resources\Forum\Forum;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\User\User as UserResource;
 use App\Models\User;
 
-class PostIndex extends JsonResource
+class PostIndexNewest extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,6 +19,7 @@ class PostIndex extends JsonResource
     {
         return [
             'id' => $this->uuid,
+            'parent' => new Forum($this->forum),
             'user' => new UserResource((new User)->find($this->user_id)),
             'title' => $this->title,
             'pinned' => $this->pinned,
