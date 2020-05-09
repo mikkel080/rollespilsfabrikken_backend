@@ -74,7 +74,7 @@ class CalendarTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'colour' => $data['colour']
                 ]
@@ -84,7 +84,7 @@ class CalendarTest extends TestCase
                     'message',
                     'calendar' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]
@@ -113,7 +113,7 @@ class CalendarTest extends TestCase
                         'calendars' => [
                             [
                                 'id',
-                                'title',
+                                'name',
                                 'description',
                                 'colour'
                             ]
@@ -156,7 +156,7 @@ class CalendarTest extends TestCase
                         'calendars' => [
                             [
                                 'id',
-                                'title',
+                                'name',
                                 'description',
                                 'colour'
                             ]
@@ -198,7 +198,7 @@ class CalendarTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'id' => $calendar['uuid'],
                     'colour' => $data['colour']
@@ -209,7 +209,7 @@ class CalendarTest extends TestCase
                     'message',
                     'calendar' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]
@@ -237,7 +237,7 @@ class CalendarTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'calendar' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'id' => $calendar['uuid'],
                     'colour' => $data['colour']
@@ -248,7 +248,7 @@ class CalendarTest extends TestCase
                     'message',
                     'calendar' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]

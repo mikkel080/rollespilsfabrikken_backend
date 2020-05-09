@@ -16,7 +16,7 @@ class CalendarWithEvents extends JsonResource
     {
         return [
             'id' => $this->uuid,
-            'title' => $this->title,
+            'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
             'events' => $this->events()->count()

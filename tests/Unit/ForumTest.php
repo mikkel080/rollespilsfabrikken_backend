@@ -71,7 +71,7 @@ class ForumTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'forum' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'colour' => $data['colour']
                 ]
@@ -81,7 +81,7 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]
@@ -107,7 +107,7 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour',
                         'posts'
@@ -136,7 +136,7 @@ class ForumTest extends TestCase
                         'forums' => [
                             [
                                 'id',
-                                'title',
+                                'name',
                                 'description',
                                 'colour'
                             ]
@@ -178,7 +178,7 @@ class ForumTest extends TestCase
                         'forums' => [
                             [
                                 'id',
-                                'title',
+                                'name',
                                 'description',
                                 'colour'
                             ]
@@ -219,7 +219,7 @@ class ForumTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'forum' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'id' => $forum['uuid'],
                     'colour' => $data['colour']
@@ -230,7 +230,7 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]
@@ -257,7 +257,7 @@ class ForumTest extends TestCase
             ->assertJson([
                 'message' => 'success',
                 'forum' => [
-                    'title' => $data['title'],
+                    'name' => $data['title'],
                     'description' => $data['description'],
                     'id' => $forum['uuid'],
                     'colour' => $data['colour']
@@ -268,7 +268,7 @@ class ForumTest extends TestCase
                     'message',
                     'forum' => [
                         'id',
-                        'title',
+                        'name',
                         'description',
                         'colour'
                     ]
