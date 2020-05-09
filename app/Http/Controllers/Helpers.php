@@ -44,6 +44,10 @@ class Helpers
         $items = 5;
         $sortBy = 'created_at';
         $order  = 'asc';
+	
+        if ($models == null || !$models->first()) {
+            return $models->paginate();
+        }
 
         if ($request->query('before') && $date = $this->convertDate($request->query('before'))) {
             $models->where('created_at', '<', $date);
@@ -83,7 +87,7 @@ class Helpers
 
         $models = $model::search($request->query('search'));
 
-        if ($models == null || $models->first() == null) {
+        if ($models == null || !$models->first()) {
             return $models->paginate();
         }
 
