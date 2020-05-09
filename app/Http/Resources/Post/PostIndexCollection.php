@@ -2,14 +2,15 @@
 
 namespace App\Http\Resources\Post;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class PostWithUserCollection extends ResourceCollection
+class PostIndexCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)

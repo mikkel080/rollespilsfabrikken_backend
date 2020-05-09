@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Forum;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Post\PostWithUserCollection;
+use App\Http\Resources\Post\PostIndexCollection;
 class ForumWithPosts extends JsonResource
 {
     /**

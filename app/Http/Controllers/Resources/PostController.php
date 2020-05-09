@@ -12,6 +12,7 @@ use App\Http\Requests\API\Post\Store;
 use App\Http\Requests\API\Post\File as AddFile;
 use App\Http\Requests\API\Post\DownloadFile;
 use App\Http\Requests\API\Post\Update;
+use App\Http\Resources\Post\PostIndexCollection;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostFile;
@@ -21,7 +22,6 @@ use App\Http\Resources\Post\Post as PostResource;
 use App\Http\Resources\PostFile\PostFile as PostFileResource;
 use App\Http\Resources\Post\PostCollection as PostCollection;
 use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
-use App\Http\Resources\Post\PostWithUserCollection as PostWithUserCollection;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -54,7 +54,7 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'data' => new PostWithUserCollection($posts),
+            'data' => new PostIndexCollection($posts),
         ], 200);
     }
 

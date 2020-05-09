@@ -39,11 +39,11 @@ class EventController extends Controller
         } else {
             $events = $calendar->events()->getQuery();
 
-            if ($request->query('timeMax') && $date = (new Helpers())->convertDate($request->query('timeMax'))) {
+            if ($request->query('start') && $date = (new Helpers())->convertDate($request->query('timeMax'))) {
                 $events->where('start', '<', $date);
             }
 
-            if ($request->query('timeMin') && $date = (new Helpers())->convertDate($request->query('timeMin'))) {
+            if ($request->query('end') && $date = (new Helpers())->convertDate($request->query('timeMin'))) {
                 $events->where('start', '>', $date);
             }
 
