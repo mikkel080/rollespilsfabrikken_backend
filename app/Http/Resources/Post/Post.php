@@ -24,6 +24,7 @@ class Post extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
+	    'comments' => $this->comments()->count(),
         ];
     }
 }

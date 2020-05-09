@@ -25,6 +25,7 @@ class PostWithUser extends JsonResource
             'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+	    'comments' => $this->comments()->count(),
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
         ];
     }
