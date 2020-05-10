@@ -41,24 +41,24 @@ class AuthController extends Controller
      * @param string password
      * @return string activation_token // TODO: REMOVE THIS
      */
-
     public function signup(SignupRequest $request) {
-        $data = $request->validated();
+        $securityQuestion = (new SecurityQuestion)->whereUuid($request['security_question'])->firstOrFail();
 
-        $securityQuestion = (new SecurityQuestion)->whereUuid($data['security_question'])->firstOrFail();
-
-        if ($securityQuestion['answer'] !== $data['answer']) {
+        if ($securityQuestion['answer'] !== $request['answer']) {
             return response()->json([
                 'message' => 'Svaret var forkert'
             ], 401);
         }
 
-        $user = Arr::only($data, ['username', 'email', 'password']);
+        $request['password'] = Hash::make($request['password']);
+        $request['activation_token'] = Str::random(60);
 
-        $user['password'] = Hash::make($user['password']);
-        $user['activation_token'] = Str::random(60);
-
-        $user = (new User)->create($user);
+        $user = (new User)->create([
+            'username' => $request['username'],
+            'email' => $request['email'],
+            'password' => $request['password'],
+            'activation_token' => $request['activation_token']
+        ]);
 
         $avatar = (new Avatar)
             ->create($user->username)
@@ -67,7 +67,7 @@ class AuthController extends Controller
 
         Storage::disk('local')->put('public/avatars/' . $user->uuid . '/avatar.png', (string) $avatar);
 
-        $user->notify(new ActivationEmail($user));
+        $user->notify(new ActivationEmail());
 
         return response()->json([
             'message' => 'Successfully created user',

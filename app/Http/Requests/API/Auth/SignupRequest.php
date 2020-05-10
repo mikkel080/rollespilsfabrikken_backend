@@ -3,6 +3,7 @@
 namespace App\Http\Requests\API\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class SignupRequest extends FormRequest
 {
@@ -26,7 +27,7 @@ class SignupRequest extends FormRequest
         return [
             'username' => 'string|required',
             'email' => 'email|unique:users,email|confirmed|required',
-            'password' => 'string|required|min:8|confirmed|',
+            'password' => 'string|required|min:8|confirmed',
             'security_question' => 'string|required',
             'answer' => 'string|required'
         ];

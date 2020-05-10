@@ -72,10 +72,10 @@ class Handler extends ExceptionHandler
             ob_end_clean();
             return response()->json(['message' => 'That file is too large, max size: ' . ini_get('upload_max_filesize')], 422);
         }
-	
-	if ($exception instanceof InvalidUuidStringException) {
-		return response()->json(['message' => 'That uuid is not properly formatted or invalid'], 422);
-	}
+
+        if ($exception instanceof InvalidUuidStringException) {
+            return response()->json(['message' => 'That uuid is not properly formatted or invalid'], 422);
+        }
         return parent::render($request, $exception);
     }
 }
