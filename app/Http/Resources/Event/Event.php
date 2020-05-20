@@ -24,6 +24,10 @@ class Event extends JsonResource
             'recurrence' => $this->recurrence,
             'updated_at' => $this->updated_at,
             'created_at' => $this->created_at,
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource)
+            ],
         ];
     }
 }

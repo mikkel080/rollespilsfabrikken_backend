@@ -86,7 +86,12 @@ class CalendarTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_events'
+                        ]
                     ]
                 ]
             );
@@ -115,7 +120,12 @@ class CalendarTest extends TestCase
                                 'id',
                                 'name',
                                 'description',
-                                'colour'
+                                'colour',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete',
+                                    'can_add_events'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -158,7 +168,12 @@ class CalendarTest extends TestCase
                                 'id',
                                 'name',
                                 'description',
-                                'colour'
+                                'colour',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete',
+                                    'can_add_events'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -211,7 +226,12 @@ class CalendarTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_events'
+                        ]
                     ]
                 ]
             );
@@ -250,7 +270,12 @@ class CalendarTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_events'
+                        ]
                     ]
                 ]
             );

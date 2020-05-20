@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Post;
 
 use App\Http\Resources\PostFile\PostFile as PostFileResource;
+use App\Models\Comment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Post extends JsonResource
@@ -24,6 +25,11 @@ class Post extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource),
+                'can_add_comments' => auth()->user()->can('create', [Comment::class, $this->resource->forum])
+            ],
         ];
     }
 }

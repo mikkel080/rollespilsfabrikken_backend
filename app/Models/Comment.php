@@ -53,7 +53,7 @@ class Comment extends Model
     }
 
     public function forum() {
-        return $this->post->forum;
+        return $this->post->forum();
     }
 
     public function comments() {

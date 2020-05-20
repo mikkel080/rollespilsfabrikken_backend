@@ -83,7 +83,13 @@ class ForumTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_posts',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
@@ -110,7 +116,13 @@ class ForumTest extends TestCase
                         'name',
                         'description',
                         'colour',
-                        'posts'
+                        'posts',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_posts',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
@@ -138,7 +150,13 @@ class ForumTest extends TestCase
                                 'id',
                                 'name',
                                 'description',
-                                'colour'
+                                'colour',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete',
+                                    'can_add_posts',
+                                    'can_add_comments'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -180,7 +198,13 @@ class ForumTest extends TestCase
                                 'id',
                                 'name',
                                 'description',
-                                'colour'
+                                'colour',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete',
+                                    'can_add_posts',
+                                    'can_add_comments'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -232,7 +256,13 @@ class ForumTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_posts',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
@@ -270,7 +300,13 @@ class ForumTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'colour'
+                        'colour',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_posts',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
