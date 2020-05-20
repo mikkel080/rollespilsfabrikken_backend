@@ -79,6 +79,11 @@ class PostTest extends TestCase
                         'body',
                         'created_at',
                         'updated_at',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
@@ -118,6 +123,11 @@ class PostTest extends TestCase
                         'body',
                         'created_at',
                         'updated_at',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );
@@ -150,9 +160,13 @@ class PostTest extends TestCase
                                     'created_at'
                                 ],
                                 'title',
-                                'body',
                                 'created_at',
                                 'updated_at',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete',
+                                    'can_add_comments'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -218,6 +232,11 @@ class PostTest extends TestCase
                         'body',
                         'created_at',
                         'updated_at',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete',
+                            'can_add_comments'
+                        ]
                     ]
                 ]
             );

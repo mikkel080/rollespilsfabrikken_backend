@@ -27,6 +27,10 @@ class CommentWithChildComments extends JsonResource
             'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource)
+            ],
             'child_comments' => CommentResource::collection($this->comments)
         ];
     }

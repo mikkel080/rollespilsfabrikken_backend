@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Calendar;
 
+use App\Models\Event;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Calendar extends JsonResource
@@ -19,6 +20,11 @@ class Calendar extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource),
+                'can_add_events' => auth()->user()->can('create',[Event::class, $this->resource]),
+            ]
         ];
     }
 }

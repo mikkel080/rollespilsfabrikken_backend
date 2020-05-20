@@ -26,7 +26,11 @@ class CommentWithUser extends JsonResource
             'body' => $this->body,
             'pinned' => $this->pinned,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'updated_at' => $this->updated_at,
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource)
+            ],
         ];
     }
 }

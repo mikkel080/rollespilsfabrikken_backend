@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Post;
 
 use App\Http\Resources\Forum\Forum;
+use App\Models\Comment;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\User\User as UserResource;
 use App\Models\User;
@@ -27,7 +28,11 @@ class PostIndexNewest extends JsonResource
             'comments' => $this->comments()->count(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource),
+                'can_add_comments' => auth()->user()->can('create', [Comment::class, $this->resource->forum])
+            ],
         ];
     }
 }

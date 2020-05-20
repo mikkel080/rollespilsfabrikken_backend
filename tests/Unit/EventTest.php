@@ -86,6 +86,10 @@ class EventTest extends TestCase
                         'user_id',
                         'created_at',
                         'updated_at',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete'
+                        ]
                     ]
                 ]
             );
@@ -126,7 +130,11 @@ class EventTest extends TestCase
                         'user_id',
                         'created_at',
                         'updated_at',
-                        'id'
+                        'id',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete'
+                        ]
                     ]
                 ]
             );
@@ -162,6 +170,10 @@ class EventTest extends TestCase
                                 'description',
                                 'created_at',
                                 'updated_at',
+                                'permissions' => [
+                                    'can_update',
+                                    'can_delete'
+                                ]
                             ]
                         ],
                         'links' => [
@@ -233,7 +245,11 @@ class EventTest extends TestCase
                         'user_id',
                         'created_at',
                         'updated_at',
-                        'id'
+                        'id',
+                        'permissions' => [
+                            'can_update',
+                            'can_delete'
+                        ]
                     ]
                 ]
             );

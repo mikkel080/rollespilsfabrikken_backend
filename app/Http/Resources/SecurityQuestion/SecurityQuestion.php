@@ -17,7 +17,11 @@ class SecurityQuestion extends JsonResource
         return [
           'id' => $this->uuid,
           'question' => $this->question,
-          'answer' => $this->answer
+          'answer' => $this->answer,
+            'permissions' => [
+                'can_update' => auth()->user()->can('update', $this->resource),
+                'can_delete' => auth()->user()->can('delete', $this->resource)
+            ]
         ];
     }
 }
