@@ -25,15 +25,12 @@ class Post extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
-<<<<<<< HEAD
 	    'comments' => $this->comments()->count(),
-=======
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),
                 'can_add_comments' => auth()->user()->can('create', [Comment::class, $this->resource->forum])
             ],
->>>>>>> 6633f7a54b0aefa09a8901beccfb2c5624cc1f05
         ];
     }
 }
