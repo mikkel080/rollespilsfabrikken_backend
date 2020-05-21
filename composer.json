@@ -19,7 +19,7 @@
         "laravel/ui": "^2.0",
         "laravolt/avatar": "^3.2",
         "predis/predis": "^1.1",
-        "teamtnt/laravel-scout-tntsearch-driver": "^8.1"
+        "teamtnt/laravel-scout-tntsearch-driver": "^8.3"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
