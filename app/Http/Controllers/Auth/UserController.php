@@ -40,7 +40,7 @@ class UserController extends Controller
     public function index(Index $request) {
         return response()->json([
             'message' => 'success',
-            'user' => UserResource::collection(User::all())
+            'users' => UserResource::collection(User::all())
         ]);
     }
 
