@@ -3,6 +3,7 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Role\Role;
 
 class User extends JsonResource
 {
@@ -20,7 +21,8 @@ class User extends JsonResource
             'avatar_url' => $this->avatar_url,
             'created_at' => $this->created_at,
             'banned_at' => $this->when($this->deleted_at !== null, $this->deleted_at),
-            'super_user' => $this->super_user
+            'super_user' => $this->super_user,
+	    'roles' => Role::collection($this->roles),
         ];
     }
 }
