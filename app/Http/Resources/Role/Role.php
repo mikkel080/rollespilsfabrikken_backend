@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Role;
 
+use App\Http\Resources\Permission\PermissionWithoutDelete;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Role extends JsonResource
@@ -18,6 +19,7 @@ class Role extends JsonResource
             'id' => $this->uuid,
             'title' => $this->title,
             'color' => $this->color,
+            'role_permissions' => PermissionWithoutDelete::collection($this->permissions),
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource)
