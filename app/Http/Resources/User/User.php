@@ -3,7 +3,7 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Role\Role;
+use App\Http\Resources\Role\RoleWithoutDelete as Role;
 
 class User extends JsonResource
 {
