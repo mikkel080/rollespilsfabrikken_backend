@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Role;
 
-use App\Http\Resources\Permission\Permission;
+use App\Http\Resources\Permission\PermissionWithoutDelete as Permission;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RoleWithoutDelete extends JsonResource
