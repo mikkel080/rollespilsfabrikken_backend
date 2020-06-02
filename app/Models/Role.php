@@ -22,7 +22,8 @@ class Role extends Model
     ];
 
     protected $fillable = [
-      'title'
+        'title',
+        'color',
     ];
 
     public function getRouteKeyName()

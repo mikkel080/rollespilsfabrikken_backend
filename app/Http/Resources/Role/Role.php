@@ -17,6 +17,7 @@ class Role extends JsonResource
         return [
             'id' => $this->uuid,
             'title' => $this->title,
+            'color' => $this->color,
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource)
