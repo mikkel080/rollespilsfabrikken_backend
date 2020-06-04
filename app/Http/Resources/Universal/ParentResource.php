@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources\Permission;
+namespace App\Http\Resources\Universal;
 
-use App\Http\Resources\Universal\ParentResource;
+use App\Models\Post;
+use App\Models\Comment;
 use Illuminate\Http\Resources\Json\JsonResource;
-
-class Permission extends JsonResource
+use Illuminate\Support\Str;
+class ParentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +17,11 @@ class Permission extends JsonResource
     public function toArray($request)
     {
         return [
-            'parent' => new ParentResource($this->obj->obj),
             'id' => $this->uuid,
-            'level' => $this->level,
-            'title' => $this->title,
+            'name' => $this->title,
             'description' => $this->description,
+            'colour' => $this->colour,
+            'type' =>  mb_strtolower(Str::replaceFirst('App\\Models\\','', get_class($this->resource)))
         ];
     }
 }
