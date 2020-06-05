@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Throwable;
@@ -56,7 +58,12 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof ModelNotFoundException && $request->wantsJson()) {
-            return response()->json(['message' => 'Object not Found'], 404);
+            $model = $exception->getModel();
+            $model = Str::replaceFirst('App\\Models\\', '', $model);
+            $model = preg_split('/(?=[A-Z])/', $model);
+            $model = array_filter($model, fn($value) => !is_null($value) && $value !== '');
+
+            return response()->json(['message' => join(' ', $model) . ' not found'], 404);
         }
 
         if ($exception instanceof AccessDeniedHttpException && $request->wantsJson()) {
