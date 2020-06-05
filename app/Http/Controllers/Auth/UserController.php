@@ -15,7 +15,9 @@ use App\Http\Resources\Token\Token;
 use App\Http\Resources\User\LoggedInUser;
 use App\Models\Comment;
 use App\Models\Event;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -154,6 +156,17 @@ class UserController extends Controller
         $user->super_user = true;
         $user->save();
 
+        $role = (new Role)
+            ->where('title', '=', 'Administrator')
+            ->first();
+
+        if ($user->roles()->get()->where('id', '=', $role['id'])->first() === null) {
+            $userRole = (new UserRole);
+            $userRole->role()->associate($role);
+            $userRole->user()->associate($user);
+            $userRole->save();
+        }
+
         return response()->json([
             'message' => 'success',
             'user' => new UserResource($user->refresh()),
@@ -170,6 +183,21 @@ class UserController extends Controller
     public function deop(Unban $request, User $user) {
         $user->super_user = false;
         $user->save();
+
+        (new UserRole)
+            ->where([
+                ['role_id',
+                    '=',
+                    (new Role)
+                        ->where('title', '=', 'Administrator')
+                        ->first()['id']
+                ],
+                ['user_id', '=', $user['id']]
+            ])
+            ->get()
+            ->each(function(UserRole $userRole, $key) {
+                $userRole->delete();
+            });
 
         return response()->json([
             'message' => 'success',
