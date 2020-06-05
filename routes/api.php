@@ -54,12 +54,17 @@ Route::prefix('auth')->group(function () {
         Route::delete('/calendar/{calendar}/level/{level}/role/{role}', 'PermissionRoleController@calendarDelete');
         Route::delete('/forum/{forum}/level/{level}/role/{role}',       'PermissionRoleController@forumDelete');
 
+        // Permissions
         Route::prefix('permission')->group(function () {
             Route::get('/',                             'PermissionController@index');
             Route::get('/{permission}',                 'PermissionController@show');
-            Route::delete('/{permission}/role/{role}',  'PermissionRoleController@permissionDelete');
             Route::post('/{permission}/role/{role}',    'PermissionRoleController@permissionAdd');
+            Route::delete('/{permission}/role/{role}',  'PermissionRoleController@permissionDelete');
         });
+
+        // Add multiple permissions at the same time
+        Route::post('/role/{role}&permissions', 'PermissionRoleController@multiAdd');
+        Route::delete('/role/{role}&permissions', 'PermissionRoleController@multiDelete');
 
         // Create edit, delete roles
         Route::resource('role', 'RoleController');
@@ -128,6 +133,7 @@ Route::group([
     'namespace' => 'Resources',
     'middleware' => 'auth:sanctum',
 ], function () {
+    // Register resources
     Route::apiResource('forum',                 'ForumController');
     Route::apiResource('forum.post',            'PostController');
     Route::apiResource('forum.post.comment',    'CommentController');

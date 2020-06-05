@@ -65,7 +65,8 @@ class PermissionRoleController extends Controller
         ]);
     }
 
-    public function permissionAdd(Add $request, Permission $permission, Role $role) {
+    // Get or create roleperm
+    private function createRolePerm(Permission $permission, Role $role) {
         $rolePerm = (new RolePerm)
             ->where([
                 ['permission_id', '=', $permission['id']],
@@ -79,6 +80,22 @@ class PermissionRoleController extends Controller
 
             $rolePerm->save();
         }
+    }
+
+    private function deleteRolePerm(Permission $permission, Role $role) {
+        (new RolePerm)
+            ->where([
+                ['permission_id', '=', $permission['id']],
+                ['role_id', '=', $role['id']]
+            ])->get()
+            ->each(function (RolePerm $rolePerm, $key) {
+                $rolePerm->delete();
+                return true;
+            });
+    }
+
+    public function add(Permission $permission, Role $role) {
+        self::createRolePerm($permission, $role);
 
         return response()->json([
             'message' => 'success',
@@ -86,24 +103,11 @@ class PermissionRoleController extends Controller
         ]);
     }
 
-    public function roleAdd(Add $request, Role $role, Permission $permission) {
-        $rolePerm = (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->first();
-
-        if ($rolePerm === null) {
-            $rolePerm = (new RolePerm);
-            $rolePerm->role()->associate($role);
-            $rolePerm->permission()->associate($permission);
-
-            $rolePerm->save();
-        }
+    public function delete(Permission $permission, Role $role) {
+        self::deleteRolePerm($permission, $role);
 
         return response()->json([
-            'message' => 'success',
-            'role' => new RoleWithPermissions($role)
+            'message' => 'success'
         ]);
     }
 
@@ -113,19 +117,7 @@ class PermissionRoleController extends Controller
             ->where('level', '=', $level)
             ->first();
 
-        $rolePerm = (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->first();
-
-        if ($rolePerm === null) {
-            $rolePerm = (new RolePerm);
-            $rolePerm->role()->associate($role);
-            $rolePerm->permission()->associate($permission);
-
-            $rolePerm->save();
-        }
+        self::createRolePerm($permission, $role);
 
         return response()->json([
             'message' => 'success',
@@ -139,59 +131,11 @@ class PermissionRoleController extends Controller
             ->where('level', '=', $level)
             ->first();
 
-        $rolePerm = (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->first();
-
-        if ($rolePerm === null) {
-            $rolePerm = (new RolePerm);
-            $rolePerm
-                ->role()
-                ->associate($role);
-            $rolePerm
-                ->permission()
-                ->associate($permission);
-
-            $rolePerm->save();
-        }
+        self::createRolePerm($permission, $role);
 
         return response()->json([
             'message' => 'success',
             'role' => new RoleWithPermissions($role)
-        ]);
-    }
-
-    public function permissionDelete(Add $request, Permission $permission, Role $role) {
-        (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->get()
-            ->each(function (RolePerm $role, $key) {
-               $role->delete();
-               return true;
-            });
-
-        return response()->json([
-            'message' => 'success'
-        ]);
-    }
-
-    public function roleDelete(Add $request, Role $role, Permission $permission) {
-        (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->get()
-            ->each(function (RolePerm $role, $key) {
-                $role->delete();
-                return true;
-            });
-
-        return response()->json([
-            'message' => 'success'
         ]);
     }
 
@@ -201,15 +145,7 @@ class PermissionRoleController extends Controller
             ->where('level', '=', $level)
             ->first();
 
-        (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->get()
-            ->each(function (RolePerm $role, $key) {
-                $role->delete();
-                return true;
-            });
+        self::deleteRolePerm($permission, $role);
 
         return response()->json([
             'message' => 'success'
@@ -222,18 +158,27 @@ class PermissionRoleController extends Controller
             ->where('level', '=', $level)
             ->first();
 
-        (new RolePerm)
-            ->where([
-                ['permission_id', '=', $permission['id']],
-                ['role_id', '=', $role['id']]
-            ])->get()
-            ->each(function (RolePerm $role, $key) {
-                $role->delete();
-                return true;
-            });
+        self::deleteRolePerm($permission, $role);
 
         return response()->json([
             'message' => 'success'
         ]);
+    }
+
+    // These functions dont actually do anything they just take the arguments and give them in the right order, to allow multiple routes
+    public function roleAdd(Add $request, Role $role, Permission $permission) {
+        return self::add($permission, $role);
+    }
+
+    public function permissionAdd(Add $request, Permission $permission, Role $role) {
+        return self::add($permission, $role);
+    }
+
+    public function roleDelete(Add $request, Role $role, Permission $permission) {
+        return self::delete($permission, $role);
+    }
+
+    public function permissionDelete(Add $request, Permission $permission, Role $role) {
+        return self::delete($permission, $role);
     }
 }
