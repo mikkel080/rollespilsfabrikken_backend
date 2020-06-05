@@ -8,8 +8,10 @@ use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\SignupRequest;
 use App\Http\Requests\API\Auth\ResendEmailRequest;
 use App\Http\Resources\User\User as UserResource;
+use App\Models\Role;
 use App\Models\SecurityQuestion;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Notifications\API\Auth\ActivationEmail;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -95,6 +97,16 @@ class AuthController extends Controller
         $user->email_verified_at = Carbon::now();
         $user->save();
 
+        // Give the user the medlem role, this gives all new users access to the forum
+        $role = (new Role)
+            ->where('title', '=', 'Medlem')
+            ->first();
+
+        $userRole = (new UserRole);
+        $userRole->role()->associate($role);
+        $userRole->user()->associate($user);
+        $userRole->save();
+
         return response()->json([
             'message' => 'Activated',
             'user' => new UserResource($user)
@@ -123,7 +135,7 @@ class AuthController extends Controller
 
         if ($user['deleted_at'] !== null) {
             return response()->json([
-                'message' => 'Konto er bannet eller slettet'
+                'message' => 'Kontoen er bannet eller slettet'
             ], 401);
         }
 
