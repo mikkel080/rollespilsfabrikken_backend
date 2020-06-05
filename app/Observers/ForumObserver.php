@@ -41,14 +41,14 @@ class ForumObserver
             ],
         ];
 
-        for ($j = 1; $j < count($perms); $j++) {
+        for ($j = 0; $j < count($perms); $j++) {
             (new Obj)
                 ->find($forum['obj_id'])
                 ->permissions()
                 ->save((new Permission)->fill([
-                    'level' => $j + 1,
-                    'title' => $perms[$j - 1]['title'],
-                    'description' => $perms[$j - 1]['description']
+                    'level' => $j + 2,
+                    'title' => $perms[$j]['title'],
+                    'description' => $perms[$j]['description']
                 ])
             );
         }
