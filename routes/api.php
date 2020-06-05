@@ -63,8 +63,8 @@ Route::prefix('auth')->group(function () {
         });
 
         // Add multiple permissions at the same time
-        Route::post('/role/{role}&permissions', 'PermissionRoleController@multiAdd');
-        Route::delete('/role/{role}&permissions', 'PermissionRoleController@multiDelete');
+        Route::post('/role/{role}/permissions', 'PermissionRoleController@multiAdd');
+        Route::delete('/role/{role}/permissions', 'PermissionRoleController@multiDelete');
 
         // Create edit, delete roles
         Route::resource('role', 'RoleController');

@@ -12,14 +12,13 @@ use App\Models\Role;
 use App\Models\RolePerm;
 use Illuminate\Http\Request;
 use App\Http\Requests\API\Auth\RolePerm\Add;
+use App\Http\Requests\API\Auth\RolePerm\MultiAdd;
+use App\Http\Requests\API\Auth\RolePerm\MultiDelete;
 use App\Http\Requests\API\Auth\RolePerm\CalendarAdd;
 use App\Http\Requests\API\Auth\RolePerm\ForumAdd;
 use App\Http\Requests\API\Auth\RolePerm\CalendarIndex;
 use App\Http\Requests\API\Auth\RolePerm\ForumIndex;
-use App\Http\Resources\Permission\PermissionWithRoles;
 use App\Http\Resources\Permission\PermissionWithoutParent;
-use App\Http\Resources\Permission\Permission as PermissionResource;
-use App\Http\Resources\Permission\PermissionCollection;
 
 class PermissionRoleController extends Controller
 {
@@ -61,7 +60,7 @@ class PermissionRoleController extends Controller
 
     private function filterObjPerms($obj, $perms) {
         return (new Permission)
-            ->where('obj_id', '=', '=')
+            ->where('obj_id', '=', $obj)
             ->whereNotIn('id', $perms)
             ->get();
     }
@@ -75,7 +74,7 @@ class PermissionRoleController extends Controller
                 $perms
             ),
             'permissions_disabled' => PermissionWithoutParent::collection(
-                self::filterObjPerms($calendar['obj_id'], $perms)
+                self::filterObjPerms($calendar['obj_id'], $perms->pluck('id'))
             )
         ]);
     }
@@ -108,6 +107,40 @@ class PermissionRoleController extends Controller
 
         return response()->json([
             'message' => 'success'
+        ]);
+    }
+
+    public function multiAdd(MultiAdd $request, Role $role) {
+        $perms = $request->validated()['permissions'];
+
+        foreach ($perms as $perm) {
+            $permission = Permission::whereUuid($perm)->first();
+
+            if ($permission != null) {
+                self::createRolePerm($permission, $role);
+            }
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'role' => new RoleWithPermissions($role)
+        ]);
+    }
+
+    public function multiDelete(MultiDelete $request, Role $role) {
+        $perms = $request->validated()['permissions'];
+
+        foreach ($perms as $perm) {
+            $permission = Permission::whereUuid($perm)->first();
+
+            if ($permission != null) {
+                self::deleteRolePerm($permission, $role);
+            }
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'role' => new RoleWithPermissions($role)
         ]);
     }
 
