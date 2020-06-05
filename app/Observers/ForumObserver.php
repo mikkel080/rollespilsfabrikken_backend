@@ -20,10 +20,6 @@ class ForumObserver
     {
         $perms = [
             [
-                'title' => 'Kan ikke se',
-                'description' => '',
-            ],
-            [
                 'title' => 'Kan se',
                 'description' => '',
             ],
@@ -45,16 +41,16 @@ class ForumObserver
             ],
         ];
 
-        for ($j = 0; $j < count($perms); $j++) {
+        for ($j = 1; $j < count($perms); $j++) {
             (new Obj)
                 ->find($forum['obj_id'])
                 ->permissions()
                 ->save((new Permission)->fill([
                     'level' => $j + 1,
-                    'title' => $forum['title'] . ' - ' . $perms[$j]['title'],
-                    'description' => $perms[$j]['description']
+                    'title' => $perms[$j - 1]['title'],
+                    'description' => $perms[$j - 1]['description']
                 ])
-                );
+            );
         }
     }
 
@@ -66,20 +62,6 @@ class ForumObserver
      */
     public function updated(Forum $forum)
     {
-        $perms = (new Obj)
-            ->find($forum['obj_id'])
-            ->permissions;
-
-        for ($j = 0; $j < count($perms); $j++) {
-            $title = $perms[$j]['title'];
-            $perms[$j]['title'] = Str::replaceFirst(
-                    $title,
-                    Str::beforeLast($title, ' - '),
-                    $forum['title']
-                ) . ' - ' . Str::afterLast($title, ' - ');
-
-            $perms[$j]->save();
-        }
     }
 
     /**
