@@ -95,6 +95,5 @@ class RoleProductionSeeder extends Seeder
         $userRole->role()->associate($role);
         $userRole->user()->associate((new User)->where('super_user', '=', '1')->first());
         $userRole->save();
-        
     }
 }
