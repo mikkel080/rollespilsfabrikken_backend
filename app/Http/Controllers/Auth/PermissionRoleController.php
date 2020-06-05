@@ -23,48 +23,6 @@ use App\Http\Resources\Permission\PermissionCollection;
 
 class PermissionRoleController extends Controller
 {
-    public function calendarIndex(CalendarIndex $request, Role $role, Calendar $calendar) {
-        return response()->json([
-            'message' => 'success',
-            'permissions_enabled' => PermissionWithoutParent::collection(
-                $role
-                    ->permissions()
-                    ->where('obj_id', '=', $calendar['obj_id'])
-                    ->get()
-            ),
-            'permissions_disabled' => PermissionWithoutParent::collection(
-                $calendar
-                    ->permissions()
-                    ->whereNotIn('id', $role
-                        ->permissions()
-                        ->where('obj_id', '=', $calendar['obj_id'])
-                        ->get()->pluck('id')
-                    )
-            )
-        ]);
-    }
-
-    public function forumIndex(ForumIndex $request, Role $role, Forum $forum) {
-        return response()->json([
-            'message' => 'success',
-            'permissions_enabled' => PermissionWithoutParent::collection(
-                $role
-                    ->permissions()
-                    ->where('obj_id', '=', $forum['obj_id'])
-                    ->get()
-            ),
-            'permissions_disabled' => PermissionWithoutParent::collection(
-                $forum
-                    ->permissions()
-                    ->whereNotIn('id', $role
-                            ->permissions()
-                            ->where('obj_id', '=', $forum['obj_id'])
-                            ->get()->pluck('id')
-                    )
-            )
-        ]);
-    }
-
     // Get or create roleperm
     private function createRolePerm(Permission $permission, Role $role) {
         $rolePerm = (new RolePerm)
@@ -92,6 +50,48 @@ class PermissionRoleController extends Controller
                 $rolePerm->delete();
                 return true;
             });
+    }
+
+    private function getRolePermsWithObjId(Role $role, $obj) {
+        return $role
+            ->permissions()
+            ->where('obj_id', '=', $obj)
+            ->get();
+    }
+
+    private function filterObjPerms($obj, $perms) {
+        return (new Permission)
+            ->where('obj_id', '=', '=')
+            ->whereNotIn('id', $perms)
+            ->get();
+    }
+
+    public function calendarIndex(CalendarIndex $request, Role $role, Calendar $calendar) {
+        $perms = $this->getRolePermsWithObjId($role, $calendar['obj_id']);
+
+        return response()->json([
+            'message' => 'success',
+            'permissions_enabled' => PermissionWithoutParent::collection(
+                $perms
+            ),
+            'permissions_disabled' => PermissionWithoutParent::collection(
+                self::filterObjPerms($calendar['obj_id'], $perms)
+            )
+        ]);
+    }
+
+    public function forumIndex(ForumIndex $request, Role $role, Forum $forum) {
+        $perms = $this->getRolePermsWithObjId($role, $forum['obj_id']);
+
+        return response()->json([
+            'message' => 'success',
+            'permissions_enabled' => PermissionWithoutParent::collection(
+                $perms
+            ),
+            'permissions_disabled' => PermissionWithoutParent::collection(
+                self::filterObjPerms($forum['obj_id'], $perms)
+            )
+        ]);
     }
 
     public function add(Permission $permission, Role $role) {
