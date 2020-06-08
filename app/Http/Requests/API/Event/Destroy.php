@@ -23,8 +23,16 @@ class Destroy extends FormRequest
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        $rules = [];
+
+        if ($this->route('event')->meta['repeat_interval'] != 0) {
+            $rules = [
+                'series' => 'required|boolean', // Deletes the entire series
+                'apply_to_all' => 'required_if:series,false|boolean', // Ends the series on the supplied date, if false it deletes only the current one
+                'date' => 'required_if:series,false|date_format:d-m-Y H:i:s'
+            ];
+        }
+
+        return $rules;
     }
 }

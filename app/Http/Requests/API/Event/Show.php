@@ -24,7 +24,7 @@ class Show extends FormRequest
     public function rules()
     {
         return [
-            //
+            'date' => 'required|date_format:d-m-Y H:i:s',
         ];
     }
 }

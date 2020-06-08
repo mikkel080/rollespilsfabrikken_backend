@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\Exceptions\InvalidDateException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class Helpers
 {
     public function convertDate($date)
     {
+        $date = Str::replaceFirst('\r\n', '', $date);
         if ($date == null || $date == '' || $date == false) return false;
         $approvedFormats = [
             'Y-m-d H:i:s',
@@ -32,9 +35,50 @@ class Helpers
         ];
 
         foreach($approvedFormats as $format) {
-            if($carbon = Carbon::createFromFormat($format, $date)) {
-                return $carbon->format('Y-m-d H:i:s');
+            try {
+                if($carbon = Carbon::createFromFormat($format, $date)) {
+                    return $carbon->format('Y-m-d H:i:s');
+                }
+            } catch (InvalidDateException | \InvalidArgumentException $e) {
+
             }
+
+        }
+
+        return false;
+    }
+
+    public function convertDateToCarbon($date)
+    {
+        $date = Str::replaceFirst('\r\n', '', $date);
+        if ($date == null || $date == '' || $date == false) return false;
+        $approvedFormats = [
+            'Y-m-d H:i:s',
+            'd-m-Y H:i:s',
+            'y-m-d H:i:s',
+            'd-m-y H:i:s',
+            'd M Y H:i:s',
+            'Y-m-d H:i',
+            'd-m-Y H:i',
+            'y-m-d H:i',
+            'd-m-y H:i',
+            'd M Y H:i',
+            'Y-m-d',
+            'd-m-Y',
+            'y-m-d',
+            'd-m-y',
+            'd M Y'
+        ];
+
+        foreach($approvedFormats as $format) {
+            try {
+                if($carbon = Carbon::createFromFormat($format, $date)) {
+                    return $carbon;
+                }
+            } catch (InvalidDateException | \InvalidArgumentException $e) {
+
+            }
+
         }
 
         return false;
@@ -44,7 +88,7 @@ class Helpers
         $items = 5;
         $sortBy = 'created_at';
         $order  = 'asc';
-	
+
         if ($models == null || !$models->first()) {
             return $models->paginate();
         }
