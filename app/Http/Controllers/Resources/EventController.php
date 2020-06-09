@@ -83,8 +83,8 @@ class EventController extends Controller
 
         }
 
-        $startDate = (new Helpers())->convertDateToCarbon($request->query('start'));
-        $endDate = (new Helpers())->convertDateToCarbon($request->query('end'));
+        $startDate = Carbon::parse($request->query('start'));
+        $endDate = Carbon::parse($request->query('end'));
 
         if (!$startDate || !$endDate) {
             return response()->json([
@@ -146,12 +146,12 @@ class EventController extends Controller
         $event->start = $request['date'] . ' ' . $event->start;
         $event->end = $request['date'] . ' ' . $event->end;
 
-        $event->merge($event->meta);
-        $event['recurrence']['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
+        collect($event)->merge($event->meta)->toArray();
+        $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
 
         return response()->json([
             'message' => 'success',
-            'post' => new EventWithUser(collect($event)->merge($event->meta)),
+            'post' => new EventWithUser($event),
         ], 200);
     }
 
@@ -165,8 +165,8 @@ class EventController extends Controller
     public function store(Store $request, Calendar $calendar)
     {
         $data = $request->validated();
-        $start = Carbon::createFromFormat('d-m-Y H:i:s', $data['start']);
-        $end = Carbon::createFromFormat('d-m-Y H:i:s', $data['end']);
+        $start = Carbon::parse($data['start'])->utc();
+        $end = Carbon::parse($data['end'])->utc();
 
         $data['start'] = $start->toTimeString();
         $data['end'] = $end->toTimeString();
@@ -196,7 +196,7 @@ class EventController extends Controller
         }
 
         if (isset($data['recurrence']['end'])) {
-            $eventData['repeat_end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
+            $eventData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
         }
 
         $eventMeta = (new EventMeta())->fill($eventData);
@@ -230,8 +230,8 @@ class EventController extends Controller
         $data = $request->validated();
 
         // Parse start date
-        $start = Carbon::createFromFormat('d-m-Y H:i:s', $data['start']);
-        $end = Carbon::createFromFormat('d-m-Y H:i:s', $data['end']);
+        $start = Carbon::parse($data['start']);
+        $end = Carbon::parse($data['end']);
 
         // Get start and end without date
         $data['start'] = $start->toTimeString();
@@ -287,7 +287,7 @@ class EventController extends Controller
 
         // Set the optional end of recurrence
         if (isset($data['recurrence']['repeat_end'])) {
-            $eventData['repeat_end'] = Carbon::createFromFormat('d-m-Y H:i:s', $data['recurrence']['repeat_end'])->addDay()->startOfDay()->timestamp;
+            $eventData['repeat_end'] = Carbon::parse($data['recurrence']['repeat_end'])->addDay()->startOfDay()->timestamp;
         }
 
         if (isset($data['recurrence']['series']) && ($data['recurrence']['series'] === true)) {
@@ -358,7 +358,7 @@ class EventController extends Controller
 
             $series->delete();
         } else {
-            $date = Carbon::createFromFormat('d-m-Y H:i:s', $data['date']);
+            $date = Carbon::parse($data['date']);
 
             if  (isset($data['apply_to_all']) && ($data['apply_to_all'] === true)) {
                 $meta = $event->meta;

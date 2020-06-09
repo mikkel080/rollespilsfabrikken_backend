@@ -28,13 +28,13 @@ class Store extends FormRequest
         return [
             'title'         => 'required|string',
             'description'   => 'required|string',
-            'start'         => 'required|date_format:d-m-Y H:i:s',
-            'end'           => 'required|date_format:d-m-Y H:i:s',
+            'start'         => 'required|date_format:Y-m-d\TH:i:s.u\Z',
+            'end'           => 'required|date_format:Y-m-d\TH:i:s.u\Z',
             'recurring'     => 'required|boolean',
             'recurrence'    => 'required_if:recurring,true',
             'recurrence.type'    => 'required_if:recurring,true|in:daily,weekly,monthly,yearly',
             //'recurrence.repeat_interval' => 'required_if:recurring,true|integer', // TODO: Find a better way
-            'recurrence.end' => 'date_format:d-m-Y H:i:s',
+            'recurrence.end' => 'date_format:Y-m-d\TH:i:s.u\Z',
         ];
     }
 }

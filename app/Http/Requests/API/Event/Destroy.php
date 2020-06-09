@@ -29,7 +29,7 @@ class Destroy extends FormRequest
             $rules = [
                 'series' => 'required|boolean', // Deletes the entire series
                 'apply_to_all' => 'required_if:series,false|boolean', // Ends the series on the supplied date, if false it deletes only the current one
-                'date' => 'required_if:series,false|date_format:d-m-Y H:i:s'
+                'date' => 'required_if:series,false|date_format:Y-m-d\TH:i:s.u\Z'
             ];
         }
 
