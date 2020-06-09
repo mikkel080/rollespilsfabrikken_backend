@@ -139,6 +139,7 @@ Route::group([
     Route::apiResource('forum.post.comment',    'CommentController');
     Route::apiResource('calendar',              'CalendarController');
     Route::apiResource('calendar.event',        'EventController');
+    Route::get('/events',                       'EventController@all');
 
     // Pin posts
     Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');

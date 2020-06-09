@@ -19,6 +19,17 @@ class EventPolicy
     }
 
     /**
+     * Determine whether the user can view newest posts.
+     *
+     * @param User $user
+     * @return mixed
+     */
+    public function viewAll(User $user)
+    {
+        return auth()->check();
+    }
+    
+    /**
      * Determine whether the user can view any events.
      *
      * @param User $user
