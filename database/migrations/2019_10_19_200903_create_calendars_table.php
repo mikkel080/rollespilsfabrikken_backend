@@ -20,7 +20,7 @@ class CreateCalendarsTable extends Migration
             $table->unsignedBigInteger('obj_id')->index();
             $table->string('title');
             $table->string('colour');
-            $table->text('description');
+            $table->text('description')->default('');
             $table->timestamps();
 
             $table
