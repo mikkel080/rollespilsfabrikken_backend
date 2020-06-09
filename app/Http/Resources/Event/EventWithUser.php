@@ -27,7 +27,7 @@ class EventWithUser extends JsonResource
             'end' => $this['end'],
             'recurrence' => [
                 'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
-                'end' => $end != "1969-12-31T00:00:00.000000Z" ? $end : null,
+                'end' => $end != "1969-12-31T00:00:00.000Z" ? $end : null,
                 'type' => $this['type'],
             ],
             'user' => new UserResource((new User)->find($this['user_id'])),
@@ -35,8 +35,8 @@ class EventWithUser extends JsonResource
                 'can_update' => auth()->user()->can('update', (new \App\Models\Event)->find($this['id'])),
                 'can_delete' => auth()->user()->can('delete', (new \App\Models\Event)->find($this['id']))
             ],
-            'updated_at' => $this['updated_at']->format('Y-m-d\TH:i:s.v\Z'),
-            'created_at' => $this['created_at']->format('Y-m-d\TH:i:s.v\Z'),
+            'updated_at' => Carbon::parse($this['updated_at'])->format('Y-m-d\TH:i:s.v\Z'),
+            'created_at' => Carbon::parse($this['created_at'])->format('Y-m-d\TH:i:s.v\Z'),
         ];
     }
 }

@@ -34,8 +34,8 @@ class Event extends JsonResource
                 'can_update' => auth()->user()->can('update', (new \App\Models\Event)->find($this['id'])),
                 'can_delete' => auth()->user()->can('delete', (new \App\Models\Event)->find($this['id']))
             ],
-            'updated_at' => $this['updated_at']->format('Y-m-d\TH:i:s.v\Z'),
-            'created_at' => $this['created_at']->format('Y-m-d\TH:i:s.v\Z'),
+            'updated_at' => Carbon::parse($this['updated_at'])->format('Y-m-d\TH:i:s.v\Z'),
+            'created_at' => Carbon::parse($this['created_at'])->format('Y-m-d\TH:i:s.v\Z'),
         ];
     }
 }

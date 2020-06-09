@@ -155,8 +155,10 @@ class EventController extends Controller
             ->hours($endTime->hour)
             ->seconds($endTime->second);
         
-        collect($event)->merge($event->meta)->toArray();
+        $event = collect($event)->merge($event->meta)->toArray();
         $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
+        $event['start'] = $event['start']->format('Y-m-d\TH:i:s.v\Z');
+        $event['end'] = $event['end']->format('Y-m-d\TH:i:s.v\Z');
 
         return response()->json([
             'message' => 'success',
