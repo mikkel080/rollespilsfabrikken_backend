@@ -60,8 +60,8 @@ class EventController extends Controller
     }
 
     private function convertEvent($event, $timestamp) {
-        $event->start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start)->toISOString();
-        $event->end = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->end)->toISOString();
+        $event->start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start)->format('Y-m-d\TH:i:s.v\Z');
+        $event->end = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->end)->format('Y-m-d\TH:i:s.v\Z');
         $event->type = $this->getRepeatIntervalAsString($event['repeat_interval']);
 
         return $event;
@@ -77,14 +77,13 @@ class EventController extends Controller
     public function index(Index $request, Calendar $calendar)
     {
         if (!$request->query('start') && !$request->query('end')) {
-            return response()->json([
-                'message' => 'I need start and end' // TODO: Update
-            ]);
-
+            $startDate = Carbon::now();
+            $endDate = Carbon::now()->addDays(7);
+        } else {
+            $startDate = Carbon::parse($request->query('start'));
+            $endDate = Carbon::parse($request->query('end'));
         }
 
-        $startDate = Carbon::parse($request->query('start'));
-        $endDate = Carbon::parse($request->query('end'));
 
         if (!$startDate || !$endDate) {
             return response()->json([
@@ -143,9 +142,19 @@ class EventController extends Controller
      */
     public function show(Show $request, Calendar $calendar, Event $event)
     {
-        $event->start = $request['date'] . ' ' . $event->start;
-        $event->end = $request['date'] . ' ' . $event->end;
-
+        $startTime = Carbon::createFromTimeString($event->start);
+        $endTime = Carbon::createFromTimeString($event->end);
+        
+        $event->start = Carbon::parse($request['date'])
+            ->minutes($startTime->minute)
+            ->hours($startTime->hour)
+            ->seconds($startTime->second);
+        
+        $event->end = Carbon::parse($request['date'])
+            ->minutes($endTime->minute)
+            ->hours($endTime->hour)
+            ->seconds($endTime->second);
+        
         collect($event)->merge($event->meta)->toArray();
         $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
 
@@ -207,8 +216,8 @@ class EventController extends Controller
 
         // Set the recurrence type
         $event['type'] = self::getRepeatIntervalAsString($eventMeta['repeat_interval']);
-        $event['start'] = $start->toISOString();
-        $event['end'] = $end->toISOString();
+        $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
+        $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
         return response()->json( [
             'message' => 'success',
@@ -321,8 +330,8 @@ class EventController extends Controller
 
         // Set the recurrence type
         $event['type'] = self::getRepeatIntervalAsString($originalEventMeta['repeat_interval']);
-        $event['start'] = $start->toISOString();
-        $event['end'] = $end->toISOString();
+        $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
+        $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
         return response()->json([
             'message' => 'success',

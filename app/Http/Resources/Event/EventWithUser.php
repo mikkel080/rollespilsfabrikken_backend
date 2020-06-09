@@ -17,7 +17,7 @@ class EventWithUser extends JsonResource
      */
     public function toArray($request)
     {
-        $end = Carbon::createFromTimestamp($this['repeat_end'])->addDays(-1)->toISOString();
+        $end = Carbon::createFromTimestamp($this['repeat_end'])->addDays(-1)->format('Y-m-d\TH:i:s.v\Z');
 
         return [
             'id' => $this['uuid'],
@@ -26,7 +26,7 @@ class EventWithUser extends JsonResource
             'start' => $this['start'],
             'end' => $this['end'],
             'recurrence' => [
-                'start' => Carbon::createFromTimestamp($this['repeat_start']),
+                'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
                 'end' => $end != "1969-12-31T00:00:00.000000Z" ? $end : null,
                 'type' => $this['type'],
             ],
@@ -35,8 +35,8 @@ class EventWithUser extends JsonResource
                 'can_update' => auth()->user()->can('update', (new \App\Models\Event)->find($this['id'])),
                 'can_delete' => auth()->user()->can('delete', (new \App\Models\Event)->find($this['id']))
             ],
-            'updated_at' => $this['updated_at'],
-            'created_at' => $this['created_at'],
+            'updated_at' => $this['updated_at']->format('Y-m-d\TH:i:s.v\Z'),
+            'created_at' => $this['created_at']->format('Y-m-d\TH:i:s.v\Z'),
         ];
     }
 }

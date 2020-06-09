@@ -19,7 +19,7 @@ class ForumProductionSeeder extends Seeder
             ])
             ->obj()
             ->associate((new Obj)->create([
-                'type' => 'calendar'
+                'type' => 'forum'
             ]))->save();
     }
 
