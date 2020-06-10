@@ -4,8 +4,8 @@ cd ..
 
 echo "Chowning to www-data"
 
-sudo chown -R www-data:www-data rollespilsfabrikken_backend/
-sudo chown -R www-data:www-data rollespilsfabrikken_backend
+sudo chown -R arn:www-data rollespilsfabrikken_backend/
+sudo chown -R arn:www-data rollespilsfabrikken_backend
 
 echo "Setting file permissions"
 sudo find rollespilsfabrikken_backend/ -type f -exec chmod 644 {} \;
