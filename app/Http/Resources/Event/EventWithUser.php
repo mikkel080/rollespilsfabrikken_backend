@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources\Event;
 
+use App\Http\Resources\Calendar\CalendarWithoutDelete;
 use App\Http\Resources\User\User as UserResource;
+use App\Models\Calendar;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,13 +20,14 @@ class EventWithUser extends JsonResource
     public function toArray($request)
     {
         $end = Carbon::createFromTimestamp($this['repeat_end'])->addDays(-1)->format('Y-m-d\TH:i:s.v\Z');
-
+        dd($this);
         return [
             'id' => $this['uuid'],
             'title' => $this['title'],
             'description' => $this['description'],
             'start' => $this['start'],
             'end' => $this['end'],
+            'parent' => new CalendarWithoutDelete(Calendar::find($this['calendar_id'])),
             'recurrence' => [
                 'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
                 'end' => $end != "1969-12-31T00:00:00.000Z" ? $end : null,

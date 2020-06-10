@@ -3,9 +3,11 @@
 namespace App\Http\Resources\Event;
 
 use App\Http\Resources\User\User as UserResource;
+use App\Models\Calendar;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Calendar\CalendarWithoutDelete;
 
 class Event extends JsonResource
 {
@@ -25,6 +27,7 @@ class Event extends JsonResource
             'description' => $this['description'],
             'start' => $this['start'],
             'end' => $this['end'],
+            'parent' => new CalendarWithoutDelete(Calendar::find($this['calendar_id'])),
             'recurrence' => [
                 'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
                 'end' => $end != "1969-12-31T00:00:00.000000Z" ? $end : null,
