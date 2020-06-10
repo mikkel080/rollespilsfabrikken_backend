@@ -26,7 +26,7 @@ class Event extends Model
         'title',
         'description',
         'start',
-        'end',
+        'event_length',
     ];
 
     public function getRouteKeyName()

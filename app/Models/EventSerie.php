@@ -12,6 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 class EventSerie extends Model
 {
     public function events() {
-        return $this->hasMany('App\Models\Event');
+        return $this->hasMany('App\Models\Event', 'series_id');
     }
 }

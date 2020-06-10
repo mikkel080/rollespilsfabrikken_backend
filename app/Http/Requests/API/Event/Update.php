@@ -39,8 +39,8 @@ class Update extends FormRequest
         ];
 
         if ($eventMetaData['repeat_interval'] != 0) {
-            $rules['series'] = 'required|boolean'; // Updates the entire series
-            $rules['apply_to_all'] = 'required_if:series,false|boolean'; // Ends the series on the supplied date, and creates a new one
+            $rules['recurrence.series'] = 'required|boolean'; // Updates the entire series
+            $rules['recurrence.apply_to_all'] = 'required_if:series,false|boolean'; // Ends the series on the supplied date, and creates a new one
                                                                          // If false it just does the same as delete
         }
 

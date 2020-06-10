@@ -61,8 +61,9 @@ class EventController extends Controller
     }
 
     private function convertEvent($event, $timestamp) {
-        $event->start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start)->format('Y-m-d\TH:i:s.v\Z');
-        $event->end = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->end)->format('Y-m-d\TH:i:s.v\Z');
+        $start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start);
+        $event->start = $start->format('Y-m-d\TH:i:s.v\Z');
+        $event->end = $start->addSeconds($event->event_length)->format('Y-m-d\TH:i:s.v\Z');
         $event->type = $this->getRepeatIntervalAsString($event['repeat_interval']);
 
         return $event;
@@ -228,20 +229,61 @@ class EventController extends Controller
      */
     public function show(Show $request, Calendar $calendar, Event $event)
     {
-        $startTime = Carbon::createFromTimeString($event->start);
-        $endTime = Carbon::createFromTimeString($event->end);
+        // Parse the date from the request
+        $date = Carbon::parse($request['date']);
 
-        $event->start = Carbon::parse($request['date'])
+        // As a timestamp
+        $timestamp = $date->copy()->startOfDay()->timestamp;
+
+        // Get the events meta data
+        $meta = $event->meta;
+
+        if ($meta['repeat_start'] > $timestamp) {
+            return response()->json([
+                'message' => 'There is no instance of this event on that date'
+            ], 404);
+        }
+
+
+        if ($meta['repeat_end'] != null) {
+            $end = Carbon::parse($meta['repeat_end'])->addDays(-1);
+
+            if ($end->timestamp < $timestamp) {
+                return response()->json([
+                    'message' => 'There is no instance of this event on that date'
+                ], 404);
+            }
+        }
+
+        // Perform and validate the repeating calculation
+        if ($meta['repeat_interval'] != 0 && (($timestamp - $meta['repeat_start']) % $meta['repeat_interval']) != 0 ) {
+            return response()->json([
+                'message' => 'There is no instance of this event on that date'
+            ], 404);
+        }
+
+        // Get the start of the event
+        $startTime = Carbon::createFromTimeString($event['start']);
+
+        // Combine it with the date
+        $event['start'] = Carbon::parse($request['date'])
             ->minutes($startTime->minute)
             ->hours($startTime->hour)
             ->seconds($startTime->second);
 
-        $event->end = Carbon::parse($request['date'])
-            ->minutes($endTime->minute)
-            ->hours($endTime->hour)
-            ->seconds($endTime->second);
+        // Calculate the end time of the event
+        $event['end'] = $event['start']->addSeconds($event['event_length']);
 
-        $event = collect($event)->merge($event->meta)->toArray();
+        if ($event['end']->timestamp < $timestamp) {
+            return response()->json([
+                'message' => 'There is no instance of this event on that date'
+            ], 404);
+        }
+
+        // Combine the event data
+        $event = collect($event)->merge($meta)->toArray();
+
+        // Configure the data so its ready for viewing
         $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
         $event['start'] = $event['start']->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $event['end']->format('Y-m-d\TH:i:s.v\Z');
@@ -261,48 +303,62 @@ class EventController extends Controller
      */
     public function store(Store $request, Calendar $calendar)
     {
+        // Parse the request data
         $data = $request->validated();
         $start = Carbon::parse($data['start'])->utc();
         $end = Carbon::parse($data['end'])->utc();
 
+        // Set the saved data
         $data['start'] = $start->toTimeString();
-        $data['end'] = $end->toTimeString();
+        $data['event_length'] = $start->diffInSeconds($end); // Get difference between start and end to allow for multidate
 
+        // Make sure the start is not after end date
         if ($start->isAfter($end)) {
             return response()->json( [
                 'message' => 'An events start date cant be after its end',
             ], 401);
         }
 
+        // Create the new event
         $event = (new Event())
-            ->fill($data)
+            ->fill($data);
+
+        // Associate with the creating user
+        $event
             ->user()
             ->associate(auth()->user());
 
+        // Create a new series and associate with the event
         $series = (new EventSerie())->create();
         $event->series()->associate($series);
 
-        $eventData = [
+        // Define initial meta data
+        $metaData = [
             'repeat_start' => $start->copy()->startOfDay()->timestamp,
             'repeat_interval' => 0,
             'repeat_end' => null
         ];
 
+        // Set recurring if the event is recurring
         if ($data['recurring']) {
-            $eventData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
+            $metaData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
         }
 
+        // Set an optional recurring end date
         if (isset($data['recurrence']['end'])) {
-            $eventData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
+            $metaData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
         }
 
-        $eventMeta = (new EventMeta())->fill($eventData);
-
+        // Save the event
         $calendar->events()->save($event);
 
+        // Fill the event meta data
+        $eventMeta = (new EventMeta())->fill($metaData);
+
+        // Save and associate the metadata with the even
         $event->refresh()->meta()->save($eventMeta);
 
-        // Set the recurrence type
+        // Set the event data such that it is ready for showing
         $event['type'] = self::getRepeatIntervalAsString($eventMeta['repeat_interval']);
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
@@ -330,17 +386,43 @@ class EventController extends Controller
         $start = Carbon::parse($data['start']);
         $end = Carbon::parse($data['end']);
 
-        // Get start and end without date
-        $data['start'] = $start->toTimeString();
-        $data['end'] = $end->toTimeString();
+        // Make sure the start is not after end date
+        if ($start->isAfter($end)) {
+            return response()->json( [
+                'message' => 'An events start date cant be after its end',
+            ], 401);
+        }
 
-        // Get the original data
+        // Set the start time, without date, and define the event length in seconds
+        $data['start'] = $start->toTimeString();
+        $data['event_length'] = $start->diffInSeconds($end);
+
+        // Create a copy of the original data
         $originalEventMeta = $event->meta;
         $originalEvent = $event;
 
-        // Standalone events:
+        // Parse the recurrence data, only with dates this time.
+        $metaData = [
+            'repeat_start' => $start->startOfDay()->timestamp,
+            'repeat_interval' => 0,
+            'repeat_end' => null
+        ];
+
+        // Set the repeat interval
+        if ($data['recurring']) {
+            $metaData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
+        }
+
+        // Set the optional end of recurrence
+        if (isset($data['recurrence']['end'])) {
+            $metaData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
+        }
+
+        // Standalone events dont have a series or anything special to them
+        // Therefore if updated they can just be completely updated
         if ($originalEventMeta['repeat_interval'] == 0 && $data['recurring'] == false) {
             $event->update($data);
+            $originalEventMeta->update($metaData);
 
             $event['type'] = self::getRepeatIntervalAsString($originalEventMeta['repeat_interval']);
             $event['start'] = $start->toISOString();
@@ -350,74 +432,71 @@ class EventController extends Controller
                 'message' => 'success',
                 'event' => new EventResource(collect($event)->merge($originalEventMeta)->toArray())
             ], 200);
-        }
-        if (isset($data['recurrence']['apply_to_all']) && ($data['recurrence']['apply_to_all'] === true)) {
+
+        // Update the series
+        } else if (isset($data['recurrence']['series']) && ($data['recurrence']['series'] === true)) {
+            // Get all the events in the series
+            $series = $event->series;
+
+            // Loop them
+            foreach ($series->events as $event) {
+                // Update the title
+                $event->title = $data['title'];
+
+                // Update the description
+                $event->description = $data['description'];
+
+                // Update start
+                $event->start = $data['start'];
+                $event->event_length = $data['event_length'];
+
+                // Get the metadata for the current event
+                $meta = $event->meta;
+
+                // Set the repeat interval
+                $meta->repeat_interval = self::getRepeatInterval($data['recurrence']['type']);
+
+                // Save both
+                $event->save();
+                $meta->save();
+            }
+        }else if (isset($data['recurrence']['apply_to_all']) && ($data['recurrence']['apply_to_all'] === true)) {
             // Update the original event
             $event->update($data);
+
+            // Update the recurrence of the current branch of the series
+            $originalEventMeta->update($metaData);
         } else {
+            // This will split the recurrence series into 2.
+            // It will end the original and create a new one.
             // Create a new event, aka the split
             $event = (new Event())
                 ->fill($data);
 
-            $event->user()
+            // Assign it to the user
+            $event
+                ->user()
                 ->associate(auth()->user());
 
             // Assign the new event to the series of the first event
-            $event->series()
+            $event
+                ->series()
                 ->associate($originalEvent->series);
 
             // Save it
             $calendar->events()->save($event);
-        }
-
-        // Parse the recurrence data, only with dates this time.
-        $eventData = [
-            'repeat_start' => $start->startOfDay()->timestamp,
-            'repeat_interval' => 0,
-            'repeat_end' => null
-        ];
-
-        // Set the repeat interval
-        if ($data['recurring']) {
-            $eventData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
-        }
-
-        // Set the optional end of recurrence
-        if (isset($data['recurrence']['repeat_end'])) {
-            $eventData['repeat_end'] = Carbon::parse($data['recurrence']['repeat_end'])->addDay()->startOfDay()->timestamp;
-        }
-
-        if (isset($data['recurrence']['series']) && ($data['recurrence']['series'] === true)) {
-            $series = $event->series;
-
-            foreach ($series->events as $event) {
-                $tmpMeta = $event->meta;
-
-                $event->title = $data['title'];
-                $event->description = $data['description'];
-
-                $tmpMeta->repeat_interval = self::getRepeatInterval($data['recurrence']['type']);
-            }
-
-        }else if (isset($data['recurrence']['apply_to_all']) && ($data['recurrence']['apply_to_all'] === true)) {
-            // Update the recurrence of the current branch of the series
-            $originalEventMeta->update($eventData);
-
-        } else {
-            // This part will split the recurrence series into 2.
-            // It will end the original and create a new one.
 
             // Set an end date to the original recurrence series
             $originalEventMeta['repeat_end'] = $start->startOfDay()->timestamp;
             $originalEventMeta->save();
 
             // Create a new recurrence series and save it to the new event
-            $eventMeta = (new EventMeta())->fill($eventData);
+            $eventMeta = (new EventMeta())->fill($metaData);
             $event->refresh()->meta()->save($eventMeta);
         }
 
-        // Set the recurrence type
-        $event['type'] = self::getRepeatIntervalAsString($originalEventMeta['repeat_interval']);
+        // Set the event data such that it is ready for showing
+        $event['type'] = self::getRepeatIntervalAsString($metaData['repeat_interval']);
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
@@ -442,6 +521,10 @@ class EventController extends Controller
         if ($event->meta['repeat_interval'] == 0) {
             $event->delete();
             $event->meta->delete();
+
+            if ($event->series()->events->count() > 1) {
+
+            }
             $event->series->delete();
 
         } else if (isset($data['series']) && ($data['series'] === true)) {

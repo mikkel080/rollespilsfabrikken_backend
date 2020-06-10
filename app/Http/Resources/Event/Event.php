@@ -30,7 +30,7 @@ class Event extends JsonResource
             'parent' => new CalendarWithoutDelete(Calendar::find($this['calendar_id'])),
             'recurrence' => [
                 'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
-                'end' => $end != "1969-12-31T00:00:00.000000Z" ? $end : null,
+                'end' => $end != "1969-12-31T00:00:00.000Z" ? $end : null,
                 'type' => $this['type'],
             ],
             'permissions' => [

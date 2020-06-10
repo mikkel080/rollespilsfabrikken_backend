@@ -23,7 +23,7 @@ class CreateEventsTable extends Migration
             $table->string('title');
             $table->text('description');
             $table->time('start');
-            $table->time('end');
+            $table->unsignedBigInteger('event_length');
             $table->timestamps();
 
             $table
