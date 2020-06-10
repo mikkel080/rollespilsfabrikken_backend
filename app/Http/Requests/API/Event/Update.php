@@ -29,7 +29,7 @@ class Update extends FormRequest
 
         $rules = [
             'title'             => 'required|string',
-            'description'       => 'required|string',
+            'description'       => 'string',
             'start'             => 'required|date_format:Y-m-d\TH:i:s.v\Z',
             'end'               => 'required|date_format:Y-m-d\TH:i:s.v\Z',
             'recurring'         => 'required|boolean',
