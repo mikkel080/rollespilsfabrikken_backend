@@ -167,10 +167,9 @@ class EventController extends Controller
             $startDate = Carbon::now();
             $endDate = Carbon::now()->addDays(7);
         } else {
-            $startDate = Carbon::parse($request->query('start'));
-            $endDate = Carbon::parse($request->query('end'));
+            $startDate = Carbon::parse($request->query('start'))->startOfDay();
+            $endDate = Carbon::parse($request->query('end'))->startOfDay();
         }
-
 
         if (!$startDate || !$endDate) {
             return response()->json([

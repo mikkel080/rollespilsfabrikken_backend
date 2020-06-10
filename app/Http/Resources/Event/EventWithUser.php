@@ -20,7 +20,6 @@ class EventWithUser extends JsonResource
     public function toArray($request)
     {
         $end = Carbon::createFromTimestamp($this['repeat_end'])->addDays(-1)->format('Y-m-d\TH:i:s.v\Z');
-        dd($this);
         return [
             'id' => $this['uuid'],
             'title' => $this['title'],
