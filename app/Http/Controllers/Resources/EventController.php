@@ -97,7 +97,7 @@ class EventController extends Controller
 
         $query = Event::query()
             ->whereIn('calendar_id', $calendars);
-        
+
         if (!$request->query('start') && !$request->query('end')) {
             $startDate = Carbon::now();
             $endDate = Carbon::now()->addDays(7);
@@ -123,7 +123,7 @@ class EventController extends Controller
                     return $query->whereNull('repeat_end')
                         ->orWhere('repeat_end', '>', $timestamp);
                 })
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)            
+                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get();
 
@@ -131,7 +131,7 @@ class EventController extends Controller
                 ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
                 ->where('repeat_start', '=', $timestamp)
                 ->where('repeat_interval', '=', 0)
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)            
+                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
                 ->get();
 
             $events->each(function($event, $item) use ($timestamp) {
@@ -231,17 +231,17 @@ class EventController extends Controller
     {
         $startTime = Carbon::createFromTimeString($event->start);
         $endTime = Carbon::createFromTimeString($event->end);
-        
+
         $event->start = Carbon::parse($request['date'])
             ->minutes($startTime->minute)
             ->hours($startTime->hour)
             ->seconds($startTime->second);
-        
+
         $event->end = Carbon::parse($request['date'])
             ->minutes($endTime->minute)
             ->hours($endTime->hour)
             ->seconds($endTime->second);
-        
+
         $event = collect($event)->merge($event->meta)->toArray();
         $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
         $event['start'] = $event['start']->format('Y-m-d\TH:i:s.v\Z');
@@ -269,7 +269,7 @@ class EventController extends Controller
         $data['start'] = $start->toTimeString();
         $data['end'] = $end->toTimeString();
 
-        if ($start->isAfter($data['end'])) {
+        if ($start->isAfter($end)) {
             return response()->json( [
                 'message' => 'An events start date cant be after its end',
             ], 401);
