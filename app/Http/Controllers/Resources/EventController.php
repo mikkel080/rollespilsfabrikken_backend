@@ -132,7 +132,6 @@ class EventController extends Controller
                 ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
                 ->where('repeat_start', '=', $timestamp)
                 ->where('repeat_interval', '=', 0)
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get();
 
