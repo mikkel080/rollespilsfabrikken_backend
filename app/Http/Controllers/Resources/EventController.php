@@ -133,6 +133,7 @@ class EventController extends Controller
                 ->where('repeat_start', '=', $timestamp)
                 ->where('repeat_interval', '=', 0)
                 ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
+                ->whereIn('calendar_id', $calendars)
                 ->get();
 
             $events->each(function($event, $item) use ($timestamp) {
@@ -272,8 +273,8 @@ class EventController extends Controller
             ->seconds($startTime->second);
 
         // Calculate the end time of the event
-        $event['end'] = $event['start']->addSeconds($event['event_length']);
-
+        $event['end'] = $event['start']->copy()->addSeconds($event['event_length']);
+        
         if ($event['end']->timestamp < $timestamp) {
             return response()->json([
                 'message' => 'There is no instance of this event on that date'
@@ -466,6 +467,24 @@ class EventController extends Controller
 
             // Update the recurrence of the current branch of the series
             $originalEventMeta->update($metaData);
+        } else if (isset($data['recurrence']['only_this']) && ($data['recurrence']['only_this'] === true)){
+            $eventData = [
+                'repeat_start' => $start->copy()->startOfDay()->timestamp + $originalEventMeta['repeat_interval'],
+                'repeat_interval' => $originalEventMeta['repeat_interval'],
+                'repeat_end' => $originalEventMeta['repeat_end']
+            ];
+
+            $originalEventMeta['repeat_end'] = $start->startOfDay()->timestamp;
+            $originalEventMeta->save();
+
+            $meta = (new EventMeta())->fill($eventData);
+
+            $event = (new Event)->fill($event->only(['title', 'description', 'start', 'event_length']));
+            $event->user()->associate($originalEvent->user);
+            $event->series()->associate($originalEvent->series);
+
+            $calendar->events()->save($event);
+            $event->refresh()->meta()->save($meta);
         } else {
             // This will split the recurrence series into 2.
             // It will end the original and create a new one.
@@ -522,10 +541,9 @@ class EventController extends Controller
             $event->delete();
             $event->meta->delete();
 
-            if ($event->series()->events->count() > 1) {
-
+            if ($event->series()->events->count() == 1) {
+                $event->series->delete();
             }
-            $event->series->delete();
 
         } else if (isset($data['series']) && ($data['series'] === true)) {
             $series = $event->series;
