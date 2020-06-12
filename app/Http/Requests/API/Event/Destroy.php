@@ -27,9 +27,10 @@ class Destroy extends FormRequest
 
         if ($this->route('event')->meta['repeat_interval'] != 0) {
             $rules = [
-                'series' => 'required|boolean', // Deletes the entire series
-                'apply_to_all' => 'required_if:series,false|boolean', // Ends the series on the supplied date, if false it deletes only the current one
-                'date' => 'required_if:series,false|date_format:date_format:Y-m-d\TH:i:s.v\Z'
+                'series' => 'boolean', // Deletes the entire series
+                'apply_to_all' => 'boolean', // Ends the series on the supplied date, if false it deletes only the current one
+                'only_this' => 'boolean', // Ends the series on the supplied date, if false it deletes only the current one
+                'date' => 'required_if:series,false|date_format:Y-m-d\TH:i:s.v\Z'
             ];
         }
 
