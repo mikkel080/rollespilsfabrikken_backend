@@ -69,6 +69,48 @@ class EventController extends Controller
         return $event;
     }
 
+    private function checkForEventInstance(Event $event, $timestamp) {
+        $meta = $event->meta;
+
+        // Check if date is before the repetition start
+        if ($meta['repeat_start'] > $timestamp) {
+            return false;
+        }
+
+        // Check if date is after repition end
+        if ($meta['repeat_end'] != null) {
+            $end = Carbon::parse($meta['repeat_end'])->addDays(-1);
+
+            if ($end->timestamp < $timestamp) {
+                return false;
+            }
+        }
+
+        // Perform and validate the repeating calculation
+        if ($meta['repeat_interval'] != 0 && (($timestamp - $meta['repeat_start']) % $meta['repeat_interval']) != 0 ) {
+            return false;
+        }
+
+        // Get the start of the event
+        $startTime = Carbon::createFromTimeString($event['start']);
+
+        // Combine it with the date
+        $event['start'] = Carbon::createFromTimestamp($timestamp)
+            ->minutes($startTime->minute)
+            ->hours($startTime->hour)
+            ->seconds($startTime->second);
+
+        // Calculate the end time of the event
+        $event['end'] = $event['start']->copy()->addSeconds($event['event_length']);
+
+        if ($event['end']->timestamp < $timestamp) {
+            return response()->json([
+                'message' => 'There is no instance of this event on that date'
+            ], 404);
+        }
+
+        return $event;
+    }
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts
@@ -232,56 +274,16 @@ class EventController extends Controller
         // Parse the date from the request
         $date = Carbon::parse($request['date']);
 
-        // As a timestamp
-        $timestamp = $date->copy()->startOfDay()->timestamp;
+        $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
 
-        // Get the events meta data
-        $meta = $event->meta;
-
-        if ($meta['repeat_start'] > $timestamp) {
-            return response()->json([
-                'message' => 'There is no instance of this event on that date'
-            ], 404);
-        }
-
-
-        if ($meta['repeat_end'] != null) {
-            $end = Carbon::parse($meta['repeat_end'])->addDays(-1);
-
-            if ($end->timestamp < $timestamp) {
-                return response()->json([
-                    'message' => 'There is no instance of this event on that date'
-                ], 404);
-            }
-        }
-
-        // Perform and validate the repeating calculation
-        if ($meta['repeat_interval'] != 0 && (($timestamp - $meta['repeat_start']) % $meta['repeat_interval']) != 0 ) {
-            return response()->json([
-                'message' => 'There is no instance of this event on that date'
-            ], 404);
-        }
-
-        // Get the start of the event
-        $startTime = Carbon::createFromTimeString($event['start']);
-
-        // Combine it with the date
-        $event['start'] = Carbon::parse($request['date'])
-            ->minutes($startTime->minute)
-            ->hours($startTime->hour)
-            ->seconds($startTime->second);
-
-        // Calculate the end time of the event
-        $event['end'] = $event['start']->copy()->addSeconds($event['event_length']);
-        
-        if ($event['end']->timestamp < $timestamp) {
+        if ($event == false) {
             return response()->json([
                 'message' => 'There is no instance of this event on that date'
             ], 404);
         }
 
         // Combine the event data
-        $event = collect($event)->merge($meta)->toArray();
+        $event = collect($event)->merge($event->meta)->toArray();
 
         // Configure the data so its ready for viewing
         $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
@@ -534,16 +536,21 @@ class EventController extends Controller
      */
     public function destroy(Destroy $request, Calendar $calendar, Event $event)
     {
+        // Retrieve the data
         $data = $request->validated();
 
-        if ($event->meta['repeat_interval'] == 0) {
+        $date = Carbon::parse($data['date']);
+
+        // Create a copy of the original data
+        $meta = $event->meta;
+
+        // Standalone events dont have a series or anything special to them
+        // Therefore they can just be deleted
+        if ($meta['repeat_interval'] == 0) {
             $event->delete();
             $event->meta->delete();
 
-            if ($event->series()->events->count() == 1) {
-                $event->series->delete();
-            }
-
+            // Update the series
         } else if (isset($data['series']) && ($data['series'] === true)) {
             $series = $event->series;
             $events = $series->events;
@@ -554,40 +561,53 @@ class EventController extends Controller
             });
 
             $series->delete();
-        } else {
-            $date = Carbon::parse($data['date']);
+        } else if (isset($data['apply_to_all']) && ($data['apply_to_all'] === true)) {
+            $event->delete();
+            $event->meta->delete();
+        } else if (isset($data['only_this']) && ($data['only_this'] === true)){
+            // Check if there is an event instance on the given date
+            $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
 
-            if  (isset($data['apply_to_all']) && ($data['apply_to_all'] === true)) {
-                $meta = $event->meta;
-
-                $meta['repeat_end'] = $date->startOfDay()->timestamp;
-                $meta->save();
-
-            } else {
-                $originalMeta = $event->meta;
-                $originalEvent = $event;
-
-                $eventData = [
-                    'repeat_start' => $date->startOfDay()->timestamp + $originalMeta['repeat_interval'],
-                    'repeat_interval' => $originalMeta['repeat_interval'],
-                    'repeat_end' => $originalMeta['repeat_end']
-                ];
-
-                $originalMeta['repeat_end'] = $date->startOfDay()->timestamp;
-                $originalMeta->save();
-
-                $meta = (new EventMeta())->fill($eventData);
-
-                $event = (new Event)->fill($event->only(['title', 'description', 'start', 'end']));
-                $event->user()->associate($originalEvent->user);
-                $event->series()->associate($originalEvent->series);
-
-                $calendar->events()->save($event);
-                $event->refresh()->meta()->save($meta);
+            if ($event == false) {
+                return response()->json([
+                    'message' => 'There is no instance of this event on that date'
+                ], 404);
             }
+
+            // Define the new event meta data
+            $metaData = [
+                'repeat_start' => $date->startOfDay()->timestamp + $meta['repeat_interval'],
+                'repeat_interval' => $meta['repeat_interval'],
+                'repeat_end' => $meta['repeat_end']
+            ];
+
+            $meta['repeat_end'] = $date->startOfDay()->timestamp;
+            $meta->save();
+            
+            // Create a new meta
+            $meta = (new EventMeta())->fill($metaData);
+
+            // Create and save a new event that starts right after the one just deleted
+            $newEvent = (new Event)->fill($event->only(['title', 'description', 'start', 'event_length']));
+            $newEvent->user()->associate($event->user);
+            $newEvent->series()->associate($event->series);
+
+            $calendar->events()->save($newEvent);
+            $newEvent->refresh()->meta()->save($meta);
+        } else {
+            // Check if there is an event instance on the given date
+            $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
+
+            if ($event == false) {
+                return response()->json([
+                    'message' => 'There is no instance of this event on that date'
+                ], 404);
+            }
+
+
+            $meta['repeat_end'] = $date->startOfDay()->timestamp;
+            $meta->save();
         }
-
-
 
         return response()->json([
             'message' => 'success'
