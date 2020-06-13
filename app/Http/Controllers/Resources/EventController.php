@@ -539,12 +539,14 @@ class EventController extends Controller
         // Retrieve the data
         $data = $request->validated();
 
-        $date = Carbon::parse($data['date']);
+	// Create a copy of the original data
+	$meta = $event->meta;
 
-        // Create a copy of the original data
-        $meta = $event->meta;
-
-        // Standalone events dont have a series or anything special to them
+	if ($meta['repeat_interval'] '!= 0) {
+	    $date = Carbon::parse($data['date']);
+	}
+        
+	// Standalone events dont have a series or anything special to them
         // Therefore they can just be deleted
         if ($meta['repeat_interval'] == 0) {
             $event->delete();
