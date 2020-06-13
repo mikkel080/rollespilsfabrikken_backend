@@ -542,7 +542,7 @@ class EventController extends Controller
 	// Create a copy of the original data
 	$meta = $event->meta;
 
-	if ($meta['repeat_interval'] '!= 0) {
+	if ($meta['repeat_interval'] != 0) {
 	    $date = Carbon::parse($data['date']);
 	}
         
