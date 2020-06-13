@@ -469,6 +469,15 @@ class EventController extends Controller
             // Update the recurrence of the current branch of the series
             $originalEventMeta->update($metaData);
         } else if (isset($data['recurrence']['only_this']) && ($data['recurrence']['only_this'] === true)){
+            // Check if there is an event instance on the given date
+            $event = self::checkForEventInstance($event, $start->copy()->startOfDay()->timestamp);
+
+            if ($event == false) {
+                return response()->json([
+                    'message' => 'There is no instance of this event on that date'
+                ], 404);
+            }
+
             $eventData = [
                 'repeat_start' => $start->copy()->startOfDay()->timestamp + $originalEventMeta['repeat_interval'],
                 'repeat_interval' => $originalEventMeta['repeat_interval'],
@@ -481,6 +490,22 @@ class EventController extends Controller
             $meta = (new EventMeta())->fill($eventData);
 
             $event = (new Event)->fill($event->only(['title', 'description', 'start', 'event_length']));
+            $event->user()->associate($originalEvent->user);
+            $event->series()->associate($originalEvent->series);
+
+            $calendar->events()->save($event);
+            $event->refresh()->meta()->save($meta);
+
+            // Create a new standalone event
+            $eventData = [
+                'repeat_start' => $start->copy()->startOfDay()->timestamp,
+                'repeat_interval' => 0,
+                'repeat_end' => null
+            ];
+
+            $meta = (new EventMeta())->fill($eventData);
+
+            $event = (new Event)->fill($data);
             $event->user()->associate($originalEvent->user);
             $event->series()->associate($originalEvent->series);
 
@@ -545,7 +570,7 @@ class EventController extends Controller
 	if ($meta['repeat_interval'] != 0) {
 	    $date = Carbon::parse($data['date']);
 	}
-        
+
 	// Standalone events dont have a series or anything special to them
         // Therefore they can just be deleted
         if ($meta['repeat_interval'] == 0) {
@@ -585,7 +610,7 @@ class EventController extends Controller
 
             $meta['repeat_end'] = $date->startOfDay()->timestamp;
             $meta->save();
-            
+
             // Create a new meta
             $meta = (new EventMeta())->fill($metaData);
 
