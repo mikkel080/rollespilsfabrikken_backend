@@ -420,7 +420,7 @@ class EventController extends Controller
 
         // Standalone events dont have a series or anything special to them
         // Therefore if updated they can just be completely updated
-        if ($originalEventMeta['repeat_interval'] == 0 && $data['recurring'] == false) {
+        if ($originalEventMeta['repeat_interval'] == 0) {
             $event->update($data);
             $originalEventMeta->update($metaData);
 
