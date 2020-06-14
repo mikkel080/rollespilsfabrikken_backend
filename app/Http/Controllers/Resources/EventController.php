@@ -15,6 +15,7 @@ use App\Models\EventMeta;
 use App\Models\EventSerie;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Helpers;
 use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
@@ -22,6 +23,7 @@ use App\Http\Resources\Event\EventWithUser as EventWithUser;
 use App\Http\Resources\Event\EventCollection as EventCollection;
 use App\Http\Resources\Event\Event as EventResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use function PHPUnit\Framework\isNull;
 
 class EventController extends Controller
@@ -62,9 +64,15 @@ class EventController extends Controller
 
     private function convertEvent($event, $timestamp) {
         $start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start);
-        $event->start = $start->format('Y-m-d\TH:i:s.v\Z');
-        $event->end = $start->addSeconds($event->event_length)->format('Y-m-d\TH:i:s.v\Z');
-        $event->type = $this->getRepeatIntervalAsString($event['repeat_interval']);
+        $end = $start->copy()->addSeconds($event->event_length);
+
+        $event['start_timestamp'] = $start->timestamp;
+        $event['end_timestamp'] = $end->timestamp;
+
+        $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
+        $event['end']   = $end->format('Y-m-d\TH:i:s.v\Z');
+
+        $event['type']  = $this->getRepeatIntervalAsString($event['repeat_interval']);
 
         return $event;
     }
@@ -111,6 +119,27 @@ class EventController extends Controller
 
         return $event;
     }
+
+    private function getEventQuery(Builder $query, bool $recurring, int $timestamp) : Builder {
+        if ($recurring) {
+            $query
+                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
+                ->where('repeat_start', '<=', $timestamp)
+                ->where(function($query) use ($timestamp) {
+                    return $query->whereNull('repeat_end')
+                        ->orWhere('repeat_end', '>', $timestamp);
+                })
+                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp);
+        } else {
+            $query
+                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
+                ->where('repeat_start', '=', $timestamp)
+                ->where('repeat_interval', '=', 0);
+        }
+
+        return $query;
+    }
+
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts
@@ -152,28 +181,19 @@ class EventController extends Controller
 
         if (!$startDate || !$endDate) {
             return response()->json([
-                'message' => 'That start or/and end does not fit the approved formats' // TODO: Update
+                'message' => 'That start or/and end does not fit the approved format'
             ]);
         }
 
         $totalEvents = [];
-        for($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+        for($date = $startDate->copy(); $date->lt($endDate); $date->addDay()) {
             $timestamp = $date->startOfDay()->timestamp;
-            $events = Event::query()
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '<=', $timestamp)
-                ->where(function($query) use ($timestamp) {
-                    return $query->whereNull('repeat_end')
-                        ->orWhere('repeat_end', '>', $timestamp);
-                })
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
+
+            $events = self::getEventQuery(Event::query(), true, $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get();
 
-            $oneTime = Event::query()
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '=', $timestamp)
-                ->where('repeat_interval', '=', 0)
+            $oneTime = self::getEventQuery(Event::query(), false, $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get();
 
@@ -189,9 +209,12 @@ class EventController extends Controller
         }
 
         $events = collect($totalEvents)->flatten();
-        //$events = (new Helpers())->filterItems($request, $events);
 
-        return response()->json([
+        $events = $events
+            ->where('start_timestamp', '>=', $startDate->timestamp)
+            ->where('end_timestamp', '<=', $endDate->timestamp);
+
+       return response()->json([
             'message' => 'success',
             'data' => EventWithUser::collection($events),
         ], 200);
@@ -210,8 +233,8 @@ class EventController extends Controller
             $startDate = Carbon::now();
             $endDate = Carbon::now()->addDays(7);
         } else {
-            $startDate = Carbon::parse($request->query('start'))->startOfDay();
-            $endDate = Carbon::parse($request->query('end'))->startOfDay();
+            $startDate = Carbon::parse($request->query('start'));
+            $endDate = Carbon::parse($request->query('end'));
         }
 
         if (!$startDate || !$endDate) {
@@ -221,24 +244,13 @@ class EventController extends Controller
         }
 
         $totalEvents = [];
-        for($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $timestamp = $date->startOfDay()->timestamp;
-            $events = $calendar
-                ->events()
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '<=', $timestamp)
-                ->where(function($query) use ($timestamp) {
-                    return $query->whereNull('repeat_end')
-                        ->orWhere('repeat_end', '>', $timestamp);
-                })
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp)
+
+            $events = self::getEventQuery($calendar->events()->getQuery(), true, $timestamp)
                 ->get();
 
-            $oneTime = $calendar
-                ->events()
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '=', $timestamp)
-                ->where('repeat_interval', '=', 0)
+            $oneTime = self::getEventQuery($calendar->events()->getQuery(), false, $timestamp)
                 ->get();
 
             $events->each(function($event, $item) use ($timestamp) {
@@ -253,7 +265,10 @@ class EventController extends Controller
         }
 
         $events = collect($totalEvents)->flatten();
-        //$events = (new Helpers())->filterItems($request, $events);
+
+        $events = $events
+            ->where('start_timestamp', '>=', $startDate->timestamp)
+            ->where('end_timestamp', '<=', $endDate->timestamp);
 
         return response()->json([
             'message' => 'success',
