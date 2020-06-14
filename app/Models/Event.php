@@ -26,8 +26,7 @@ class Event extends Model
         'title',
         'description',
         'start',
-        'end',
-        'recurrence'
+        'event_length',
     ];
 
     public function getRouteKeyName()
@@ -49,6 +48,10 @@ class Event extends Model
         return $array;
     }
 
+    public function series() {
+        return $this->belongsTo('App\Models\EventSerie');
+    }
+
     public function calendar() {
         return $this->belongsTo('App\Models\Calendar');
     }
@@ -61,12 +64,8 @@ class Event extends Model
         return $this->belongsTo('App\Models\User');
     }
 
-    public function events()  {
-        return $this->hasMany(Event::class, 'event_id', 'id');
-    }
-
-    public function event() {
-        return $this->belongsTo(Event::class, 'event_id');
+    public function meta()  {
+        return $this->hasOne(EventMeta::class);
     }
 
     public function saveQuietly() {

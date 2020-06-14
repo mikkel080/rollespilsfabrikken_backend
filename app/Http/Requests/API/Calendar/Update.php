@@ -25,7 +25,7 @@ class Update extends FormRequest
     {
         return [
             'title' => 'required|string',
-            'description' => 'required|string',
+            'description' => 'string',
             'colour' => 'required|string'
         ];
     }

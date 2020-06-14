@@ -17,14 +17,13 @@ class CreateEventsTable extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->efficientUuid('uuid')->index();
-            $table->unsignedBigInteger('event_id')->nullable();
             $table->unsignedBigInteger('calendar_id')->index();
             $table->unsignedBigInteger('user_id')->index();
-            $table->enum('recurrence', ['daily', 'weekly', 'monthly'])->nullable();
+            $table->unsignedBigInteger('series_id')->nullable();
             $table->string('title');
             $table->text('description');
-            $table->dateTime('start');
-            $table->dateTime('end');
+            $table->time('start');
+            $table->unsignedBigInteger('event_length');
             $table->timestamps();
 
             $table
@@ -38,11 +37,6 @@ class CreateEventsTable extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
-
-            $table
-                ->foreign('event_id')
-                ->references('id')
-                ->on('events');
         });
     }
 

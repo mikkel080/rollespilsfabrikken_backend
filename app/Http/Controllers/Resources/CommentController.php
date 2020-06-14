@@ -65,7 +65,7 @@ class CommentController extends Controller
     {
         return response()->json([
             'message' => 'success',
-            'comment' => new CommentResource($comment),
+            'comment' => new CommentWithChildComments($comment),
         ], 200);
     }
 

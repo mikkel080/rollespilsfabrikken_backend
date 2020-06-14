@@ -27,10 +27,14 @@ class Store extends FormRequest
     {
         return [
             'title'         => 'required|string',
-            'description'   => 'required|string',
-            'recurrence'    => Rule::in(['daily', 'weekly', 'monthly']),
-            'start'         => 'required|date_format:d-m-Y H:i:s',
-            'end'           => 'required|date_format:d-m-Y H:i:s'
+            'description'   => 'nullable|string',
+            'start'         => 'required|date_format:Y-m-d\TH:i:s.v\Z',
+            'end'           => 'required|date_format:Y-m-d\TH:i:s.v\Z',
+            'recurring'     => 'required|boolean',
+            'recurrence'    => 'required_if:recurring,true',
+            'recurrence.type'    => 'required_if:recurring,true|in:daily,weekly,monthly,yearly',
+            //'recurrence.repeat_interval' => 'required_if:recurring,true|integer', // TODO: Find a better way
+            'recurrence.end' => 'date_format:Y-m-d\TH:i:s.v\Z',
         ];
     }
 }

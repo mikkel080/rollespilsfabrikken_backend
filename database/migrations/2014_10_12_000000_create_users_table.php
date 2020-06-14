@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Dyrynda\Database\Casts\EfficientUuid;
 
@@ -29,6 +30,10 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Artisan::call('db:seed', [
+            '--class' => UserProductionSeeder::class,
+        ]);
     }
 
     /**

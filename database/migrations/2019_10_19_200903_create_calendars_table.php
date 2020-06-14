@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 
 class CreateCalendarsTable extends Migration
@@ -19,7 +20,7 @@ class CreateCalendarsTable extends Migration
             $table->unsignedBigInteger('obj_id')->index();
             $table->string('title');
             $table->string('colour');
-            $table->text('description');
+            $table->text('description')->default('');
             $table->timestamps();
 
             $table
@@ -28,6 +29,10 @@ class CreateCalendarsTable extends Migration
                 ->on('objs')
                 ->onDelete('cascade');
         });
+
+        Artisan::call('db:seed', [
+            '--class' => CalendarProductionSeeder::class,
+        ]);
     }
 
     /**

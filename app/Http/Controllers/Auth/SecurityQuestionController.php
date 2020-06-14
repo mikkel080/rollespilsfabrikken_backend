@@ -55,14 +55,20 @@ class SecurityQuestionController extends Controller
      */
     public function show(Show $request)
     {
+        $question = (new SecurityQuestion)
+            ->inRandomOrder()
+            ->limit(1)
+            ->first();
+
+        if ($question == null) {
+            return response()->json([
+                'message' => 'There is no security questions, contact an administrator',
+            ], 404);
+        }
+
         return response()->json([
             'message' => 'success',
-            'security_question' => new SecurityQuestionWithoutAnswer(
-                (new SecurityQuestion)
-                    ->inRandomOrder()
-                    ->limit(1)
-                    ->first()
-            )
+            'security_question' => new SecurityQuestionWithoutAnswer($question)
         ]);
     }
 

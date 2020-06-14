@@ -20,10 +20,6 @@ class CalendarObserver
     {
         $perms = [
             [
-                'title' => 'Kan ikke se',
-                'description' => '',
-            ],
-            [
                 'title' => 'Kan se',
                 'description' => '',
             ],
@@ -50,8 +46,8 @@ class CalendarObserver
                 ->find($calendar['obj_id'])
                 ->permissions()
                 ->save((new Permission)->fill([
-                        'level' => $j + 1,
-                        'title' => $calendar['title'] . ' - ' . $perms[$j]['title'],
+                        'level' => $j + 2,
+                        'title' => $perms[$j]['title'],
                         'description' => $perms[$j]['description']
                     ])
                 );
@@ -66,20 +62,6 @@ class CalendarObserver
      */
     public function updated(Calendar $calendar)
     {
-        $perms = (new Obj)
-            ->find($calendar['obj_id'])
-            ->permissions;
-
-        for ($j = 0; $j < count($perms); $j++) {
-            $title = $perms[$j]['title'];
-            $perms[$j]['title'] = Str::replaceFirst(
-                $title,
-                Str::beforeLast($title, ' - '),
-                $calendar['title']
-            ) . ' - ' . Str::afterLast($title, ' - ');
-
-            $perms[$j]->save();
-        }
     }
 
     /**

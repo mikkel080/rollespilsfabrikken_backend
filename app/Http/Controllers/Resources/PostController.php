@@ -19,16 +19,41 @@ use App\Http\Resources\Post\PostIndexNewestCollection;
 use App\Models\Forum;
 use App\Models\Post;
 use App\Models\PostFile;
+use finfo;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Resources\Post\Post as PostResource;
 use App\Http\Resources\PostFile\PostFile as PostFileResource;
 use App\Http\Resources\Post\PostCollection as PostCollection;
 use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
+
+    private function saveFile(UploadedFile $file, Post $post) {
+        $fileContent = $file->get();
+        $encryptedContent = encrypt($fileContent);
+
+        $postFile = (new PostFile)->fill([
+            'name' => $file->getClientOriginalName(),
+            'saved_name' => 'tmp'
+        ]);
+
+        $post->files()->save($postFile);
+
+        $name = $postFile->refresh()->uuid . '.dat';
+        Storage::put($name, $encryptedContent);
+
+        $postFile->saved_name = $name;
+        $postFile->save();
+
+        return $postFile;
+    }
+
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts
@@ -122,6 +147,7 @@ class PostController extends Controller
      * @param Store $request
      * @param Forum $forum
      * @return JsonResponse
+     * @throws FileNotFoundException
      */
     public function store(Store $request, Forum $forum)
     {
@@ -135,12 +161,7 @@ class PostController extends Controller
 
         if ($request->hasFile(('files'))) {
             foreach ($request->file('files') as $file) {
-                $postFile = (new PostFile)->fill([
-                    'name' => $file->getClientOriginalName(),
-                    'saved_name' => $file->store('post_uploads')
-                ]);
-
-                $post->files()->save($postFile);
+                self::saveFile($file, $post);
             }
         }
 
@@ -225,12 +246,7 @@ class PostController extends Controller
                     $existingFile->delete();
                 }
 
-                $postFile = (new PostFile)->fill([
-                    'name' => $file->getClientOriginalName(),
-                    'saved_name' => $file->store('post_uploads')
-                ]);
-
-                $post->files()->save($postFile);
+                self::saveFile($file, $post);
             }
         }
 
@@ -256,6 +272,25 @@ class PostController extends Controller
     }
 
     public function getFile(DownloadFile $request, Forum $forum, Post $post, PostFile $file) {
-        return Storage::download($file->saved_name, $file->name);
+        try {
+            $contents = Storage::get($file->saved_name);
+        } catch (FileNotFoundException $e) {
+            return response()->json([
+                'message' => 'Could not find file, it might have been deleted'
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error($e);
+
+            return response()->json([
+                'message' => 'Something went wrong. Check with the administrator'
+            ], 500);
+        }
+
+        $decrypted = decrypt($contents);
+
+        return response()->make($decrypted, 200, array(
+            'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($decrypted),
+            'Content-Disposition' => 'attachment; filename="' . pathinfo($file->name, PATHINFO_BASENAME) . '"'
+        ));
     }
 }

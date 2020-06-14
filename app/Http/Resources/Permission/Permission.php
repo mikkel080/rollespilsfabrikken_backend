@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Permission;
 
-use App\Http\Resources\Forum\Forum as ForumResource;
+use App\Http\Resources\Universal\ParentResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class Permission extends JsonResource
@@ -16,7 +16,7 @@ class Permission extends JsonResource
     public function toArray($request)
     {
         return [
-            'parent' => new ForumResource($this->obj->obj),
+            'parent' => new ParentResource($this->obj->obj),
             'id' => $this->uuid,
             'level' => $this->level,
             'title' => $this->title,
