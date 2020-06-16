@@ -62,7 +62,8 @@ class AuthController extends Controller
             'activation_token' => $request['activation_token']
         ]);
 
-        $avatar = (new Avatar)
+        $avatar = (new Avatar(config('laravolt.avatar')))
+            ->setTheme('forum')
             ->create($user->username)
             ->getImageObject()
             ->encode('png');
