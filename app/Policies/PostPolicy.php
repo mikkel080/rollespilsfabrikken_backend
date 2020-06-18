@@ -42,7 +42,7 @@ class PostPolicy
      */
     public function viewNewest(User $user)
     {
-        dd(auth()->check());
+        return auth()->check();
     }
 
     /**
