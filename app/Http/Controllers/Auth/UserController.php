@@ -275,9 +275,9 @@ class UserController extends Controller
         $file = $request
             ->file('avatar');
 
-        if ($file->getSize() > 2000000) {
+        if ($file->getSize() > 256000000) {
             return response()->json([
-                'message' => 'Fil må være max 2mb'
+                'message' => 'Fil må være max 256mb'
             ], 400);
         }
 

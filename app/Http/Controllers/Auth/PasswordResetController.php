@@ -60,7 +60,7 @@ class PasswordResetController extends Controller
 
             return response()->json([
                 'message' => 'Linket er udløbet'
-            ], 404);
+            ], 498);
         }
 
         return response()->json($passwordReset);
