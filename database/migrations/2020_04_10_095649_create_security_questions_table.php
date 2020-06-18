@@ -21,6 +21,10 @@ class CreateSecurityQuestionsTable extends Migration
             $table->timestamp('last_answered_at')->nullable();
             $table->timestamps();
         });
+
+        Artisan::call('db:seed', [
+            '--class' => SecurityQuestionProductionSeeder::class,
+        ]);
     }
 
     /**
