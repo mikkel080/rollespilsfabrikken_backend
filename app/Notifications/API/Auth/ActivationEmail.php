@@ -40,7 +40,7 @@ class ActivationEmail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('/#/nulstil-password?token=' . $notifiable->activation_token);
+        $url = url('/#/bekraeft-email?token=' . $notifiable->activation_token);
 
         return (new MailMessage)
                 ->greeting('Hej')
