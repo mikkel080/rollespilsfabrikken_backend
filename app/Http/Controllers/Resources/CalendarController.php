@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Calendar\Index;
 use App\Http\Requests\API\Calendar\Destroy;
 use App\Http\Requests\API\Calendar\Show;

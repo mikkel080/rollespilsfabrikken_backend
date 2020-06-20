@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Helpers;
 
 use App\Models\User;
 use Carbon\Carbon;

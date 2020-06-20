@@ -13,7 +13,7 @@ use App\Models\Forum;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 
 use App\Http\Resources\Comment\Comment as CommentResource;
 use App\Http\Resources\Comment\CommentCollection;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Post\Destroy;
 use App\Http\Requests\API\Post\Index;
 use App\Http\Requests\API\Post\Newest;

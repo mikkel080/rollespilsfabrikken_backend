@@ -17,7 +17,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
 use App\Http\Resources\Event\EventWithUser as EventWithUser;
 use App\Http\Resources\Event\EventCollection as EventCollection;

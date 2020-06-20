@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Auth\Role\Index;
 use App\Http\Requests\API\Auth\Role\Store;
 use App\Http\Requests\API\Auth\Role\Update;
