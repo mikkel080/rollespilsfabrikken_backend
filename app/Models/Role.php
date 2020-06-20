@@ -19,11 +19,13 @@ class Role extends Model
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'show' => 'bool',
     ];
 
     protected $fillable = [
         'title',
         'color',
+        'show'
     ];
 
     public function getRouteKeyName()

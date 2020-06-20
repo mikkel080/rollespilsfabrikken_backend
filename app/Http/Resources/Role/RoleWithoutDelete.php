@@ -19,6 +19,7 @@ class RoleWithoutDelete extends JsonResource
             'id' => $this->uuid,
             'title' => $this->title,
             'color' => $this->color,
+            'show' => $this->show,
             'role_permissions' => Permission::collection($this->permissions),
     	];
     }
