@@ -87,7 +87,7 @@ class Helpers
     public function filterItems(FormRequest $request, Builder $models) {
         $items = 5;
         $sortBy = 'created_at';
-        $order  = 'asc';
+        $order  = 'desc';
 
         if ($models == null || !$models->first()) {
             return $models->paginate();
