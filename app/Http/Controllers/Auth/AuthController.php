@@ -46,7 +46,7 @@ class AuthController extends Controller
     public function signup(SignupRequest $request) {
         $securityQuestion = (new SecurityQuestion)->whereUuid($request['security_question'])->firstOrFail();
 
-        if ($securityQuestion['answer'] !== $request['answer']) {
+        if (mb_strtolower($securityQuestion['answer']) !== mb_strtolower($request['answer'])) {
             return response()->json([
                 'message' => 'Svaret var forkert'
             ], 401);
@@ -74,7 +74,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Successfully created user',
-            'token' => $user->activation_token, // TODO: REMOVE BEFORE PRODUCTION
+            //'token' => $user->activation_token, // TODO: REMOVE BEFORE PRODUCTION
         ], 201);
     }
 
@@ -103,10 +103,12 @@ class AuthController extends Controller
             ->where('title', '=', 'Medlem')
             ->first();
 
-        $userRole = (new UserRole);
-        $userRole->role()->associate($role);
-        $userRole->user()->associate($user);
-        $userRole->save();
+        if ($user->roles()->get()->where('id', '=', $role['id'])->first() === null) {
+            $userRole = (new UserRole);
+            $userRole->role()->associate($role);
+            $userRole->user()->associate($user);
+            $userRole->save();
+        }
 
         return response()->json([
             'message' => 'Activated',
