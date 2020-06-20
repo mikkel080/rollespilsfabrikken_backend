@@ -41,7 +41,7 @@ class PasswordResetRequest extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('/#/bekraeft-email?token='.$this->token);
+        $url = url('/#/nulstil-password?token='.$this->token);
         return (new MailMessage)
             ->subject("Nulstil din adgangskode")
             ->greeting('Hej')
