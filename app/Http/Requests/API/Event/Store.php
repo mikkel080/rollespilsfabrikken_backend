@@ -5,6 +5,7 @@ namespace App\Http\Requests\API\Event;
 use App\Models\Event;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Helpers\Constants\EventConstants;
 
 class Store extends FormRequest
 {
@@ -32,8 +33,7 @@ class Store extends FormRequest
             'end'           => 'required|date_format:Y-m-d\TH:i:s.v\Z',
             'recurring'     => 'required|boolean',
             'recurrence'    => 'required_if:recurring,true',
-            'recurrence.type'    => 'required_if:recurring,true|in:daily,weekly,monthly,yearly',
-            //'recurrence.repeat_interval' => 'required_if:recurring,true|integer', // TODO: Find a better way
+            'recurrence.type'    => 'required_if:recurring,true|in:' . implode(",", array_keys(EventConstants::$recurrenceIntervalLookup)),
             'recurrence.end' => 'date_format:Y-m-d\TH:i:s.v\Z',
         ];
     }
