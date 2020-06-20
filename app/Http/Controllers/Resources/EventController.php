@@ -18,6 +18,8 @@ use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Helpers\Helpers;
+use App\Http\Controllers\Helpers\Constants\EventConstants;
+
 use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
 use App\Http\Resources\Event\EventWithUser as EventWithUser;
 use App\Http\Resources\Event\EventCollection as EventCollection;
@@ -28,36 +30,6 @@ use function PHPUnit\Framework\isNull;
 
 class EventController extends Controller
 {
-    private function getRepeatInterval($repeat) {
-        switch ($repeat) {
-            case 'daily':
-                return 86400;
-            case 'weekly':
-                return (86400 * 7);
-            case 'monthly':
-                return (86400 * 7) * 4;
-            case 'yearly':
-                return 86400 * 365;
-            default:
-                return 0;
-        }
-    }
-
-    private function getRepeatIntervalAsString($interval) {
-        switch ($interval) {
-            case 86400:
-                return 'daily';
-            case (86400 * 7):
-                return 'weekly';
-            case (86400 * 7) * 4:
-                return 'monthly';
-            case 86400 * 365:
-                return 'yearly';
-            default:
-                return 'none';
-        }
-    }
-
     private function convertStandardToCarbon($date) {
         return Carbon::createFromFormat('d-m-Y H:i:s', $date);
     }
@@ -72,7 +44,7 @@ class EventController extends Controller
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end']   = $end->format('Y-m-d\TH:i:s.v\Z');
 
-        $event['type']  = $this->getRepeatIntervalAsString($event['repeat_interval']);
+        $event['type']  = EventConstants::$recurrenceStringLookup[$event['repeat_interval']];
 
         return $event;
     }
@@ -85,7 +57,7 @@ class EventController extends Controller
             return false;
         }
 
-        // Check if date is after repition end
+        // Check if date is after repetition end
         if ($meta['repeat_end'] != null) {
             $end = Carbon::parse($meta['repeat_end'])->addDays(-1);
 
@@ -301,7 +273,7 @@ class EventController extends Controller
         $event = collect($event)->merge($event->meta)->toArray();
 
         // Configure the data so its ready for viewing
-        $event['type'] = self::getRepeatIntervalAsString($event['repeat_interval']);
+        $event['type'] = EventConstants::$recurrenceStringLookup[$event['repeat_interval']];
         $event['start'] = $event['start']->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $event['end']->format('Y-m-d\TH:i:s.v\Z');
 
@@ -358,7 +330,7 @@ class EventController extends Controller
 
         // Set recurring if the event is recurring
         if ($data['recurring']) {
-            $metaData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
+            $metaData['repeat_interval'] = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
         }
 
         // Set an optional recurring end date
@@ -375,8 +347,8 @@ class EventController extends Controller
         // Save and associate the metadata with the even
         $event->refresh()->meta()->save($eventMeta);
 
-        // Set the event data such that it is ready for showing
-        $event['type'] = self::getRepeatIntervalAsString($eventMeta['repeat_interval']);
+        // Set the event data such that it is ready for showing,
+        $event['type'] = EventConstants::$recurrenceStringLookup[$eventMeta['repeat_interval']];
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
@@ -427,7 +399,7 @@ class EventController extends Controller
 
         // Set the repeat interval
         if ($data['recurring']) {
-            $metaData['repeat_interval'] = self::getRepeatInterval($data['recurrence']['type']);
+            $metaData['repeat_interval'] = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
         }
 
         // Set the optional end of recurrence
@@ -441,7 +413,7 @@ class EventController extends Controller
             $event->update($data);
             $originalEventMeta->update($metaData);
 
-            $event['type'] = self::getRepeatIntervalAsString($originalEventMeta['repeat_interval']);
+            $event['type'] = EventConstants::$recurrenceStringLookup[$originalEventMeta['repeat_interval']];
             $event['start'] = $start->toISOString();
             $event['end'] = $end->toISOString();
 
@@ -471,7 +443,7 @@ class EventController extends Controller
                 $meta = $event->meta;
 
                 // Set the repeat interval
-                $meta->repeat_interval = self::getRepeatInterval($data['recurrence']['type']);
+                $meta->repeat_interval = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
 
                 // Save both
                 $event->save();
@@ -556,7 +528,7 @@ class EventController extends Controller
         }
 
         // Set the event data such that it is ready for showing
-        $event['type'] = self::getRepeatIntervalAsString($metaData['repeat_interval']);
+        $event['type'] = EventConstants::$recurrenceStringLookup[$metaData['repeat_interval']];
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
