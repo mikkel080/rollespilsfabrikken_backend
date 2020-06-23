@@ -8,6 +8,7 @@ use App\Http\Requests\API\Post\Destroy;
 use App\Http\Requests\API\Post\Index;
 use App\Http\Requests\API\Post\Newest;
 use App\Http\Requests\API\Post\Pin;
+use App\Http\Requests\API\Post\Lock;
 use App\Http\Requests\API\Post\Show;
 use App\Http\Requests\API\Post\Store;
 use App\Http\Requests\API\Post\File as AddFile;
@@ -223,6 +224,31 @@ class PostController extends Controller
             $post->pinned = false;
         } else {
             $post->pinned = true;
+        }
+
+        $post->save();
+
+        return response()->json([
+            'message' => 'success',
+            'post' => new PostResource($post)
+        ], 200);
+    }
+
+    /**
+     * Lock the post
+     * Url : /api/forum/{forum}/post/{post}/lock
+     *
+     * @param Lock $request
+     * @param Forum $forum
+     * @param Post $post
+     * @return JsonResponse
+     */
+    public function lock(Lock $request, Forum $forum, Post $post)
+    {
+        if ($post->locked) {
+            $post->locked = false;
+        } else {
+            $post->locked = true;
         }
 
         $post->save();

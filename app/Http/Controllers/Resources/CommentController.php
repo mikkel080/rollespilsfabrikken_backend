@@ -79,6 +79,12 @@ class CommentController extends Controller
      */
     public function store(Store $request, Forum $forum, Post $post)
     {
+        if ($post->locked) {
+            return response()->json([
+                'message' => 'Cannot create comments as the post is locked'
+            ], 423);
+        }
+
         $data = $request->validated();
 
         $comment = (new Comment())->fill($data);

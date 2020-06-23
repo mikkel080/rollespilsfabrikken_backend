@@ -22,6 +22,7 @@ class PostIndex extends JsonResource
             'user' => new UserResource((new User)->find($this->user_id)),
             'title' => $this->title,
             'pinned' => $this->pinned,
+            'locked' => $this->locked,
             'has_files' => $this->files->count() > 0,
             'comments' => $this->comments()->count(),
             'created_at' => $this->created_at,

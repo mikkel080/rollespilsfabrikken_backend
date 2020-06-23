@@ -143,7 +143,14 @@ Route::group([
 
     // Pin posts
     Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');
+
+    // Lock posts
+    Route::post('/forum/{forum}/post/{post}/lock',                   'PostController@lock');
+
+    // Pin comments
     Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
+
+
 
     // Get posts file
     Route::post('/forum/{forum}/post/{post}/file',                  'PostController@file');

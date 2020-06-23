@@ -24,6 +24,7 @@ class PostWithUser extends JsonResource
             'title' => $this->title,
             'body' => $this->body,
             'pinned' => $this->pinned,
+            'locked' => $this->locked,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 	        'comments' => $this->comments()->count(),
