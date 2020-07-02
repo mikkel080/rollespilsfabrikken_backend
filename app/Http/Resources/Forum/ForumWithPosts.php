@@ -21,6 +21,7 @@ class ForumWithPosts extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'priority' => $this->priority,
             'posts' => $this->posts()->count(),
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),

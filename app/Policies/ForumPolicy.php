@@ -69,6 +69,17 @@ class ForumPolicy
     }
 
     /**
+     * Determine whether the user can update the forums priority.
+     *
+     * @param User $user
+     * @return mixed
+     */
+    public function updatePriorities(User $user)
+    {
+        return $user->isSuperUser();
+    }
+
+    /**
      * Determine whether the user can delete the forum.
      *
      * @param User $user
