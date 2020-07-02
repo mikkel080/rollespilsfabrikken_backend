@@ -151,8 +151,10 @@ Route::group([
     Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
 
     // Get posts file
-    Route::post('/forum/{forum}/post/{post}/file',                  'PostController@file');
-    Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostController@getFile');
+    Route::post('/forum/{forum}/post/{post}/file',                  'PostFileController@file');
+    Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostFileController@getFile');
+
+    // Get newest posts
     Route::get('/post',                                             'PostController@newest');
 
     Route::put('/forums/priorities', 'ForumPriorityController@priorities');

@@ -31,30 +31,10 @@ use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Helpers\FileHelpers;
 
 class PostController extends Controller
 {
-
-    private function saveFile(UploadedFile $file, Post $post) {
-        $fileContent = $file->get();
-        $encryptedContent = encrypt($fileContent);
-
-        $postFile = (new PostFile)->fill([
-            'name' => $file->getClientOriginalName(),
-            'saved_name' => 'tmp'
-        ]);
-
-        $post->files()->save($postFile);
-
-        $name = $postFile->refresh()->uuid . '.dat';
-        Storage::put($name, $encryptedContent);
-
-        $postFile->saved_name = $name;
-        $postFile->save();
-
-        return $postFile;
-    }
-
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts
@@ -162,7 +142,7 @@ class PostController extends Controller
 
         if ($request->hasFile(('files'))) {
             foreach ($request->file('files') as $file) {
-                self::saveFile($file, $post);
+                FileHelpers::saveFile($file, $post);
             }
         }
 
@@ -257,66 +237,5 @@ class PostController extends Controller
             'message' => 'success',
             'post' => new PostResource($post)
         ], 200);
-    }
-
-    public function file(AddFile $request, Forum $forum, Post $post) {
-        if ($request->hasFile(('files'))) {
-            foreach ($request->file('files') as $file) {
-                $existingFile = (new PostFile)->where([
-                    ['post_id', '=', $post['id']],
-                    ['name', '=', $file->getClientOriginalName()]
-                ])->first();
-
-                if ($existingFile) {
-                    Storage::delete($existingFile->saved_name);
-                    $existingFile->delete();
-                }
-
-                self::saveFile($file, $post);
-            }
-        }
-
-        if ($request->exists('file_changes')) {
-            foreach ($request->validated()['file_changes'] as $file_change) {
-                $file = (new PostFile)->whereUuid($file_change['id'])->first();
-
-                if (!$file) {
-                    continue;
-                }
-
-                if ($file_change['change'] === 'delete') {
-                    Storage::delete($file->saved_name);
-                    $file->delete();
-                }
-            }
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'post' => new PostResource($post)
-        ], 200);
-    }
-
-    public function getFile(DownloadFile $request, Forum $forum, Post $post, PostFile $file) {
-        try {
-            $contents = Storage::get($file->saved_name);
-        } catch (FileNotFoundException $e) {
-            return response()->json([
-                'message' => 'Could not find file, it might have been deleted'
-            ], 404);
-        } catch (\Exception $e) {
-            Log::error($e);
-
-            return response()->json([
-                'message' => 'Something went wrong. Check with the administrator'
-            ], 500);
-        }
-
-        $decrypted = decrypt($contents);
-
-        return response()->make($decrypted, 200, array(
-            'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($decrypted),
-            'Content-Disposition' => 'attachment; filename="' . pathinfo($file->name, PATHINFO_BASENAME) . '"'
-        ));
     }
 }
