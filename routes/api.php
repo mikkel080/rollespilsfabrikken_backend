@@ -142,10 +142,10 @@ Route::group([
     Route::get('/events',                       'EventController@all');
 
     // Pin posts
-    Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');
+    Route::post('/forum/{forum}/post/{post}/pin',                   'PostAttributeController@pin');
 
     // Lock posts
-    Route::post('/forum/{forum}/post/{post}/lock',                   'PostController@lock');
+    Route::post('/forum/{forum}/post/{post}/lock',                   'PostAttributeController@lock');
 
     // Pin comments
     Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
