@@ -39,7 +39,6 @@ class PostFileController extends Controller
     public function file(AddFile $request, Forum $forum, Post $post) {
         if ($request->hasFile(('files'))) {
             foreach ($request->file('files') as $file) {
-                Log::debug($file->getClientOriginalName());
                 $existingFile = (new PostFile)->where([
                     ['post_id', '=', $post['id']],
                     ['name', '=', $file->getClientOriginalName()]
