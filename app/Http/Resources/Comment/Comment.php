@@ -29,7 +29,8 @@ class Comment extends JsonResource
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),
-		'can_add_comments' => auth()->user()->can('create', [CommentClass::class, $this->resource->forum])
+                'can_pin' => auth()->user()->can('pin', $this->resource),
+		        'can_add_comments' => auth()->user()->can('create', [CommentClass::class, $this->resource->forum])
             ]
         ];
     }
