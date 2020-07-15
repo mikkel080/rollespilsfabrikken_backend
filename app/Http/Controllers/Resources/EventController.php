@@ -627,4 +627,68 @@ class EventController extends Controller
             'message' => 'success'
         ], 200);
     }
+
+    public function check(Store $request, Calendar $calendar) {
+        // TODO: Check for room availability
+        // TODO: Check for vehicle availability
+
+        // Parse the request data
+        $data = $request->validated();
+        $start = Carbon::parse($data['start'])->utc();
+        $end = Carbon::parse($data['end'])->utc();
+
+        $startTimestamp = $start->timestamp;
+        $endTimestamp = $end->timestamp;
+
+        $warnings = array();
+        $errors = array();
+
+        // Make sure the start is not after end date
+        if ($start->isAfter($end)) {
+            $errors[] = [
+                'message' => 'An events start date cant be after its end'
+            ];
+        }
+
+        $dayTimeStamp = $start->copy()->startOfDay()->timestamp;
+        $eventQuery = self::getEventQuery($calendar->events()->getQuery(), $data['recurring'], $dayTimeStamp);
+
+        // TODO: Change this to be the else, if room and vehicles are both false
+        if (true) {
+            $events = $eventQuery->get();
+
+            foreach ($events as $event) {
+
+                // TODO: Separate function
+                $startTime = Carbon::createFromTimeString($event->start);
+                $eventStart = Carbon::createFromTimestamp($dayTimeStamp)
+                    ->minutes($startTime->minute)
+                    ->hours($startTime->hour)
+                    ->seconds($startTime->second)
+                    ->timestamp;
+
+                $eventEnd = $eventStart + $event->event_length;
+
+                // Determine if the events overlap by checking if the events do not overlap
+                if (!($eventEnd <= $startTimestamp || $eventStart >= $endTimestamp)) {
+                    $warnings[] = [
+                        'message' => 'Event overlaps with another event',
+                        'event' => new EventWithUser($event)
+                    ];
+                }
+            }
+        }
+
+        if (count($warnings) > 0 || count($errors) > 0) {
+            return response()->json([
+                'message' => 'There were errors/warnings',
+                'warnings' => $warnings,
+                'errors' => $errors
+            ], 400);
+        } else {
+            return response()->json([
+                'message' => 'There were no errors/warnings',
+            ], 200);
+        }
+    }
 }

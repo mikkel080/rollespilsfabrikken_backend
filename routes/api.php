@@ -157,6 +157,10 @@ Route::group([
     // Get newest posts
     Route::get('/post',                                             'PostController@newest');
 
+    // Check for event availability regarding both rooms, vehicles and times.
+    Route::post('/calendar/{calendar}/event/check', 'EventController@check');
+
+    // Forum priorities
     Route::put('/forums/priorities', 'ForumPriorityController@priorities');
     Route::put('/forum/{forum}/priority', 'ForumPriorityController@priority');
 });
