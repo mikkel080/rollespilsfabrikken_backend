@@ -22,7 +22,7 @@ class User extends JsonResource
             'created_at' => $this->created_at,
             'banned_at' => $this->when($this->deleted_at !== null, $this->deleted_at),
             'super_user' => $this->super_user,
-	    'roles' => Role::collection($this->roles),
+            'roles' => Role::collection($this->roles),
         ];
     }
 }
