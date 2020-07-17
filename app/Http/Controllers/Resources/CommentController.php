@@ -164,7 +164,12 @@ class CommentController extends Controller
             ], 400);
         }
 
-        $comment->pinned = true;
+        if ($comment->pinned) {
+            $comment->pinned = false;
+        } else {
+            $comment->pinned = true;
+        }
+
         $comment->save();
 
         return response()->json([
