@@ -28,6 +28,7 @@ class Post extends JsonResource
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
 	    'comments' => $this->comments()->count(),
             'permissions' => [
+		'can_pin' => auth()->user()->can('pin', $this->resource),
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),
                 'can_add_comments' => auth()->user()->can('create', [Comment::class, $this->resource->forum])
