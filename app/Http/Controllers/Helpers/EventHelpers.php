@@ -101,9 +101,13 @@ class EventHelpers
         $start = Carbon::parse($data['start']);
         $end = Carbon::parse($data['end']);
 
+        $data['start_timestamp'] = $start->timestamp;
+        $data['end_timestamp'] = $end->timestamp;
+
         // Set the start time, without date, and define the event length in seconds
         $data['start'] = $start->toTimeString();
         $data['event_length'] = $start->diffInSeconds($end);
+
 
         // Parse the recurrence data
         $metaData = [

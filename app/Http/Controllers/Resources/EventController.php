@@ -142,6 +142,10 @@ class EventController extends Controller
             ], 401);
         }
 
+        if ($metaData['repeat_end'] > Carbon::createFromTimestamp($data['start_timestamp'])->addYears(2)->timestamp) {
+            $metaData['repeat_end'] = Carbon::createFromTimestamp($data['start_timestamp'])->addYears(2)->timestamp;
+        }
+
         // Create the new event
         $event = (new Event())
             ->fill($data);
@@ -419,7 +423,9 @@ class EventController extends Controller
         $data = $request->validated();
         list(
             $start,
-            $end
+            $end,
+            $data,
+            $metaData
             ) = EventHelpers::parseData($data);
 
         $warnings = array();
@@ -429,6 +435,12 @@ class EventController extends Controller
         if ($start->isAfter($end)) {
             $errors[] = [
                 'message' => 'An events start date cant be after its end'
+            ];
+        }
+
+        if ($metaData['repeat_end'] > Carbon::createFromTimestamp($data['start_timestamp'])->addYears(2)->timestamp) {
+            $errors[] = [
+                'message' => 'An event cant repeat for more than 2 years'
             ];
         }
 
