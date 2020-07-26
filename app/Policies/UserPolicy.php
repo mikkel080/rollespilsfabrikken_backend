@@ -17,11 +17,7 @@ class UserPolicy
     public function ban(User $user, User $userTarget) {
         return $user->isSuperUser();
     }
-
-    public function unban(User $user, User $userTarget) {
-        return $user->isSuperUser();
-    }
-
+    
     public function destroy(User $user, User $userTarget) {
         if ($user->isSuperUser()) {
             return true;
@@ -43,10 +39,6 @@ class UserPolicy
     }
 
     public function op(User $user, User $userTarget) {
-        return $user->isSuperUser();
-    }
-
-    public function deop(User $user, User $userTarget) {
         return $user->isSuperUser();
     }
 
