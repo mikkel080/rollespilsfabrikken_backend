@@ -52,18 +52,16 @@ class PostFileController extends Controller
             }
         }
 
-        if ($request->exists('file_changes')) {
-            foreach ($request->validated()['file_changes'] as $file_change) {
-                $file = (new PostFile)->whereUuid($file_change['id'])->first();
+        if ($request->exists('file_deletions')) {
+            foreach ($request->validated()['file_deletions'] as $fileDeletion) {
+                $file = (new PostFile)->whereUuid($fileDeletion)->first();
 
                 if (!$file) {
                     continue;
                 }
 
-                if ($file_change['change'] === 'delete') {
-                    Storage::delete($file->saved_name);
-                    $file->delete();
-                }
+                Storage::delete($file->saved_name);
+                $file->delete();
             }
         }
 
