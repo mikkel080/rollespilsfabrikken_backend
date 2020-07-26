@@ -106,12 +106,10 @@ Route::group([
     Route::delete('/{user}',    'UserController@destroy');
 
     // Restrict access to forum without deleting user
-    Route::post('/{user}/ban',  'UserController@ban');
-    Route::post('/{user}/unban','UserController@unban');
+    Route::post('/{user}/ban',  'UserAttributeController@ban');
 
     // Op to superuser
-    Route::post('/{user}/op',  'UserController@op');
-    Route::post('/{user}/deop','UserController@deop');
+    Route::post('/{user}/op',  'UserAttributeController@op');
 
     // Reset user
     Route::post('/{user}/reset',    'UserController@reset');
