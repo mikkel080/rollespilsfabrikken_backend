@@ -14,181 +14,37 @@ use App\Models\Event;
 use App\Models\EventMeta;
 use App\Models\EventSerie;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Controllers\Helpers\Constants\EventConstants;
-
-use App\Http\Resources\Event\EventWithUserCollection as EventWithUserCollection;
 use App\Http\Resources\Event\EventWithUser as EventWithUser;
-use App\Http\Resources\Event\EventCollection as EventCollection;
 use App\Http\Resources\Event\Event as EventResource;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use function PHPUnit\Framework\isNull;
+use App\Http\Controllers\Helpers\EventHelpers;
 
 class EventController extends Controller
 {
-    private function convertStandardToCarbon($date) {
-        return Carbon::createFromFormat('d-m-Y H:i:s', $date);
-    }
-
-    private function convertEvent($event, $timestamp) {
-        $start = self::convertStandardToCarbon(Carbon::createFromTimestamp($timestamp)->format('d-m-Y') . ' ' . $event->start);
-        $end = $start->copy()->addSeconds($event->event_length);
-
-        $event['start_timestamp'] = $start->timestamp;
-        $event['end_timestamp'] = $end->timestamp;
-
-        $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
-        $event['end']   = $end->format('Y-m-d\TH:i:s.v\Z');
-
-        $event['type']  = EventConstants::$recurrenceStringLookup[$event['repeat_interval']];
-
-        return $event;
-    }
-
-    private function checkForEventInstance(Event $event, $timestamp) {
-        $meta = $event->meta;
-
-        // Check if date is before the repetition start
-        if ($meta['repeat_start'] > $timestamp) {
-            return false;
-        }
-
-        // Check if date is after repetition end
-        if ($meta['repeat_end'] != null) {
-            $end = Carbon::parse($meta['repeat_end'])->addDays(-1);
-
-            if ($end->timestamp < $timestamp) {
-                return false;
-            }
-        }
-
-        // Perform and validate the repeating calculation
-        if ($meta['repeat_interval'] != 0 && (($timestamp - $meta['repeat_start']) % $meta['repeat_interval']) != 0 ) {
-            return false;
-        }
-
-        // Get the start of the event
-        $startTime = Carbon::createFromTimeString($event['start']);
-
-        // Combine it with the date
-        $event['start'] = Carbon::createFromTimestamp($timestamp)
-            ->minutes($startTime->minute)
-            ->hours($startTime->hour)
-            ->seconds($startTime->second);
-
-        // Calculate the end time of the event
-        $event['end'] = $event['start']->copy()->addSeconds($event['event_length']);
-
-        if ($event['end']->timestamp < $timestamp) {
-            return response()->json([
-                'message' => 'There is no instance of this event on that date'
-            ], 404);
-        }
-
-        return $event;
-    }
-
-    private function getEventQuery(Builder $query, bool $recurring, int $timestamp) : Builder {
-        if ($recurring) {
-            $query
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '<=', $timestamp)
-                ->where(function($query) use ($timestamp) {
-                    return $query->whereNull('repeat_end')
-                        ->orWhere('repeat_end', '>', $timestamp);
-                })
-                ->whereRaw('(? - cast(repeat_start as signed)) % repeat_interval = 0', $timestamp);
-        } else {
-            $query
-                ->rightJoin('event_metas', 'event_metas.event_id', '=', 'events.id')
-                ->where('repeat_start', '=', $timestamp)
-                ->where('repeat_interval', '=', 0);
-        }
-
-        return $query;
-    }
-
     /**
      * Display a listing of the resource.
      * Url : /api/forum/{forum}/posts
      *
-     * @param Newest $request
-     * @param Forum $forum
+     * @param All $request
+     * @param Calendar $calendar
      * @return JsonResponse
      */
     public function all(All $request, Calendar $calendar)
     {
         $user = auth()->user();
 
-        $calendars = Calendar::query();
+        $calendars = EventHelpers::getCalendars(auth()->user());
 
-        if (!$user->isSuperUser()) {
-            $calendars = $calendars
-                ->whereIn('obj_id',
-                    collect($user->permissions())
-                        ->where('level', '>', 1)
-                        ->pluck('obj_id')
-                );
-        }
-
-        $calendars
-            ->select('id')
-            ->get();
-
-        $query = Event::query()
-            ->whereIn('calendar_id', $calendars);
-
-        if (!$request->query('start') && !$request->query('end')) {
-            $startDate = Carbon::now();
-            $endDate = Carbon::now()->addDays(7);
-        } else {
-            $startDate = Carbon::parse($request->query('start'));
-            $endDate = Carbon::parse($request->query('end'));
-        }
-
-
-        if (!$startDate || !$endDate) {
-            return response()->json([
-                'message' => 'That start or/and end does not fit the approved format'
-            ]);
-        }
-
-        $totalEvents = [];
-        for($date = $startDate->copy(); $date->lt($endDate); $date->addDay()) {
-            $timestamp = $date->startOfDay()->timestamp;
-
-            $events = self::getEventQuery(Event::query(), true, $timestamp)
-                ->whereIn('calendar_id', $calendars)
-                ->get();
-
-            $oneTime = self::getEventQuery(Event::query(), false, $timestamp)
-                ->whereIn('calendar_id', $calendars)
-                ->get();
-
-            $events->each(function($event, $item) use ($timestamp) {
-                self::convertEvent($event, $timestamp);
-            });
-
-            $oneTime->each(function($event, $item) use ($timestamp) {
-                self::convertEvent($event, $timestamp);
-            });
-
-            $totalEvents[] = $events->merge($oneTime);
-        }
-
-        $events = collect($totalEvents)->flatten();
-
-        $events = $events
-            ->where('start_timestamp', '>=', $startDate->timestamp)
-            ->where('end_timestamp', '<=', $endDate->timestamp);
+        list($startDate, $endDate) = EventHelpers::parseRequest($request);
 
        return response()->json([
             'message' => 'success',
-            'data' => EventWithUser::collection($events),
+            'data' => EventWithUser::collection(
+                EventHelpers::getEventsInRange($startDate, $endDate, $calendars)
+                    ->where('start_timestamp', '>=', $startDate->timestamp)
+                    ->where('end_timestamp', '<=', $endDate->timestamp)
+            ),
         ], 200);
     }
 
@@ -201,50 +57,35 @@ class EventController extends Controller
      */
     public function index(Index $request, Calendar $calendar)
     {
-        if (!$request->query('start') && !$request->query('end')) {
-            $startDate = Carbon::now();
-            $endDate = Carbon::now()->addDays(7);
-        } else {
-            $startDate = Carbon::parse($request->query('start'));
-            $endDate = Carbon::parse($request->query('end'));
-        }
-
-        if (!$startDate || !$endDate) {
-            return response()->json([
-                'message' => 'That start or/and end does not fit the approved formats' // TODO: Update
-            ]);
-        }
+        list($startDate, $endDate) = EventHelpers::parseRequest($request);
 
         $totalEvents = [];
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $timestamp = $date->startOfDay()->timestamp;
 
-            $events = self::getEventQuery($calendar->events()->getQuery(), true, $timestamp)
-                ->get();
+            $events = EventHelpers::getEventQuery($calendar->events()->getQuery(), true, $timestamp)
+                ->get()
+                ->each(function($event, $item) use ($timestamp) {
+                    EventHelpers::convertEvent($event, $timestamp);
+                });
 
-            $oneTime = self::getEventQuery($calendar->events()->getQuery(), false, $timestamp)
-                ->get();
-
-            $events->each(function($event, $item) use ($timestamp) {
-                self::convertEvent($event, $timestamp);
-            });
-
-            $oneTime->each(function($event, $item) use ($timestamp) {
-                self::convertEvent($event, $timestamp);
-            });
+            $oneTime = EventHelpers::getEventQuery($calendar->events()->getQuery(), false, $timestamp)
+                ->get()
+                ->each(function($event, $item) use ($timestamp) {
+                    EventHelpers::convertEvent($event, $timestamp);
+                });
 
             $totalEvents[] = $events->merge($oneTime);
         }
 
-        $events = collect($totalEvents)->flatten();
-
-        $events = $events
-            ->where('start_timestamp', '>=', $startDate->timestamp)
-            ->where('end_timestamp', '<=', $endDate->timestamp);
-
         return response()->json([
             'message' => 'success',
-            'data' => EventWithUser::collection($events),
+            'data' => EventWithUser::collection(
+                collect($totalEvents)
+                    ->flatten()
+                    ->where('start_timestamp', '>=', $startDate->timestamp)
+                    ->where('end_timestamp', '<=', $endDate->timestamp)
+            ),
         ], 200);
     }
 
@@ -261,7 +102,7 @@ class EventController extends Controller
         // Parse the date from the request
         $date = Carbon::parse($request['date']);
 
-        $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
+        $event = EventHelpers::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
 
         if ($event == false) {
             return response()->json([
@@ -269,17 +110,9 @@ class EventController extends Controller
             ], 404);
         }
 
-        // Combine the event data
-        $event = collect($event)->merge($event->meta)->toArray();
-
-        // Configure the data so its ready for viewing
-        $event['type'] = EventConstants::$recurrenceStringLookup[$event['repeat_interval']];
-        $event['start'] = $event['start']->format('Y-m-d\TH:i:s.v\Z');
-        $event['end'] = $event['end']->format('Y-m-d\TH:i:s.v\Z');
-
         return response()->json([
             'message' => 'success',
-            'post' => new EventWithUser($event),
+            'event' => new EventWithUser($event),
         ], 200);
     }
 
@@ -294,12 +127,13 @@ class EventController extends Controller
     {
         // Parse the request data
         $data = $request->validated();
-        $start = Carbon::parse($data['start'])->utc();
-        $end = Carbon::parse($data['end'])->utc();
 
-        // Set the saved data
-        $data['start'] = $start->toTimeString();
-        $data['event_length'] = $start->diffInSeconds($end); // Get difference between start and end to allow for multidate
+        list(
+            $start,
+            $end,
+            $data,
+            $metaData
+            ) = EventHelpers::parseData($data);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -321,40 +155,24 @@ class EventController extends Controller
         $series = (new EventSerie())->create();
         $event->series()->associate($series);
 
-        // Define initial meta data
-        $metaData = [
-            'repeat_start' => $start->copy()->startOfDay()->timestamp,
-            'repeat_interval' => 0,
-            'repeat_end' => null
-        ];
-
-        // Set recurring if the event is recurring
-        if ($data['recurring']) {
-            $metaData['repeat_interval'] = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
-        }
-
-        // Set an optional recurring end date
-        if (isset($data['recurrence']['end'])) {
-            $metaData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
-        }
-
         // Save the event
         $calendar->events()->save($event);
 
         // Fill the event meta data
         $eventMeta = (new EventMeta())->fill($metaData);
 
-        // Save and associate the metadata with the even
+        // Save and associate the metadata with the event
         $event->refresh()->meta()->save($eventMeta);
-
-        // Set the event data such that it is ready for showing,
-        $event['type'] = EventConstants::$recurrenceStringLookup[$eventMeta['repeat_interval']];
-        $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
-        $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
         return response()->json( [
             'message' => 'success',
-            'event' => new EventResource(collect($event)->merge($eventMeta->refresh())->toArray())
+            'event' => new EventResource(
+                EventHelpers::convertEvent(
+                    collect($event)
+                        ->merge($eventMeta->refresh())
+                        ->toArray(),
+                    $start->timestamp)
+            )
         ], 201);
     }
 
@@ -371,9 +189,12 @@ class EventController extends Controller
         // Retrieve the data
         $data = $request->validated();
 
-        // Parse start date
-        $start = Carbon::parse($data['start']);
-        $end = Carbon::parse($data['end']);
+        list(
+            $start,
+            $end,
+            $data,
+            $metaData
+            ) = EventHelpers::parseData($data);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -382,46 +203,15 @@ class EventController extends Controller
             ], 401);
         }
 
-        // Set the start time, without date, and define the event length in seconds
-        $data['start'] = $start->toTimeString();
-        $data['event_length'] = $start->diffInSeconds($end);
-
         // Create a copy of the original data
         $originalEventMeta = $event->meta;
         $originalEvent = $event;
-
-        // Parse the recurrence data, only with dates this time.
-        $metaData = [
-            'repeat_start' => $start->startOfDay()->timestamp,
-            'repeat_interval' => 0,
-            'repeat_end' => null
-        ];
-
-        // Set the repeat interval
-        if ($data['recurring']) {
-            $metaData['repeat_interval'] = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
-        }
-
-        // Set the optional end of recurrence
-        if (isset($data['recurrence']['end'])) {
-            $metaData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
-        }
 
         // Standalone events dont have a series or anything special to them
         // Therefore if updated they can just be completely updated
         if ($originalEventMeta['repeat_interval'] == 0) {
             $event->update($data);
             $originalEventMeta->update($metaData);
-
-            $event['type'] = EventConstants::$recurrenceStringLookup[$originalEventMeta['repeat_interval']];
-            $event['start'] = $start->toISOString();
-            $event['end'] = $end->toISOString();
-
-            return response()->json([
-                'message' => 'success',
-                'event' => new EventResource(collect($event)->merge($originalEventMeta)->toArray())
-            ], 200);
-
         // Update the series
         } else if (isset($data['recurrence']['series']) && ($data['recurrence']['series'] === true)) {
             // Get all the events in the series
@@ -429,15 +219,8 @@ class EventController extends Controller
 
             // Loop them
             foreach ($series->events as $event) {
-                // Update the title
-                $event->title = $data['title'];
-
-                // Update the description
-                $event->description = $data['description'];
-
-                // Update start
-                $event->start = $data['start'];
-                $event->event_length = $data['event_length'];
+                // Update the event
+                $event->update($data);
 
                 // Get the metadata for the current event
                 $meta = $event->meta;
@@ -445,8 +228,7 @@ class EventController extends Controller
                 // Set the repeat interval
                 $meta->repeat_interval = EventConstants::$recurrenceIntervalLookup[$data['recurrence']['type']];
 
-                // Save both
-                $event->save();
+                // Save the metadata
                 $meta->save();
             }
         }else if (isset($data['recurrence']['apply_to_all']) && ($data['recurrence']['apply_to_all'] === true)) {
@@ -457,7 +239,7 @@ class EventController extends Controller
             $originalEventMeta->update($metaData);
         } else if (isset($data['recurrence']['only_this']) && ($data['recurrence']['only_this'] === true)){
             // Check if there is an event instance on the given date
-            $event = self::checkForEventInstance($event, $start->copy()->startOfDay()->timestamp);
+            $event = EventHelpers::checkForEventInstance($event, $start->copy()->startOfDay()->timestamp);
 
             if ($event == false) {
                 return response()->json([
@@ -465,6 +247,7 @@ class EventController extends Controller
                 ], 404);
             }
 
+            // Create a new series, that is after the current event, and contains the same repetition elements
             $eventData = [
                 'repeat_start' => $start->copy()->startOfDay()->timestamp + $originalEventMeta['repeat_interval'],
                 'repeat_interval' => $originalEventMeta['repeat_interval'],
@@ -551,14 +334,14 @@ class EventController extends Controller
         // Retrieve the data
         $data = $request->validated();
 
-	// Create a copy of the original data
-	$meta = $event->meta;
+        // Create a copy of the original data
+        $meta = $event->meta;
 
-	if ($meta['repeat_interval'] != 0) {
-	    $date = Carbon::parse($data['date']);
-	}
+        if ($meta['repeat_interval'] != 0) {
+            $date = Carbon::parse($data['date']);
+        }
 
-	// Standalone events dont have a series or anything special to them
+        // Standalone events dont have a series or anything special to them
         // Therefore they can just be deleted
         if ($meta['repeat_interval'] == 0) {
             $event->delete();
@@ -580,7 +363,7 @@ class EventController extends Controller
             $event->meta->delete();
         } else if (isset($data['only_this']) && ($data['only_this'] === true)){
             // Check if there is an event instance on the given date
-            $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
+            $event = EventHelpers::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
 
             if ($event == false) {
                 return response()->json([
@@ -610,7 +393,7 @@ class EventController extends Controller
             $newEvent->refresh()->meta()->save($meta);
         } else {
             // Check if there is an event instance on the given date
-            $event = self::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
+            $event = EventHelpers::checkForEventInstance($event, $date->copy()->startOfDay()->timestamp);
 
             if ($event == false) {
                 return response()->json([
@@ -634,11 +417,10 @@ class EventController extends Controller
 
         // Parse the request data
         $data = $request->validated();
-        $start = Carbon::parse($data['start'])->utc();
-        $end = Carbon::parse($data['end'])->utc();
-
-        $startTimestamp = $start->timestamp;
-        $endTimestamp = $end->timestamp;
+        list(
+            $start,
+            $end
+            ) = EventHelpers::parseData($data);
 
         $warnings = array();
         $errors = array();
@@ -650,27 +432,14 @@ class EventController extends Controller
             ];
         }
 
-        $dayTimeStamp = $start->copy()->startOfDay()->timestamp;
-        $eventQuery = self::getEventQuery($calendar->events()->getQuery(), $data['recurring'], $dayTimeStamp);
+        $calendars = EventHelpers::getCalendars(auth()->user());
+        $events = EventHelpers::getEventsInRange($start, $end, $calendars);
 
-        // TODO: Change this to be the else, if room and vehicles are both false
+        // TODO: Change this to be else, if room and vehicles are both false
         if (true) {
-            $events = $eventQuery->get();
-
             foreach ($events as $event) {
-
-                // TODO: Separate function
-                $startTime = Carbon::createFromTimeString($event->start);
-                $eventStart = Carbon::createFromTimestamp($dayTimeStamp)
-                    ->minutes($startTime->minute)
-                    ->hours($startTime->hour)
-                    ->seconds($startTime->second)
-                    ->timestamp;
-
-                $eventEnd = $eventStart + $event->event_length;
-
                 // Determine if the events overlap by checking if the events do not overlap
-                if (!($eventEnd <= $startTimestamp || $eventStart >= $endTimestamp)) {
+                if (!($event['end_timestamp'] <= $start->timestamp || $event['start_timestamp'] >= $end->timestamp)) {
                     $warnings[] = [
                         'message' => 'Event overlaps with another event',
                         'event' => new EventWithUser($event)
