@@ -27,7 +27,7 @@ class File extends FormRequest
             'files' => 'array',
             'files.*' => 'file|required',
             'file_deletions' => 'array',
-            'file_changes.*' => 'string|required',
+            'file_deletions.*' => 'string|required',
         ];
     }
 }
