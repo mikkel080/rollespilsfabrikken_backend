@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\Calendar\CalendarWithoutDelete;
+use App\Http\Resources\Resource\Resource as ResourceResource;
 
 class Event extends JsonResource
 {
@@ -19,6 +20,7 @@ class Event extends JsonResource
      */
     public function toArray($request)
     {
+        $event = (new \App\Models\Event)->find($this['id']);
         $end = Carbon::createFromTimestamp($this['repeat_end'])->addDays(-1)->format('Y-m-d\TH:i:s.v\Z');
 
         return [
@@ -28,14 +30,15 @@ class Event extends JsonResource
             'start' => $this['start'],
             'end' => $this['end'],
             'parent' => new CalendarWithoutDelete(Calendar::find($this['calendar_id'])),
+            'resources' => ResourceResource::collection($event->resources),
             'recurrence' => [
                 'start' => Carbon::createFromTimestamp($this['repeat_start'])->format('Y-m-d\TH:i:s.v\Z'),
                 'end' => $end != "1969-12-31T00:00:00.000Z" ? $end : null,
                 'type' => $this['type'],
             ],
             'permissions' => [
-                'can_update' => auth()->user()->can('update', (new \App\Models\Event)->find($this['id'])),
-                'can_delete' => auth()->user()->can('delete', (new \App\Models\Event)->find($this['id']))
+                'can_update' => auth()->user()->can('update', $event),
+                'can_delete' => auth()->user()->can('delete', $event)
             ],
             'updated_at' => Carbon::parse($this['updated_at'])->format('Y-m-d\TH:i:s.v\Z'),
             'created_at' => Carbon::parse($this['created_at'])->format('Y-m-d\TH:i:s.v\Z'),

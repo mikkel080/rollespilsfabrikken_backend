@@ -36,7 +36,9 @@ class Update extends FormRequest
             'recurring'         => 'required|boolean',
             'recurrence'        =>'required_if:recurring,true',
             'recurrence.end'    =>'date_format:Y-m-d\TH:i:s.v\Z',
-            'recurrence.type'    => 'required_if:recurring,true|in:' . implode(",", array_keys(EventConstants::$recurrenceIntervalLookup)),
+            'recurrence.type'   => 'required_if:recurring,true|in:' . implode(",", array_keys(EventConstants::$recurrenceIntervalLookup)),
+            'resources'         => 'array',
+            'resources.*'       => 'string|required'
         ];
 
         if ($eventMetaData['repeat_interval'] != 0) {

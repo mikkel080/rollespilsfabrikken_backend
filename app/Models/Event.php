@@ -73,4 +73,8 @@ class Event extends Model
             return $this->save();
         });
     }
+
+    public function resources() {
+        return $this->hasManyThrough('App\Models\Resource', 'App\Models\EventResource', 'event_id', 'id', 'id', 'resource_id');
+    }
 }

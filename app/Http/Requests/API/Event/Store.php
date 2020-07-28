@@ -33,8 +33,10 @@ class Store extends FormRequest
             'end'           => 'required|date_format:Y-m-d\TH:i:s.v\Z',
             'recurring'     => 'required|boolean',
             'recurrence'    => 'required_if:recurring,true',
-            'recurrence.type'    => 'required_if:recurring,true|in:' . implode(",", array_keys(EventConstants::$recurrenceIntervalLookup)),
-            'recurrence.end' => 'date_format:Y-m-d\TH:i:s.v\Z',
+            'recurrence.type'   => 'required_if:recurring,true|in:' . implode(",", array_keys(EventConstants::$recurrenceIntervalLookup)),
+            'recurrence.end'    => 'date_format:Y-m-d\TH:i:s.v\Z',
+            'resources'     => 'array',
+            'resources.*'   => 'string|required'
         ];
     }
 }

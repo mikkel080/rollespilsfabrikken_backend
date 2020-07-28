@@ -6,10 +6,13 @@ namespace App\Http\Controllers\Helpers;
 
 use App\Http\Controllers\Helpers\Constants\EventConstants;
 use App\Models\Event;
+use App\Models\EventResource;
+use App\Models\Resource;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Calendar;
+use Illuminate\Support\Collection;
 
 class EventHelpers
 {
@@ -42,7 +45,7 @@ class EventHelpers
 
         // Check if date is after repetition end
         if ($event['repeat_end'] != null) {
-            $end = Carbon::parse($event['repeat_end'])->addDays(-1);
+            $end = Carbon::parse($event['repeat_end']);
 
             if ($end->timestamp < $timestamp) {
                 return false;
@@ -105,13 +108,12 @@ class EventHelpers
         $data['end_timestamp'] = $end->timestamp;
 
         // Set the start time, without date, and define the event length in seconds
-        $data['start'] = $start->toTimeString();
+        $data['start'] = $start->copy()->toTimeString();
         $data['event_length'] = $start->diffInSeconds($end);
-
 
         // Parse the recurrence data
         $metaData = [
-            'repeat_start' => $start->startOfDay()->timestamp,
+            'repeat_start' => $start->copy()->startOfDay()->timestamp,
             'repeat_interval' => 0,
             'repeat_end' => null
         ];
@@ -126,7 +128,18 @@ class EventHelpers
             $metaData['repeat_end'] = Carbon::parse($data['recurrence']['end'])->addDay()->startOfDay()->timestamp;
         }
 
-        return array($start, $end, $data, $metaData);
+        // Locate the resources if any are set
+        $resources = collect();
+        if (isset($data['resources'])) {
+            // Remove any duplicates from the array, just in case
+            $data['resources'] = array_unique($data['resources']);
+
+            foreach ($data['resources'] as $resource) {
+                $resources[] = Resource::whereUuid($resource)->firstOrFail();
+            }
+        }
+
+        return array($start, $end, $data, $metaData, $resources->keyBy('id'));
     }
 
     public static function getCalendars(User $user) {
@@ -172,4 +185,32 @@ class EventHelpers
         return collect($events)->flatten();
     }
 
+    public static function filterEventResources(Collection $oldResources, Collection $newResources) {
+        foreach ($oldResources as $oldResource) {
+            if ($newResources->contains($oldResource)) {
+                $newResources->forget($oldResource->id);
+            } else {
+                $oldResource->delete();
+            }
+        }
+
+        return $newResources;
+    }
+
+    public static function saveEventResources($resources, $event) {
+        foreach ($resources as $resource) {
+            $eventResource = new EventResource;
+
+            $eventResource->resource()->associate($resource);
+            $eventResource->event()->associate($event);
+
+            $eventResource->save();
+        }
+    }
+
+    public static function updateEventResources($event, $resources) {
+        $originalEventResources = EventResource::where('event_id', '=', $event->id)->get();
+        $resources = EventHelpers::filterEventResources($originalEventResources, $resources);
+        EventHelpers::saveEventResources($resources, $event);
+    }
 }

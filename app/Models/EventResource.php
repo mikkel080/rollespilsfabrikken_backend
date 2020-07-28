@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 class EventResource extends Model
 {
     protected $fillable = [
-        'event_id',
-        'resource_id'
     ];
 
     public function event() {

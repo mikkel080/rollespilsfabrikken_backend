@@ -13,12 +13,15 @@ use App\Models\Calendar;
 use App\Models\Event;
 use App\Models\EventMeta;
 use App\Models\EventSerie;
+use App\Models\Resource;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use App\Models\EventResource;
 use App\Http\Controllers\Helpers\Constants\EventConstants;
 use App\Http\Resources\Event\EventWithUser as EventWithUser;
-use App\Http\Resources\Event\Event as EventResource;
+use App\Http\Resources\Event\Event as EventJsonResource;
 use App\Http\Controllers\Helpers\EventHelpers;
+use Illuminate\Support\Arr;
 
 class EventController extends Controller
 {
@@ -132,8 +135,9 @@ class EventController extends Controller
             $start,
             $end,
             $data,
-            $metaData
-            ) = EventHelpers::parseData($data);
+            $metaData,
+            $resources
+        ) = EventHelpers::parseData($data);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -168,9 +172,13 @@ class EventController extends Controller
         // Save and associate the metadata with the event
         $event->refresh()->meta()->save($eventMeta);
 
+
+        // Save the event resources
+        EventHelpers::saveEventResources($resources, $event);
+
         return response()->json( [
             'message' => 'success',
-            'event' => new EventResource(
+            'event' => new EventJsonResource(
                 EventHelpers::convertEvent(
                     collect($event)
                         ->merge($eventMeta->refresh())
@@ -197,8 +205,9 @@ class EventController extends Controller
             $start,
             $end,
             $data,
-            $metaData
-            ) = EventHelpers::parseData($data);
+            $metaData,
+            $resources
+        ) = EventHelpers::parseData($data);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -216,6 +225,9 @@ class EventController extends Controller
         if ($originalEventMeta['repeat_interval'] == 0) {
             $event->update($data);
             $originalEventMeta->update($metaData);
+
+            EventHelpers::updateEventResources($event, $resources);
+
         // Update the series
         } else if (isset($data['recurrence']['series']) && ($data['recurrence']['series'] === true)) {
             // Get all the events in the series
@@ -234,7 +246,11 @@ class EventController extends Controller
 
                 // Save the metadata
                 $meta->save();
+
+                // Update resources
+                EventHelpers::updateEventResources($event, $resources);
             }
+
         }else if (isset($data['recurrence']['apply_to_all']) && ($data['recurrence']['apply_to_all'] === true)) {
             // Update the original event
             $event->update($data);
@@ -251,6 +267,10 @@ class EventController extends Controller
                 ], 404);
             }
 
+            // Set the now first subseres end date, to the current events start date
+            $originalEventMeta['repeat_end'] = $start->startOfDay()->timestamp;
+            $originalEventMeta->save();
+
             // Create a new series, that is after the current event, and contains the same repetition elements
             $eventData = [
                 'repeat_start' => $start->copy()->startOfDay()->timestamp + $originalEventMeta['repeat_interval'],
@@ -258,15 +278,22 @@ class EventController extends Controller
                 'repeat_end' => $originalEventMeta['repeat_end']
             ];
 
-            $originalEventMeta['repeat_end'] = $start->startOfDay()->timestamp;
-            $originalEventMeta->save();
-
+            // Fill in the data
             $meta = (new EventMeta())->fill($eventData);
 
-            $event = (new Event)->fill($event->only(['title', 'description', 'start', 'event_length']));
+            // Create the data
+            $event = (new Event)->fill([
+                'title' => $event['title'],
+                'description' => $event['description'],
+                'start' => Carbon::createFromTimestamp($event['start_timestamp'])->toTimeString(),
+                'event_length' => $event['event_length']
+            ]);
+
+            // Associate
             $event->user()->associate($originalEvent->user);
             $event->series()->associate($originalEvent->series);
 
+            // Save the events changes and meta
             $calendar->events()->save($event);
             $event->refresh()->meta()->save($meta);
 
@@ -277,14 +304,22 @@ class EventController extends Controller
                 'repeat_end' => null
             ];
 
+            // Fill in its meta
             $meta = (new EventMeta())->fill($eventData);
 
+            // Fill in the new events data
             $event = (new Event)->fill($data);
+
+            // Associate
             $event->user()->associate($originalEvent->user);
             $event->series()->associate($originalEvent->series);
 
+            // Save the event and its meta
             $calendar->events()->save($event);
             $event->refresh()->meta()->save($meta);
+
+            // Set the new events resources to be the ones given in the request
+            EventHelpers::saveEventResources($resources, $event);
         } else {
             // This will split the recurrence series into 2.
             // It will end the original and create a new one.
@@ -312,6 +347,9 @@ class EventController extends Controller
             // Create a new recurrence series and save it to the new event
             $eventMeta = (new EventMeta())->fill($metaData);
             $event->refresh()->meta()->save($eventMeta);
+
+            // Set the new events resources to be the ones given in the new event
+            EventHelpers::saveEventResources($resources, $event);
         }
 
         // Set the event data such that it is ready for showing
@@ -321,7 +359,7 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'event' => new EventResource(collect($event)->merge($event->meta)->toArray())
+            'event' => new EventJsonResource(collect($event)->merge($event->meta)->toArray())
         ], 200);
     }
 
