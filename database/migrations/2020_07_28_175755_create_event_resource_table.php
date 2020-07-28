@@ -13,7 +13,7 @@ class CreateEventResourceTable extends Migration
      */
     public function up()
     {
-        Schema::create('event_resource', function (Blueprint $table) {
+        Schema::create('event_resources', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('event_id')->index();
             $table->unsignedBigInteger('resource_id')->index();
@@ -40,6 +40,6 @@ class CreateEventResourceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('event_resource');
+        Schema::dropIfExists('event_resources');
     }
 }
