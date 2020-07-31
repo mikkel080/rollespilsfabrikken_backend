@@ -44,7 +44,7 @@ class PostFileController extends Controller
                 ])->first();
 
                 if ($existingFile) {
-                    Storage::delete($existingFile->saved_name);
+                    Storage::delete('post_uploads\\' .$existingFile->saved_name);
                     $existingFile->delete();
                 }
 
@@ -60,7 +60,7 @@ class PostFileController extends Controller
                     continue;
                 }
 
-                Storage::delete($file->saved_name);
+                Storage::delete('post_uploads\\' .$file->saved_name);
                 $file->delete();
             }
         }
@@ -73,7 +73,7 @@ class PostFileController extends Controller
 
     public function getFile(DownloadFile $request, Forum $forum, Post $post, PostFile $file) {
         try {
-            $contents = Storage::get($file->saved_name);
+            $contents = Storage::get('post_uploads\\' . $file->saved_name);
         } catch (FileNotFoundException $e) {
             return response()->json([
                 'message' => 'Could not find file, it might have been deleted'

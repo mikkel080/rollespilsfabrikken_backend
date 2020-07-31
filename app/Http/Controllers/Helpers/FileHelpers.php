@@ -23,7 +23,7 @@ class FileHelpers
         $post->files()->save($postFile);
 
         $name = $postFile->refresh()->uuid . '.dat';
-        Storage::put($name, $encryptedContent);
+        Storage::put('post_uploads\\' . $name, $encryptedContent);
 
         $postFile->saved_name = $name;
         $postFile->save();
