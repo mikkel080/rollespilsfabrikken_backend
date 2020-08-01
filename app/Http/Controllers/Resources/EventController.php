@@ -150,6 +150,11 @@ class EventController extends Controller
             $metaData['repeat_end'] = Carbon::createFromTimestamp($data['start_timestamp'])->addYears(2)->timestamp;
         }
 
+        // Forcefully set the event length
+        if ($data['event_length'] > $metaData['repeat_interval'] && $metaData['repeat_interval'] != 0) {
+            $data['event_length'] = $metaData['repeat_interval'];
+        }
+
         // Create the new event
         $event = (new Event())
             ->fill($data);
@@ -479,6 +484,12 @@ class EventController extends Controller
         if ($metaData['repeat_end'] > Carbon::createFromTimestamp($data['start_timestamp'])->addYears(2)->timestamp) {
             $errors[] = [
                 'message' => 'An event cant repeat for more than 2 years'
+            ];
+        }
+
+        if ($data['event_length'] > $metaData['repeat_interval'] && $metaData['repeat_interval'] != 0) {
+            $errors[] = [
+                'message' => 'An event cant be longer than its recurring interval'
             ];
         }
 
