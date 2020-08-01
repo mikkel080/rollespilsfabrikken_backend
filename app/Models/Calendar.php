@@ -59,4 +59,32 @@ class Calendar extends Model
     public function getTableColumns() {
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     }
+
+    public function canUseRooms() {
+        if ($this->allowed_resource == 'all' || $this->allowed_resource == 'rooms') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function canUseEquipment() {
+        if ($this->allowed_resource == 'all' || $this->allowed_resource == 'equipment') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function setAllowedResources(bool $rooms, bool $equipment) {
+        if ($rooms && $equipment) {
+            $this->allowed_resource = 'all';
+        } else if ($rooms) {
+            $this->allowed_resource = 'rooms';
+        } else if ($equipment) {
+            $this->allowed_resource = 'equipment';
+        } else {
+            $this->allowed_resource = 'none';
+        }
+    }
 }
