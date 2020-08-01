@@ -25,10 +25,11 @@ class PostIndex extends JsonResource
             'locked' => $this->locked,
             'has_files' => $this->files->count() > 0,
             'comments' => $this->comments()->count(),
+            'relevance' => $this->relevance,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'permissions' => [
-		'can_pin' => auth()->user()->can('pin', $this->resource),
+		    'can_pin' => auth()->user()->can('pin', $this->resource),
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),
                 'can_add_comments' => auth()->user()->can('create', [Comment::class, $this->resource->forum])

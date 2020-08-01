@@ -58,7 +58,7 @@ class PostController extends Controller
                 );
         }
 
-        $forums
+        $forums = $forums
             ->select('id')
             ->get();
 
@@ -82,6 +82,7 @@ class PostController extends Controller
      */
     public function index(Index $request,  Forum $forum)
     {
+
         if ($request->query('search')) {
             $posts = (new Helpers())->searchItems($request, Post::class, [
                 [
