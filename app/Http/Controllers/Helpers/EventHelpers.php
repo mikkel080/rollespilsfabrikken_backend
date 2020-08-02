@@ -207,6 +207,29 @@ class EventHelpers
         return collect($events)->flatten();
     }
 
+    public static function getResourceEventsInRange($start, $end, Resource $resource) {
+        $events = [];
+        for($date = $start->copy(); $date->lt($end); $date->addDay()) {
+            $timestamp = $date->startOfDay()->timestamp;
+
+            $recurring = self::getEventQuery($resource->events()->getQuery(), true, $timestamp)
+                ->get()
+                ->each(function($event, $item) use ($timestamp) {
+                    self::convertEvent($event, $timestamp);
+                });
+
+            $oneTime = self::getEventQuery($resource->events()->getQuery(), false, $timestamp)
+                ->get()
+                ->each(function($event, $item) use ($timestamp) {
+                    self::convertEvent($event, $timestamp);
+                });
+
+            $events[] = $recurring->merge($oneTime);
+        }
+
+        return collect($events)->flatten();
+    }
+
     public static function filterEventResources(Collection $oldResources, Collection $newResources) {
         foreach ($oldResources as $oldResource) {
             if ($newResources->contains($oldResource)) {

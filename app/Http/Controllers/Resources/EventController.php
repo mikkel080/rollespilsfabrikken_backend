@@ -20,6 +20,7 @@ use App\Models\EventResource;
 use App\Http\Controllers\Helpers\Constants\EventConstants;
 use App\Http\Resources\Event\EventWithUser as EventWithUser;
 use App\Http\Resources\Event\Event as EventJsonResource;
+use App\Http\Resources\Event\EventCensored;
 use App\Http\Controllers\Helpers\EventHelpers;
 use Illuminate\Support\Arr;
 
@@ -472,9 +473,6 @@ class EventController extends Controller
     }
 
     public function check(Store $request, Calendar $calendar) {
-        // TODO: Check for room availability
-        // TODO: Check for vehicle availability
-
         // Parse the request data
         $data = $request->validated();
         list(
@@ -507,20 +505,43 @@ class EventController extends Controller
             ];
         }
 
-        $calendars = EventHelpers::getCalendars(auth()->user());
-        $events = EventHelpers::getEventsInRange($start, $end, $calendars);
+        $events = EventHelpers::getEventsInRange($start, $end, [$calendar->id]);
 
-        // TODO: Change this to be else, if room and vehicles are both false
-        if (true) {
-            foreach ($events as $event) {
-                // Determine if the events overlap by checking if the events do not overlap
-                if (!($event['end_timestamp'] <= $start->timestamp || $event['start_timestamp'] >= $end->timestamp)) {
-                    $warnings[] = [
-                        'message' => 'Event overlaps with another event',
-                        'event' => new EventWithUser($event)
+        foreach ($events as $event) {
+            // Determine if the events overlap by checking if the events do not overlap
+            if (!($event['end_timestamp'] <= $start->timestamp || $event['start_timestamp'] >= $end->timestamp)) {
+                $warnings[] = [
+                    'message' => 'Event overlaps with another event',
+                    'event' => new EventWithUser($event)
+                ];
+            }
+        }
+
+        if ($calendar->allowed_resource != 'none') {
+            $calendars = EventHelpers::getCalendars(auth()->user());
+
+            foreach ($resources as $resource) {
+                $events = (EventHelpers::getResourceEventsInRange($start, $end, $resource));
+
+                if (count($events) > 0) {
+                    $warning = [
+                        'message' => 'This resource is already booked',
+                        'resource' => new \App\Http\Resources\Resource\Resource($resource),
+                        'bookings' => []
                     ];
+
+                    foreach ($events as $event) {
+                        if ($calendars->contains($event->calendar->id)) {
+                            $warning['bookings'][] = new EventWithUser($event);
+                        } else {
+                            $warning['bookings'][] = new EventCensored($event);
+                        }
+                    }
+
+                    $warnings[] = $warning;
                 }
             }
+
         }
 
         if (count($warnings) > 0 || count($errors) > 0) {
