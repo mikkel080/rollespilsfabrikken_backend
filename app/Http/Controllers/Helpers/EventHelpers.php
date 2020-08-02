@@ -99,7 +99,9 @@ class EventHelpers
         return array($startDate, $endDate);
     }
 
-    public static function parseData($data) {
+    public static function parseData($data, $calendar) {
+        $warnings = [];
+
         // Parse start date
         $start = Carbon::parse($data['start']);
         $end = Carbon::parse($data['end']);
@@ -135,11 +137,31 @@ class EventHelpers
             $data['resources'] = array_unique($data['resources']);
 
             foreach ($data['resources'] as $resource) {
+                $retrievedResource = Resource::whereUuid($resource)->firstOrFail();
+
+                if ($retrievedResource->type == 'room' && !$calendar->canUseRooms()) {
+                    $warnings[] = [
+                        'message' => 'Rooms are not allowed in this calendar',
+                        'room' => new \App\Http\Resources\Resource\Resource($retrievedResource)
+                    ];
+
+                    continue;
+                }
+
+                if ($retrievedResource->type == 'equipment' && !$calendar->canUseEquipment()) {
+                    $warnings[] = [
+                        'message' => 'Equipment is not allowed in this calendar',
+                        'equipment' => new \App\Http\Resources\Resource\Resource($retrievedResource)
+                    ];
+
+                    continue;
+                }
+
                 $resources[] = Resource::whereUuid($resource)->firstOrFail();
             }
         }
 
-        return array($start, $end, $data, $metaData, $resources->keyBy('id'));
+        return array($start, $end, $data, $metaData, $resources->keyBy('id'), $warnings);
     }
 
     public static function getCalendars(User $user) {
@@ -198,6 +220,8 @@ class EventHelpers
     }
 
     public static function saveEventResources($resources, $event) {
+        $calendar = $event->calendar;
+
         foreach ($resources as $resource) {
             $eventResource = new EventResource;
 

@@ -136,8 +136,9 @@ class EventController extends Controller
             $end,
             $data,
             $metaData,
-            $resources
-        ) = EventHelpers::parseData($data);
+            $resources,
+            $warnings
+        ) = EventHelpers::parseData($data, $calendar);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -177,11 +178,10 @@ class EventController extends Controller
         // Save and associate the metadata with the event
         $event->refresh()->meta()->save($eventMeta);
 
-
         // Save the event resources
         EventHelpers::saveEventResources($resources, $event);
 
-        return response()->json( [
+        $response = [
             'message' => 'success',
             'event' => new EventJsonResource(
                 EventHelpers::convertEvent(
@@ -190,7 +190,13 @@ class EventController extends Controller
                         ->toArray(),
                     $start->timestamp)
             )
-        ], 201);
+        ];
+
+        if (count($warnings) > 0) {
+            $response['warnings'] = $warnings;
+        }
+
+        return response()->json($response, 201);
     }
 
     /**
@@ -211,8 +217,9 @@ class EventController extends Controller
             $end,
             $data,
             $metaData,
-            $resources
-        ) = EventHelpers::parseData($data);
+            $resources,
+            $warnings
+        ) = EventHelpers::parseData($data, $calendar);
 
         // Make sure the start is not after end date
         if ($start->isAfter($end)) {
@@ -362,10 +369,16 @@ class EventController extends Controller
         $event['start'] = $start->format('Y-m-d\TH:i:s.v\Z');
         $event['end'] = $end->format('Y-m-d\TH:i:s.v\Z');
 
-        return response()->json([
+        $response = [
             'message' => 'success',
             'event' => new EventJsonResource(collect($event)->merge($event->meta)->toArray())
-        ], 200);
+        ];
+
+        if (count($warnings) > 0) {
+            $response['warnings'] = $warnings;
+        }
+
+        return response()->json($response, 200);
     }
 
     /**
@@ -468,10 +481,11 @@ class EventController extends Controller
             $start,
             $end,
             $data,
-            $metaData
-            ) = EventHelpers::parseData($data);
+            $metaData,
+            $resources,
+            $warnings
+            ) = EventHelpers::parseData($data, $calendar);
 
-        $warnings = array();
         $errors = array();
 
         // Make sure the start is not after end date
