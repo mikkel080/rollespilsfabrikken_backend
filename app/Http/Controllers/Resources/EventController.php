@@ -505,7 +505,19 @@ class EventController extends Controller
             ];
         }
 
-        $events = EventHelpers::getEventsInRange($start, $end, [$calendar->id]);
+        $ignoredEvents = [];
+
+        if ($request->query('ignore')) {
+            foreach (explode(',', $request->query('ignore')) as $item) {
+                $ignoredEvent = (new Event)->whereUuid($item)->select('id')->first();
+
+                if ($ignoredEvent != null) {
+                    $ignoredEvents[] = $ignoredEvent;
+                }
+            }
+        }
+
+        $events = EventHelpers::getEventsInRange($start, $end, [$calendar->id], $ignoredEvents);
 
         foreach ($events as $event) {
             // Determine if the events overlap by checking if the events do not overlap
@@ -521,7 +533,7 @@ class EventController extends Controller
             $calendars = EventHelpers::getCalendars(auth()->user());
 
             foreach ($resources as $resource) {
-                $events = (EventHelpers::getResourceEventsInRange($start, $end, $resource));
+                $events = (EventHelpers::getResourceEventsInRange($start, $end, $resource, $ignoredEvents));
 
                 if (count($events) > 0) {
                     $warning = [

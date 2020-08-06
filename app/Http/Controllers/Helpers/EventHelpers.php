@@ -182,19 +182,26 @@ class EventHelpers
             ->get();
     }
 
-    public static function getEventsInRange($start, $end, $calendars) {
+    public static function getEventsInRange($start, $end, $calendars, $ignoredEvents) {
         $events = [];
+
+        $baseQuery = Event::query();
+        foreach ($ignoredEvents as $ignoredEvent) {
+            $baseQuery
+                ->where('events.id', '!=', $ignoredEvent->id);
+        }
+
         for($date = $start->copy(); $date->lt($end); $date->addDay()) {
             $timestamp = $date->startOfDay()->timestamp;
 
-            $recurring = self::getEventQuery(Event::query(), true, $timestamp)
+            $recurring = self::getEventQuery(clone $baseQuery, true, $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get()
                 ->each(function($event, $item) use ($timestamp) {
                     self::convertEvent($event, $timestamp);
                 });
 
-            $oneTime = self::getEventQuery(Event::query(), false, $timestamp)
+            $oneTime = self::getEventQuery(clone $baseQuery, false, $timestamp)
                 ->whereIn('calendar_id', $calendars)
                 ->get()
                 ->each(function($event, $item) use ($timestamp) {
@@ -207,18 +214,25 @@ class EventHelpers
         return collect($events)->flatten();
     }
 
-    public static function getResourceEventsInRange($start, $end, Resource $resource) {
+    public static function getResourceEventsInRange($start, $end, Resource $resource, $ignoredEvents) {
         $events = [];
+
+        $baseQuery = $resource->events()->getQuery();
+        foreach ($ignoredEvents as $ignoredEvent) {
+            $baseQuery
+                ->where('events.id', '!=', $ignoredEvent->id);
+        }
+
         for($date = $start->copy(); $date->lt($end); $date->addDay()) {
             $timestamp = $date->startOfDay()->timestamp;
 
-            $recurring = self::getEventQuery($resource->events()->getQuery(), true, $timestamp)
+            $recurring = self::getEventQuery(clone $baseQuery, true, $timestamp)
                 ->get()
                 ->each(function($event, $item) use ($timestamp) {
                     self::convertEvent($event, $timestamp);
                 });
 
-            $oneTime = self::getEventQuery($resource->events()->getQuery(), false, $timestamp)
+            $oneTime = self::getEventQuery(clone $baseQuery, false, $timestamp)
                 ->get()
                 ->each(function($event, $item) use ($timestamp) {
                     self::convertEvent($event, $timestamp);
