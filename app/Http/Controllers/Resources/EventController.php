@@ -45,7 +45,7 @@ class EventController extends Controller
        return response()->json([
             'message' => 'success',
             'data' => EventWithUser::collection(
-                EventHelpers::getEventsInRange($startDate, $endDate, $calendars)
+                EventHelpers::getEventsInRange($startDate, $endDate, $calendars, [])
                     ->where('start_timestamp', '>=', $startDate->timestamp)
                     ->where('end_timestamp', '<=', $endDate->timestamp)
             ),
