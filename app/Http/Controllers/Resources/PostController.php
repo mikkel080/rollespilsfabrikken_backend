@@ -63,8 +63,7 @@ class PostController extends Controller
             ->get();
 
         $query = Post::query()
-            ->whereIn('forum_id', $forums)
-            ->orderBy('created_at', 'desc');
+            ->whereIn('forum_id', $forums);
 
         return response()->json([
             'message' => 'success',

@@ -27,7 +27,7 @@ class PostIndexNewest extends JsonResource
             'locked' => $this->locked,
             'has_files' => $this->files->count() > 0,
             'comments' => $this->comments()->count(),
-            'relevance' => $this->relevance,
+            'relevance' => $this->when(isset($this->relevance), function() { return $this->relevance; }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'permissions' => [

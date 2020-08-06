@@ -28,7 +28,7 @@ class PostWithUser extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 	        'comments' => $this->comments()->count(),
-            'relevance' => $this->relevance,
+            'relevance' => $this->when(isset($this->relevance), function() { return $this->relevance; }),
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
             'permissions' => [
 		    'can_pin' => auth()->user()->can('pin', $this->resource),

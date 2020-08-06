@@ -27,7 +27,7 @@ class Post extends JsonResource
             'updated_at' => $this->updated_at,
             'files' => $this->when($this->files, PostFileResource::collection($this->files)),
 	        'comments' => $this->comments()->count(),
-            'relevance' => $this->relevance,
+            'relevance' => $this->when(isset($this->relevance), function() { return $this->relevance; }),
             'permissions' => [
 		    'can_pin' => auth()->user()->can('pin', $this->resource),
                 'can_update' => auth()->user()->can('update', $this->resource),
