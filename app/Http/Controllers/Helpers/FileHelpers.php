@@ -17,7 +17,8 @@ class FileHelpers
 
         $postFile = (new PostFile)->fill([
             'name' => $file->getClientOriginalName(),
-            'saved_name' => 'tmp'
+            'saved_name' => 'tmp',
+            'file_size' => $file->getSize()
         ]);
 
         $post->files()->save($postFile);

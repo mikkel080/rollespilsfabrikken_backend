@@ -16,7 +16,8 @@ class PostFile extends JsonResource
     {
         return [
             'id' => $this->uuid,
-            'name' => $this->name
+            'name' => $this->name,
+            'size' => $this->file_size,
         ];
     }
 }

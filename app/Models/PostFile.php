@@ -21,7 +21,8 @@ class PostFile extends Model
 
     protected $fillable = [
         'name',
-        'saved_name'
+        'saved_name',
+        'file_size'
     ];
 
     public function getRouteKeyName()
