@@ -7,10 +7,20 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
 
 /**
  * Class Role
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $title
+ * @property string $color
+ * @property bool $show
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * 
  * @mixin Builder
  */
 class Role extends Model
