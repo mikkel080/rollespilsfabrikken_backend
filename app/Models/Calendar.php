@@ -6,11 +6,23 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
 use Dyrynda\Database\Support\GeneratesUuid;
 
 /**
  * Class Calendar
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $obj_id
+ * @property string $title
+ * @property string $colour
+ * @property string $description
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property string $allowed_resource
+ *
  * @mixin Builder
  */
 class Calendar extends Model
