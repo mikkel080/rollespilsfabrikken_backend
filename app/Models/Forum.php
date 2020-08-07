@@ -7,10 +7,22 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
 
 /**
  * Class Forum
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $obj_id
+ * @property string $title
+ * @property string $colour
+ * @property string $description
+ * @property int $priority
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class Forum extends Model
