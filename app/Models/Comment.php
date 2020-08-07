@@ -7,10 +7,22 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
 
 /**
  * Class Comment
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $post_id
+ * @property int $parent_id
+ * @property int $user_id
+ * @property string $body
+ * @property bool $pinned
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class Comment extends Model
