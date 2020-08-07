@@ -12,6 +12,18 @@ use Laravel\Scout\Searchable;
 
 /**
  * Class Post
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $forum_id
+ * @property int $user_id
+ * @property string $title
+ * @property string $body
+ * @property bool $pinned
+ * @property bool $locked
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ *
  * @mixin Builder
  */
 class Post extends Model
