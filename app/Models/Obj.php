@@ -6,15 +6,17 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-
-
-// Models
-//use App\Models\Permission;
-//use App\Models\Role;
-//use App\Models\User;
+use Illuminate\Support\Carbon;
 
 /**
  * Class Obj
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $type
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class Obj extends Model
