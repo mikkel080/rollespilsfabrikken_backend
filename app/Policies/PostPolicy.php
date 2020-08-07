@@ -27,11 +27,9 @@ class PostPolicy
      * @param Comment $comment
      * @return mixed
      */
-    public function pin(User $user, Comment $comment)
+    public function pin(User $user, Post $post)
     {
-        if ($comment['user_id'] == $user['id']) return true;
-
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     } // TODO: Figure out wth is going on here
 
     /**
@@ -45,7 +43,7 @@ class PostPolicy
     {
         if ($post['user_id'] == $user['id']) return true;
 
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**
