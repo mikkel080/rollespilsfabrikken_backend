@@ -7,11 +7,24 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Laravel\Scout\Searchable;
-use App\Events\Event\EventSaved;
 
 /**
  * Class Event
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $calendar_id
+ * @property int $user_id
+ * @property int $series_id
+ * @property string $title
+ * @property string $description
+ * @property string $start
+ * @property int $event_length
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class Event extends Model
