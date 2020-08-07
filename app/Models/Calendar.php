@@ -19,9 +19,9 @@ use Dyrynda\Database\Support\GeneratesUuid;
  * @property string $title
  * @property string $colour
  * @property string $description
+ * @property string $allowed_resource
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property string $allowed_resource
  *
  * @mixin Builder
  */
