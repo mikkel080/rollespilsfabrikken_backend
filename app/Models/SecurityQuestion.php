@@ -6,9 +6,19 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
- * Class Forum
+ * Class SecurityQuestion
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $question
+ * @property string $answer
+ * @property Carbon $last_answered_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class SecurityQuestion extends Model
