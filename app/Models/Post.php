@@ -35,6 +35,10 @@ class Post extends Model
         parent::boot();
 
         static::retrieved(function($model){
+            if (!auth()->user()) {
+                return;
+            }
+            
             $model->relevance = $model->getRelevance();
         });
     }
