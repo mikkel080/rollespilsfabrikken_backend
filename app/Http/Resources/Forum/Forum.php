@@ -21,6 +21,7 @@ class Forum extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'priority' => $this->priority,
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),

@@ -13,7 +13,7 @@ use App\Models\Forum;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 
 use App\Http\Resources\Comment\Comment as CommentResource;
 use App\Http\Resources\Comment\CommentCollection;
@@ -79,6 +79,12 @@ class CommentController extends Controller
      */
     public function store(Store $request, Forum $forum, Post $post)
     {
+        if ($post->locked) {
+            return response()->json([
+                'message' => 'Cannot create comments as the post is locked'
+            ], 423);
+        }
+
         $data = $request->validated();
 
         $comment = (new Comment())->fill($data);
@@ -158,7 +164,12 @@ class CommentController extends Controller
             ], 400);
         }
 
-        $comment->pinned = true;
+        if ($comment->pinned) {
+            $comment->pinned = false;
+        } else {
+            $comment->pinned = true;
+        }
+
         $comment->save();
 
         return response()->json([

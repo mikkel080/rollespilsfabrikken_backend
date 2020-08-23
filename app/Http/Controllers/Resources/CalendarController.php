@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Calendar\Index;
 use App\Http\Requests\API\Calendar\Destroy;
 use App\Http\Requests\API\Calendar\Show;
@@ -74,12 +74,16 @@ class CalendarController extends Controller
      */
     public function store(Store $request)
     {
+        $data  = $request->validated();
+
         $calendar = (new Calendar())
-            ->fill($request->validated())
+            ->fill($data)
             ->obj()
             ->associate((new Obj)->create([
                 'type' => 'calendar'
             ]));
+
+        $calendar->setAllowedResources($data['resources']['rooms'], $data['resources']['equipment']);
         $calendar->save();
 
         return response()->json([
@@ -98,7 +102,10 @@ class CalendarController extends Controller
      */
     public function update(Update $request, Calendar $calendar)
     {
-        $calendar->update( $request->validated());
+        $data = $request->validated();
+
+        $calendar->setAllowedResources($data['resources']['rooms'], $data['resources']['equipment']);
+        $calendar->update($data);
 
         return response()->json([
             'message' => 'success',

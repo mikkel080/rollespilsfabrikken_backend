@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\API\Auth\User;
+namespace App\Http\Requests\API\Resource;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class Deop extends FormRequest
+class Show extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class Deop extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('deop', $this->user);
+        return auth()->user()->can('view', $this->resource);
     }
 
     /**

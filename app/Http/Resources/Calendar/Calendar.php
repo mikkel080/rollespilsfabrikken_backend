@@ -20,6 +20,10 @@ class Calendar extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'resources' => [
+                'rooms_allowed' => $this->canUseRooms(),
+                'equipment_allowed' => $this->canUseEquipment(),
+            ],
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),
                 'can_delete' => auth()->user()->can('delete', $this->resource),

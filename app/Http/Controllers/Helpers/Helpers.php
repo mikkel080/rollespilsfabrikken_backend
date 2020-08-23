@@ -1,13 +1,15 @@
 <?php
 
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Helpers;
 
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Str;
 
 class Helpers
@@ -84,10 +86,32 @@ class Helpers
         return false;
     }
 
-    public function filterItems(FormRequest $request, Builder $models) {
-        $items = 5;
-        $sortBy = 'created_at';
-        $order  = 'asc';
+    public function filterItems(FormRequest $request, $models) {
+        $items = $request->query('items') ?? 5;
+        $items = (int)$items;
+
+        $order  = 'desc';
+        $current_page = $request->query("page") ?? 1;
+
+        if ($request->query('sort') && $request->query('sort') == 'relevance') {
+            $retrieved = $models->get()->sort(function($a, $b) {
+                if ($a->relevance == 0) {
+                    return 1;
+                }
+
+                if ($a->relevance == $b->relevance) {
+                    return 0;
+                }
+
+                return ($a->relevance < $b->relevance) ? -1 : 1;
+            })->values();
+
+            $sliced = $retrieved->slice(($current_page * $items) - $items, $items)->values();
+            return new LengthAwarePaginator($sliced, count($retrieved), $items, $current_page, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]);
+        }
 
         if ($models == null || !$models->first()) {
             return $models->paginate();
@@ -114,13 +138,8 @@ class Helpers
             $models->orderBy($request->query('sort'), $order);
         }
 
-        if ($request->query('items')) {
-            $items = $request->query('items');
-        }
-
         $models = $models->paginate($items);
         $models->appends($request->except('page'))->links();
-
         return $models;
     }
 

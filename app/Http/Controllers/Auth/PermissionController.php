@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Auth\Permission\IndexCalendar;
 use App\Http\Requests\API\Auth\Permission\IndexForum;
 use App\Http\Resources\Permission\PermissionWithRoles;

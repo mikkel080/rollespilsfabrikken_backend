@@ -6,9 +6,19 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
- * Class Post
+ * Class PostFile
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int $post_id
+ * @property string $name
+ * @property string $saved_name
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @mixin Builder
  */
 class PostFile extends Model
@@ -21,7 +31,8 @@ class PostFile extends Model
 
     protected $fillable = [
         'name',
-        'saved_name'
+        'saved_name',
+        'file_size'
     ];
 
     public function getRouteKeyName()

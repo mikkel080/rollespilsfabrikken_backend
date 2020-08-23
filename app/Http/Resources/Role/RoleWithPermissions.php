@@ -18,6 +18,7 @@ class RoleWithPermissions extends JsonResource
             'id' => $this->uuid,
             'title' => $this->title,
             'color' => $this->color,
+            'show' => $this->show,
             'role_permissions' => Permission::collection($this->permissions),
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),

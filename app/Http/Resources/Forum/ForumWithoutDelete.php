@@ -21,6 +21,7 @@ class ForumWithoutDelete extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'priority' => $this->priority,
         ];
     }
 }

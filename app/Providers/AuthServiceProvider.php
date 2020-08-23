@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\Forum;
 use App\Models\Permission;
 use App\Models\Post;
+use App\Models\Resource;
 use App\Models\Role;
 use App\Models\RolePerm;
 use App\Models\SecurityQuestion;
@@ -18,6 +19,7 @@ use App\Policies\EventPolicy;
 use App\Policies\ForumPolicy;
 use App\Policies\PermissionPolicy;
 use App\Policies\PostPolicy;
+use App\Policies\ResourcePolicy;
 use App\Policies\RolePermPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\SecurityQuesitonPolicy;
@@ -47,7 +49,8 @@ class AuthServiceProvider extends ServiceProvider
         Role::class             => RolePolicy::class,
         RolePerm::class         => RolePermPolicy::class,
         User::class             => UserPolicy::class,
-        SecurityQuestion::class => SecurityQuesitonPolicy::class
+        SecurityQuestion::class => SecurityQuesitonPolicy::class,
+        Resource::class         => ResourcePolicy::class,
     ];
 
     /**

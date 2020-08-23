@@ -20,6 +20,10 @@ class CalendarWithEvents extends JsonResource
             'name' => $this->title,
             'description' => $this->description,
             'colour' => $this->colour,
+            'resources' => [
+                'rooms_allowed' => $this->canUseRooms(),
+                'equipment_allowed' => $this->canUseEquipment(),
+            ],
             'events' => $this->events()->count(),
             'permissions' => [
                 'can_update' => auth()->user()->can('update', $this->resource),

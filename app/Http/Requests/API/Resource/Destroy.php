@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\API\Auth\User;
+namespace App\Http\Requests\API\Resource;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class Unban extends FormRequest
+class Destroy extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class Unban extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('unban', $this->user);
+        return auth()->user()->can('delete', $this->resource);
     }
 
     /**

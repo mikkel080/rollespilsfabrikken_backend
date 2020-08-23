@@ -27,7 +27,10 @@ class Store extends FormRequest
         return [
             'title' => 'required|string',
             'description' => 'string',
-            'colour' => 'required|string'
+            'colour' => 'required|string',
+            'resources' => 'required|array',
+            'resources.rooms' => 'required|bool',
+            'resources.equipment' => 'required|bool',
         ];
     }
 }

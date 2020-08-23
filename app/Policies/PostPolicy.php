@@ -21,17 +21,29 @@ class PostPolicy
     }
 
     /**
-     * Determine whether the user can pin the comment.
+     * Determine whether the user can pin the post.
      *
      * @param User $user
      * @param Comment $comment
      * @return mixed
      */
-    public function pin(User $user, Comment $comment)
+    public function pin(User $user, Post $post)
     {
-        if ($comment['user_id'] == $user['id']) return true;
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
+    } // TODO: Figure out wth is going on here
 
-        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 5);
+    /**
+     * Determine whether the user can lock the post.
+     *
+     * @param User $user
+     * @param Post $post
+     * @return mixed
+     */
+    public function lock(User $user, Post $post)
+    {
+        if ($post['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->checkLevel($user,  $post->forum['obj_id'], 5);
     }
 
     /**

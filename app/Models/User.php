@@ -8,10 +8,27 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $username
+ * @property string $email
+ * @property string $password
+ * @property string $avatar
+ * @property string $activation_token
+ * @property string $remember_token
+ * @property bool $active
+ * @property bool $super_user
+ * @property Carbon $email_verified_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon $deleted_at
+ *
  * @mixin Builder
  */
 class User extends Authenticatable implements CanResetPassword
@@ -85,11 +102,7 @@ class User extends Authenticatable implements CanResetPassword
 
         return $perms->unique()->values()->all();
     }
-
-    /* public function info() {
-        return $this->hasOne('App\Model\UserInfo');
-    } */
-
+    
     public function posts() {
         return $this->hasMany('App\Models\Post');
     }

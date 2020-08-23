@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Helpers;
+use App\Http\Controllers\Helpers\Helpers;
 use App\Http\Requests\API\Forum\Destroy;
 use App\Http\Requests\API\Forum\Index;
 use App\Http\Requests\API\Forum\Show;

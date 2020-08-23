@@ -106,12 +106,10 @@ Route::group([
     Route::delete('/{user}',    'UserController@destroy');
 
     // Restrict access to forum without deleting user
-    Route::post('/{user}/ban',  'UserController@ban');
-    Route::post('/{user}/unban','UserController@unban');
+    Route::post('/{user}/ban',  'UserAttributeController@ban');
 
     // Op to superuser
-    Route::post('/{user}/op',  'UserController@op');
-    Route::post('/{user}/deop','UserController@deop');
+    Route::post('/{user}/op',  'UserAttributeController@op');
 
     // Reset user
     Route::post('/{user}/reset',    'UserController@reset');
@@ -139,14 +137,29 @@ Route::group([
     Route::apiResource('forum.post.comment',    'CommentController');
     Route::apiResource('calendar',              'CalendarController');
     Route::apiResource('calendar.event',        'EventController');
+    Route::apiResource('resource',              'ResourceController');
     Route::get('/events',                       'EventController@all');
 
     // Pin posts
-    Route::post('/forum/{forum}/post/{post}/pin',                   'PostController@pin');
+    Route::post('/forum/{forum}/post/{post}/pin',                   'PostAttributeController@pin');
+
+    // Lock posts
+    Route::post('/forum/{forum}/post/{post}/lock',                   'PostAttributeController@lock');
+
+    // Pin comments
     Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
 
     // Get posts file
-    Route::post('/forum/{forum}/post/{post}/file',                  'PostController@file');
-    Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostController@getFile');
+    Route::post('/forum/{forum}/post/{post}/file',                  'PostFileController@file');
+    Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostFileController@getFile');
+
+    // Get newest posts
     Route::get('/post',                                             'PostController@newest');
+
+    // Check for event availability regarding both rooms, vehicles and times.
+    Route::post('/calendar/{calendar}/event/check', 'EventController@check');
+
+    // Forum priorities
+    Route::put('/forums/priorities', 'ForumPriorityController@priorities');
+    Route::put('/forum/{forum}/priority', 'ForumPriorityController@priority');
 });
