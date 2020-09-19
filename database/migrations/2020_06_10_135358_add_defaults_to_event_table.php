@@ -13,7 +13,9 @@ class AddDefaultsToEventTable extends Migration
      */
     public function up()
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE `events` ALTER `description` SET DEFAULT ''");
+	Schema::table('events', function (Blueprint $table) {
+            $table->text('description')->nullable(true)->change();
+        });
     }
 
     /**

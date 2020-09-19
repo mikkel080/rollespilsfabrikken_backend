@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+	$schedule->command('queue:work --tries=3 --stop-when-empty')
+            ->everyMinute();
     }
 
     /**

@@ -17,7 +17,7 @@ class CreateResourcesTable extends Migration
             $table->bigIncrements('id');
             $table->efficientUuid('uuid')->index();
             $table->string('name');
-            $table->text('description')->default('');
+            $table->text('description')->nullable(true);
             $table->enum('type', ['room', 'equipment']);
             $table->timestamps();
         });
