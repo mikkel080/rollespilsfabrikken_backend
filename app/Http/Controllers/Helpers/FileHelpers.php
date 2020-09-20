@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 
 class FileHelpers
 {
+    public const uploadPath = 'uploads\\';
+
     public static function savePostFile(UploadedFile $file, Post $post) {
         $dbFile = self::saveToDb($file);
 
@@ -60,6 +62,6 @@ class FileHelpers
         $fileContent = $file->get();
         $encryptedContent = encrypt($fileContent);
 
-        Storage::put('post_uploads\\' . $name, $encryptedContent);
+        Storage::put(self::uploadPath . $name, $encryptedContent);
     }
 }

@@ -25,7 +25,7 @@ class CommentFileController extends Controller
                 $existingFile = $comment->files()->where('name', '=', $file->getClientOriginalName())->first();
 
                 if ($existingFile) {
-                    Storage::delete('post_uploads\\' .$existingFile->saved_name);
+                    Storage::delete(FileHelpers::uploadPath .$existingFile->saved_name);
                     $existingFile->delete();
                 }
 
@@ -41,7 +41,7 @@ class CommentFileController extends Controller
                     continue;
                 }
 
-                Storage::delete('post_uploads\\' . $file->saved_name);
+                Storage::delete(FileHelpers::uploadPath . $file->saved_name);
                 $file->delete();
             }
         }
@@ -54,7 +54,7 @@ class CommentFileController extends Controller
 
     public function getFile(DownloadFile $request, Forum $forum, Post $post, Comment $comment, File $file) {
         try {
-            $contents = Storage::get('post_uploads\\' . $file->saved_name);
+            $contents = Storage::get(FileHelpers::uploadPath . $file->saved_name);
         } catch (FileNotFoundException $e) {
             return response()->json([
                 'message' => 'Could not find file, it might have been deleted'
