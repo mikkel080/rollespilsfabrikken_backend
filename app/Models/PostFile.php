@@ -12,10 +12,8 @@ use Illuminate\Support\Carbon;
  * Class PostFile
  *
  * @property int $id
- * @property string $uuid
  * @property int $post_id
- * @property string $name
- * @property string $saved_name
+ * @property int $file_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -23,24 +21,11 @@ use Illuminate\Support\Carbon;
  */
 class PostFile extends Model
 {
-    use GeneratesUuid;
-
-    protected $casts = [
-        'uuid' => EfficientUuid::class,
-    ];
-
-    protected $fillable = [
-        'name',
-        'saved_name',
-        'file_size'
-    ];
-
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
     public function post() {
         return $this->belongsTo('App\Models\Post');
+    }
+
+    public function file() {
+        return $this->belongsTo('App\Models\File');
     }
 }

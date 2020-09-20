@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Helpers;
 
 
+use App\Models\File;
 use App\Models\Post;
 use App\Models\PostFile;
 use Illuminate\Http\UploadedFile;
@@ -11,24 +12,39 @@ use Illuminate\Support\Facades\Storage;
 
 class FileHelpers
 {
-    public static function saveFile(UploadedFile $file, Post $post) {
-        $fileContent = $file->get();
-        $encryptedContent = encrypt($fileContent);
+    public static function savePostFile(UploadedFile $file, Post $post) {
+        $dbFile = self::saveToDb($file);
 
-        $postFile = (new PostFile)->fill([
+        $postFile = (new PostFile);
+        $postFile->file()->associate($dbFile);
+        $postFile->post()->associate($post);
+        $postFile->save();
+
+        self::saveFile($file,  $dbFile->saved_name);
+
+        return $dbFile;
+    }
+
+    private static function saveToDb(UploadedFile $file) : File {
+        $dbFile = (new File)->fill([
             'name' => $file->getClientOriginalName(),
             'saved_name' => 'tmp',
             'file_size' => $file->getSize()
         ]);
 
-        $post->files()->save($postFile);
+        $dbFile->save();
+        $dbFile = $dbFile->refresh();
 
-        $name = $postFile->refresh()->uuid . '.dat';
+        $dbFile->saved_name = $dbFile->uuid . '.dat';
+        $dbFile->save();
+
+        return $dbFile;
+    }
+
+    private static function saveFile(UploadedFile $file, String $name) {
+        $fileContent = $file->get();
+        $encryptedContent = encrypt($fileContent);
+
         Storage::put('post_uploads\\' . $name, $encryptedContent);
-
-        $postFile->saved_name = $name;
-        $postFile->save();
-
-        return $postFile;
     }
 }

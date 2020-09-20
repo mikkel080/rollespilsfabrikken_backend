@@ -5,17 +5,16 @@ namespace App\Providers;
 use App\Models\Calendar;
 use App\Models\Comment;
 use App\Models\Event;
+use App\Models\File;
 use App\Models\Forum;
 use App\Models\Obj;
 use App\Models\Permission;
 use App\Models\Post;
-use App\Models\PostFile;
 use App\Models\Resource;
 use App\Models\Role;
 use App\Models\SecurityQuestion;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
@@ -93,7 +92,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('file', function ($model) {
-            return (new PostFile)->whereUuid($model)->first();
+            return (new File)->whereUuid($model)->first();
         });
 
         Route::bind('resource', function ($model) {

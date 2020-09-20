@@ -38,7 +38,7 @@ class Post extends Model
             if (!auth()->user()) {
                 return;
             }
-            
+
             $model->relevance = $model->getRelevance();
         });
     }
@@ -93,7 +93,7 @@ class Post extends Model
     }
 
     public function files() {
-        return $this->hasMany('App\Models\PostFile');
+        return $this->hasManyThrough('App\Models\File', 'App\Models\PostFile', 'post_id', 'id', 'id', 'file_id');
     }
 
     public function getThreadedComments() {

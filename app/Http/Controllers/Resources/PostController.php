@@ -142,7 +142,7 @@ class PostController extends Controller
 
         if ($request->hasFile(('files'))) {
             foreach ($request->file('files') as $file) {
-                FileHelpers::saveFile($file, $post);
+                FileHelpers::savePostFile($file, $post->refresh());
             }
         }
 
