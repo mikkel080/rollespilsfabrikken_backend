@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
-use App\Http\Resources\PostFile\PostFile as PostFileResource;
+use App\Http\Resources\PostFile\CommentFile as PostFileResource;
 use App\Models\Comment;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\User\User as UserResource;

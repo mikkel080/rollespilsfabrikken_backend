@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Helpers\FileHelpers;
 use App\Http\Requests\API\Comment\Index;
 use App\Http\Requests\API\Comment\Pin;
 use App\Http\Requests\API\Comment\Show;
@@ -103,6 +104,12 @@ class CommentController extends Controller
         }
 
         $post->comments()->save($comment);
+
+        if ($request->hasFile(('files'))) {
+            foreach ($request->file('files') as $file) {
+                FileHelpers::saveCommentFile($file, $comment->refresh());
+            }
+        }
 
         return response()->json( [
             'message' => 'success',

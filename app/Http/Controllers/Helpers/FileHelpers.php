@@ -4,6 +4,8 @@
 namespace App\Http\Controllers\Helpers;
 
 
+use App\Models\Comment;
+use App\Models\CommentFile;
 use App\Models\File;
 use App\Models\Post;
 use App\Models\PostFile;
@@ -19,6 +21,19 @@ class FileHelpers
         $postFile->file()->associate($dbFile);
         $postFile->post()->associate($post);
         $postFile->save();
+
+        self::saveFile($file,  $dbFile->saved_name);
+
+        return $dbFile;
+    }
+
+    public static function saveCommentFile(UploadedFile $file, Comment $comment) {
+        $dbFile = self::saveToDb($file);
+
+        $commentFile = (new CommentFile);
+        $commentFile->file()->associate($dbFile);
+        $commentFile->comment()->associate($comment);
+        $commentFile->save();
 
         self::saveFile($file,  $dbFile->saved_name);
 

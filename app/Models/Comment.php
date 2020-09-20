@@ -51,6 +51,10 @@ class Comment extends Model
         return $array;
     }
 
+    public function files() {
+        return $this->hasManyThrough('App\Models\File', 'App\Models\CommentFile', 'comment_id', 'id', 'id', 'file_id');
+    }
+
     public function getRouteKeyName()
     {
         return 'uuid';

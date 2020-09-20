@@ -43,4 +43,8 @@ class File extends Model
     public function posts() {
         return $this->hasManyThrough('App\Models\Post', 'App\Models\PostFile');
     }
+
+    public function comments() {
+        return $this->hasManyThrough('App\Models\Comment', 'App\Models\PostFile');
+    }
 }

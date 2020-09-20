@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Comment;
 
 use App\Http\Resources\Comment\CommentWithChildComments as CommentResource;
+use App\Http\Resources\CommentFile\CommentFile as CommentFileResource;
 use App\Http\Resources\User\User as UserResource;
 use App\Models\User;
 use App\Models\Comment;
@@ -25,6 +26,7 @@ class CommentWithChildComments extends JsonResource
             }),
             'user' => new UserResource((new User)->find($this->user_id)),
             'body' => $this->body,
+            'files' => $this->when($this->files, CommentFileResource::collection($this->files)),
             'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

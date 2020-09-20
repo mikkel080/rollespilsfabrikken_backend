@@ -4,7 +4,7 @@ namespace App\Http\Resources\Comment;
 
 use App\Models\Comment as CommentClass;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\Comment\Comment as CommentResource;
+use App\Http\Resources\CommentFile\CommentFile as CommentFileResource;
 
 class Comment extends JsonResource
 {
@@ -23,6 +23,7 @@ class Comment extends JsonResource
                 return $this->parent->uuid;
             }),
             'body' => $this->body,
+            'files' => $this->when($this->files, CommentFileResource::collection($this->files)),
             'pinned' => $this->pinned,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Comment;
 use App\Models\Forum;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -42,6 +43,31 @@ class CommentPolicy
         return (new PolicyHelper())->checkLevel($user,  $comment->forum()['obj_id'], 2);
     }
 
+    /**
+     * Determine whether the user can view the file attached to a comment.
+     *
+     * @param User $user
+     * @param Comment $comment
+     * @return mixed
+     */
+    public function downloadFile(User $user, Comment $comment)
+    {
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 2);
+    }
+
+    /**
+     * Determine whether the user can add files the comment.
+     *
+     * @param User $user
+     * @param Comment $comment
+     * @return mixed
+     */
+    public function addFile(User $user, Comment $comment)
+    {
+        if ($comment['user_id'] == $user['id']) return true;
+
+        return (new PolicyHelper())->checkLevel($user,  $comment->forum['obj_id'], 3);
+    }
     /**
      * Determine whether the user can create comments.
      *

@@ -25,7 +25,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Resources\Post\Post as PostResource;
-use App\Http\Resources\PostFile\PostFile as PostFileResource;
+use App\Http\Resources\PostFile\CommentFile as PostFileResource;
 use App\Http\Resources\Post\PostCollection as PostCollection;
 use App\Http\Resources\Post\PostWithUser as PostWithUserResource;
 use Illuminate\Http\UploadedFile;

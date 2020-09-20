@@ -149,9 +149,13 @@ Route::group([
     // Pin comments
     Route::post('/forum/{forum}/post/{post}/comment/{comment}/pin', 'CommentController@pin');
 
-    // Get posts file
+    // Post files
     Route::post('/forum/{forum}/post/{post}/file',                  'PostFileController@file');
     Route::get('/forum/{forum}/post/{post}/file/{file}',            'PostFileController@getFile');
+
+    // Comment files
+    Route::post('/forum/{forum}/post/{post}/comment/{comment}/file',      'CommentFileController@file');
+    Route::get('/forum/{forum}/post/{post}/comment/{comment}/file/{file}','CommentFileController@getFile');
 
     // Get newest posts
     Route::get('/post',                                             'PostController@newest');
