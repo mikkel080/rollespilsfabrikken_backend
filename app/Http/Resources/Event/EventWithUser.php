@@ -25,7 +25,7 @@ class EventWithUser extends JsonResource
         return [
             'id' => $this['uuid'],
             'title' => $this['title'],
-            'description' => $this['description'],
+            'description' => isset($this['description']) ? $this['description'] : '',
             'start' => $this['start'],
             'end' => $this['end'],
             'resources' => ResourceResource::collection($event->resources),

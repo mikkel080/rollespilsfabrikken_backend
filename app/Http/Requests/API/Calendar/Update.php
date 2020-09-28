@@ -27,9 +27,9 @@ class Update extends FormRequest
             'title' => 'required|string',
             'description' => 'string',
             'colour' => 'required|string',
-            'resources' => 'required|array',
-            'resources.rooms' => 'required|bool',
-            'resources.equipment' => 'required|bool',
+            'resources' => 'array',
+            'resources.rooms' => 'bool',
+            'resources.equipment' => 'bool',
         ];
     }
 }

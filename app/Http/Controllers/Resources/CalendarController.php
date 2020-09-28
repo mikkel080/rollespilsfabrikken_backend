@@ -83,7 +83,19 @@ class CalendarController extends Controller
                 'type' => 'calendar'
             ]));
 
-        $calendar->setAllowedResources($data['resources']['rooms'], $data['resources']['equipment']);
+	if (isset($data['resources']['rooms'])) {
+            $rooms = $data['resources']['rooms'];
+        } else {
+            $rooms = false;
+        }
+
+        if (isset($data['resources']['equipment'])) {
+            $equipment = $data['resources']['equipment'];
+        } else {
+            $equipment = false;
+        }
+
+        $calendar->setAllowedResources($rooms, $equipment);
         $calendar->save();
 
         return response()->json([
@@ -104,7 +116,19 @@ class CalendarController extends Controller
     {
         $data = $request->validated();
 
-        $calendar->setAllowedResources($data['resources']['rooms'], $data['resources']['equipment']);
+	if (isset($data['resources']['rooms'])) {
+            $rooms = $data['resources']['rooms'];
+        } else {
+            $rooms = false;
+        }
+
+        if (isset($data['resources']['equipment'])) {
+            $equipment = $data['resources']['equipment'];
+        } else {
+            $equipment = false;
+        }
+
+        $calendar->setAllowedResources($rooms, $equipment);
         $calendar->update($data);
 
         return response()->json([

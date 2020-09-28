@@ -26,7 +26,7 @@ class Event extends JsonResource
         return [
             'id' => $this['uuid'],
             'title' => $this['title'],
-            'description' => $this['description'],
+            'description' => isset($this['description']) ? $this['description'] : '',
             'start' => $this['start'],
             'end' => $this['end'],
             'parent' => new CalendarWithoutDelete(Calendar::find($this['calendar_id'])),
