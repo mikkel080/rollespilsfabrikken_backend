@@ -45,7 +45,7 @@ class EventHelpers
 
         // Check if date is after repetition end
         if ($event['repeat_end'] != null) {
-            $end = Carbon::parse($event['repeat_end']);
+            $end = Carbon::createFromTimestamp($event['repeat_end']);
 
             if ($end->timestamp < $timestamp) {
                 return false;
