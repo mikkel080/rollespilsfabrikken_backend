@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  rfab-web:
+    depends_on:
+      - rfab-db
+    build: .
+    ports:
+      - 8000:80
+    links:
+      - "rfab-db:db"
+  rfab-db:
+    image: mysql:latest
+    container_name: rfab-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - rfab-dbdata:/var/lib/mysql
+volumes:
+  rfab-dbdata:
+
