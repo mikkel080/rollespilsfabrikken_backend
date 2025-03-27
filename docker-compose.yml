@@ -6,7 +6,7 @@ services:
       - rfab-db
     build: .
     ports:
-      - 8000:80
+      - 8000:8000
     links:
       - "rfab-db:db"
   rfab-db:
